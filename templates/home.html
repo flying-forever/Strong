@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block active_home %} btn-primary {% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-2">
+        <img src="{{ url_for('static', filename='img/风景-小屋.jpg') }}" class="img-fluid rounded-circle" alt="头像">
+    </div>
+    <div class="col">
+        {% if user %}
+            <h2>{{ user.name }}</h2>
+            <h3>{{ user.exp }} <small><small>总经验</small></small></h3>
+        {% else %}
+            <p>未登录</p>
+        {% endif %} 
+    </div>
+</div>
+<hr>
+{% endblock %}

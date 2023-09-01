@@ -1,0 +1,17 @@
+{% extends 'task.html' %}
+
+{% block content %}
+<form method="post">
+    {{ form.csrf_token }}
+    <div class="form-group">
+        {{ form.name.label }}
+        {{ form.name(class='form-control') }}
+    </div>
+    <div class="form-group">
+        {{ form.exp.label }}
+        {{ form.exp(class='form-control') }}
+    </div>
+    {{ form.submit(class='btn btn-primary')}}
+    <a class="btn btn-secondary" href="{{ url_for('task') }}" role="botten">取消</a>
+</form>
+{% endblock %}

@@ -1,0 +1,61 @@
+<html>
+
+<head>
+    {% block head %}
+    {% block title %}<title> Strong </title>{% endblock %}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.3.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    {% endblock head %}
+</head>
+
+<body>
+
+    {# 1 上导航栏 #}
+    {% block navigation %}
+    <!-- Image and text -->
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='img/饥荒头像.png') }}" width="30" height="30"
+                class="d-inline-block align-top" alt="">
+            Strong
+        </a>
+    </nav>
+    {% endblock %}
+
+    {% block contain %}
+    <div class="container-fluid">
+        <div class="row">
+
+            {# 2 侧栏 #}
+            <div class="col-1">
+                {% block sidebar %}
+                <div class="btn-group-vertical" role="group" aria-label="Basic example">
+                    <a href="{{ url_for('home') }}" role="button"
+                        class="btn {% block active_home %}{% endblock %}">Home</a>
+                    <a href="{{ url_for('task') }}" role="button"
+                        class="btn {% block active_task %}{% endblock %}">Task</a>
+                </div>
+                {% endblock sidebar %}
+            </div>
+
+            {# 3 面板 #}
+            <div class="col">
+
+                {% block content %}
+                <p> Hello, welcome to add some content for here! </p>
+                {% endblock %}
+
+                {# 4 消息闪现-下部 #}
+                {% for message in get_flashed_messages() %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+    {% endblock %}
+
+</body>
+
+</html>

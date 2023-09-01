@@ -1,0 +1,25 @@
+{% extends 'task.html' %}
+
+{% block content %}
+<form method="post">
+
+    {# 任务信息 #}
+    <div class="form-group">
+        任务名:
+        {{ task.name }}
+    </div>
+    <div class="form-group">
+        经验值:
+        {{ task.exp }}
+    </div>
+
+    {# 表单控件 #}
+    {{ form.csrf_token }}
+    <div class="form-group">
+        {{ form.describe.label }}
+        {{ form.describe(class='form-control') }}
+    </div>
+    {{ form.submit(class='btn btn-primary') }}
+    <a class="btn btn-secondary" href="{{ url_for('task_doing') }}" role="botten">取消</a>
+</form>
+{% endblock %}
