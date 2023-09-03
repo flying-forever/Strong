@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block contain %}
+<div class="container-fluid">
+    <h2>登录</h2>
+    <form method="post">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.username.label }}
+            {{ form.username(class='form-control') }}
+        </div>
+        <div class="form-group">
+            {{ form.password.label }}
+            {{ form.password(class='form-control') }}
+        </div>
+        {{ form.submit(class='btn btn-primary') }}
+        <a class="btn btn-secondary" href="#" role="button">去注册</a>
+    </form>
+    {# 4 消息闪现-下部 #}
+    {% for message in get_flashed_messages() %}
+    <p>{{ message }}</p>
+    {% endfor %}
+</div>
+{% endblock %}

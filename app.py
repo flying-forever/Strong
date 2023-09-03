@@ -2,12 +2,16 @@ from flask import Flask, render_template, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-from forms import TaskForm, TaskSubmitForm
+from forms import TaskForm, TaskSubmitForm, LoginForm
 
 
 # 应对服务器上的bug：_mysql is not defined
 import pymysql
 pymysql.install_as_MySQLdb()
+
+
+# ------------------------------ 一、配置实例 ------------------------------ #
+
 
 # 创建数据库实例
 db = SQLAlchemy()
@@ -27,14 +31,21 @@ migrate.init_app(app, db)
 # 导入数据模型，供视图函数使用
 from models import Task, User
 
+
+# ------------------------------ 二、回调函数 ------------------------------ #
+
+
 # 自动登录内置用户
-@app.before_request
-def login():
-    """@注意：如果数据库里没有用户，则会报错"""
-    user = User.query.first()
-    session['uid'] = user.id
-    session['uname'] = user.name
-    print(f"已登录用户{user}")
+# @app.before_request
+# def login():
+#     """@注意：如果数据库里没有用户，则会报错"""
+#     user = User.query.first()
+#     session['uid'] = user.id
+#     session['uname'] = user.name
+#     print(f"已登录用户{user}")
+
+
+# ------------------------------ 三、用户模块 ------------------------------ #
 
 
 @app.route('/')
@@ -47,6 +58,43 @@ def index():
 def home():
     user = User.query.get(session['uid'])
     return render_template('home.html', user=user)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User(name=form.username.data, password=form.password.data)
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash('注册成功！')
+            return redirect(url_for('login'))
+        except Exception as e:
+            flash("该用户名已存在！请重新为自己构思一个独特的用户名吧！")
+    return render_template('register.html', form=form)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        # 验证用户名和密码以完成登录
+        user = User.query.filter_by(name=form.username.data).first()
+        if (user is not None) and (form.password.data == user.password):
+            # 登录成功
+            session['uid'] = user.id
+            session['uname'] = user.name
+            return redirect(url_for('home'))
+        else:
+            flash("用户名或密码错误！")
+    return render_template('login.html', form=form)
+
+
+
+
+
+# ------------------------------ 四、任务模块 ------------------------------ #
 
 
 @app.route('/task')

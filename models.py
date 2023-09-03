@@ -24,7 +24,7 @@ class Task(db.Model):
 class User(db.Model):
     """用户模型"""
     id = db.Column(db.Integer, primary_key=True) # 用户编号
-    name = db.Column(db.String(64), nullable=False) # 用户昵称
+    name = db.Column(db.String(64), nullable=False, unique=True) # 用户昵称
     password = db.Column(db.String(64), nullable=False) # 登录密码
     exp = db.Column(db.Integer, nullable=False, default=0) # 该用户总经验值
 

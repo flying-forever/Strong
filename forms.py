@@ -15,3 +15,11 @@ class TaskSubmitForm(FlaskForm):
     describe = StringField(label='完成效果', validators=[DataRequired('不能为空')])
     submit = SubmitField(label='确定')
     
+
+class LoginForm(FlaskForm):
+    """
+    登录表单
+    - 注：暂时复用为注册表单，后期可能要改"""
+    username = StringField(label='用户名', validators=[DataRequired('不能为空')])
+    password = StringField(label='密码', validators=[DataRequired('不能为空')])
+    submit = SubmitField(label='确定')
