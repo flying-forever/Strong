@@ -14,6 +14,9 @@ class Task(db.Model):
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     time_finish = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    uid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', back_populates='tasks')
+
     def __str__(self) -> str:
         return f"<Task name='{self.name}' exp={self.exp}>"
 
@@ -26,6 +29,8 @@ class User(db.Model):
     exp = db.Column(db.Integer, nullable=False, default=0) # 该用户总经验值
 
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) # 账号创建时间
+
+    tasks = db.relationship('Task', back_populates='user')
 
     def __str__(self) -> str:
         return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
