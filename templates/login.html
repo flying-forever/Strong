@@ -14,7 +14,7 @@
             {{ form.password(class='form-control') }}
         </div>
         {{ form.submit(class='btn btn-primary') }}
-        <a class="btn btn-secondary" href="#" role="button">去注册</a>
+        <a class="btn btn-secondary" href="{{ url_for('register') }}" role="button">去注册</a>
     </form>
     {# 4 消息闪现-下部 #}
     {% for message in get_flashed_messages() %}

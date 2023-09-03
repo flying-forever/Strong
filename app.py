@@ -91,7 +91,12 @@ def login():
     return render_template('login.html', form=form)
 
 
-
+@app.route('/logout')
+def logout():
+    """退出登录"""
+    session['uid'] = None
+    session['uname'] = None
+    return redirect(url_for('login'))
 
 
 # ------------------------------ 四、任务模块 ------------------------------ #
