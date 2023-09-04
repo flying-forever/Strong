@@ -127,14 +127,14 @@ def task():
 @app.route('/task/doing/')
 @login_required
 def task_doing():
-    tasks = Task.query.all()
+    tasks = Task.query.filter_by(uid=session['uid']).all()
     return render_template('task_doing.html', tasks=tasks)
 
 
 @app.route('/task/done/')
 @login_required
 def task_done():
-    tasks = Task.query.all()
+    tasks = Task.query.filter_by(uid=session['uid']).all()
     return render_template('task_done.html', tasks=tasks)
 
 
@@ -144,7 +144,7 @@ def task_create():
     form = TaskForm()
     if form.validate_on_submit():
 
-        task = Task(name=form.name.data, exp=form.exp.data)
+        task = Task(name=form.name.data, exp=form.exp.data, uid=session['uid'])
 
         db.session.add(task)
         db.session.commit()
