@@ -2,6 +2,8 @@ from flask import Flask, render_template, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+from functools import wraps
+
 from forms import TaskForm, TaskSubmitForm, LoginForm
 
 
@@ -32,17 +34,29 @@ migrate.init_app(app, db)
 from models import Task, User
 
 
-# ------------------------------ 二、回调函数 ------------------------------ #
+# ------------------------------ 二、功能函数 ------------------------------ #
 
 
-# 自动登录内置用户
-# @app.before_request
-# def login():
-#     """@注意：如果数据库里没有用户，则会报错"""
-#     user = User.query.first()
-#     session['uid'] = user.id
-#     session['uname'] = user.name
-#     print(f"已登录用户{user}")
+@app.before_first_request
+def first():
+    """初始化session，防止出现KeyError。"""
+    session['uid'] = None
+    session['uname'] = None
+
+
+# 装饰器：要求视图函数登录才能访问
+def login_required(func):
+    """装饰器：要求视图函数登录才能访问"""
+
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        print('this is decorated')
+        if session['uid'] is None:
+            flash('请先登录！')
+            return redirect(url_for('login'))
+        return func(*args, **kwargs)
+
+    return decorated
 
 
 # ------------------------------ 三、用户模块 ------------------------------ #
@@ -55,7 +69,9 @@ def index():
 
 
 @app.route('/home')
+@login_required
 def home():
+    print('this is home')
     user = User.query.get(session['uid'])
     return render_template('home.html', user=user)
 
@@ -109,18 +125,21 @@ def task():
 
 
 @app.route('/task/doing/')
+@login_required
 def task_doing():
     tasks = Task.query.all()
     return render_template('task_doing.html', tasks=tasks)
 
 
 @app.route('/task/done/')
+@login_required
 def task_done():
     tasks = Task.query.all()
     return render_template('task_done.html', tasks=tasks)
 
 
 @app.route('/task/create/', methods=['GET', 'POST'])
+@login_required
 def task_create():
     form = TaskForm()
     if form.validate_on_submit():
@@ -136,6 +155,7 @@ def task_create():
 
 
 @app.route('/task/submit/<int:task_id>', methods=['GET', 'POST'])
+@login_required
 def task_submit(task_id):
     form = TaskSubmitForm()
     task = Task.query.get(task_id)
@@ -158,6 +178,7 @@ def task_submit(task_id):
 
 
 @app.route('/task/delete/<int:task_id>')
+@login_required
 def task_delete(task_id):
     task = Task.query.get(task_id)
     db.session.delete(task)
