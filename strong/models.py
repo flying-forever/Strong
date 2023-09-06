@@ -13,6 +13,7 @@ class Task(db.Model):
 
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     time_finish = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    use_minute = db.Column(db.Integer, nullable=False, default=0) # 完成任务耗时（分钟）
 
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', back_populates='tasks')

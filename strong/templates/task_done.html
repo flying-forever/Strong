@@ -10,6 +10,7 @@
             <th scope="col">任务名</th>
             <th scope="col">经验值</th>
             <th scope="col">完成时间</th>
+            <th scope="col">耗时</th>
             <th scope="col">完成描述</th>
             <th scope="col">操作</th>
         </tr>
@@ -21,6 +22,7 @@
             <td>{{ task.name }}</td>
             <td>{{ task.exp }}</td>
             <td>{{ task.time_finish + datetime.timedelta(hours=8) }}</td>
+            <td>{{ Time(minutes=task.use_minute) }}</td>
             <td>{{ task.describe }}</td>
             <td>
                 <a class="btn btn-success btn-sm" href="{{ url_for('task_submit', task_id=task.id) }}"

@@ -3,6 +3,7 @@ import datetime
 from flask import render_template, flash, redirect, url_for, session
 
 from strong.callbacks import login_required
+from strong.utils import Time
 from strong.forms import TaskForm, TaskSubmitForm, LoginForm
 from strong.models import User, Task
 from strong import app, db
@@ -83,7 +84,7 @@ def task_doing():
 @login_required
 def task_done():
     tasks = Task.query.filter_by(uid=session['uid']).all()
-    return render_template('task_done.html', tasks=tasks, datetime=datetime)
+    return render_template('task_done.html', tasks=tasks, datetime=datetime, Time=Time)
 
 
 @app.route('/task/create/', methods=['GET', 'POST'])
@@ -115,6 +116,7 @@ def task_submit(task_id):
             user.exp += task.exp
             db.session.commit()
 
+        task.use_minute = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
         task.describe = form.describe.data
         task.is_finish = True # 表示任务已经完成
         db.session.commit()
