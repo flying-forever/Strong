@@ -1,0 +1,2 @@
+SQLALCHEMY_DATABASE_URI = 'mysql://root:d30050305@127.0.0.1:3306/strong'
+SECRET_KEY = 'qfmz'

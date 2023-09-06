@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app import db
+from strong import db
 
 class Task(db.Model):
     """任务模型"""

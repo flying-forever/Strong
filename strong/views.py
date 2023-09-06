@@ -1,65 +1,12 @@
-from flask import Flask, render_template, flash, redirect, url_for, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask import render_template, flash, redirect, url_for, session
 
-from functools import wraps
-
-from forms import TaskForm, TaskSubmitForm, LoginForm
-
-
-# 应对服务器上的bug：_mysql is not defined
-import pymysql
-pymysql.install_as_MySQLdb()
+from strong.callbacks import login_required
+from strong.forms import TaskForm, TaskSubmitForm, LoginForm
+from strong.models import User, Task
+from strong import app, db
 
 
-# ------------------------------ 一、配置实例 ------------------------------ #
-
-
-# 创建数据库实例
-db = SQLAlchemy()
-migrate = Migrate()
-
-# 创建Flask程序实例
-app = Flask(__name__)
-
-# 实例参数配置
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:d30050305@127.0.0.1:3306/strong'
-app.config['SECRET_KEY'] = 'qfmz'
-
-# 数据库延后注册
-db.init_app(app)
-migrate.init_app(app, db)
-
-# 导入数据模型，供视图函数使用
-from models import Task, User
-
-
-# ------------------------------ 二、功能函数 ------------------------------ #
-
-
-@app.before_first_request
-def first():
-    """初始化session，防止出现KeyError。"""
-    session['uid'] = None
-    session['uname'] = None
-
-
-# 装饰器：要求视图函数登录才能访问
-def login_required(func):
-    """装饰器：要求视图函数登录才能访问"""
-
-    @wraps(func)
-    def decorated(*args, **kwargs):
-        print('this is decorated')
-        if session['uid'] is None:
-            flash('请先登录！')
-            return redirect(url_for('login'))
-        return func(*args, **kwargs)
-
-    return decorated
-
-
-# ------------------------------ 三、用户模块 ------------------------------ #
+# ------------------------------ 一、用户模块 ------------------------------ #
 
 
 @app.route('/')
@@ -71,7 +18,6 @@ def index():
 @app.route('/home')
 @login_required
 def home():
-    print('this is home')
     user = User.query.get(session['uid'])
     return render_template('home.html', user=user)
 
@@ -115,7 +61,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-# ------------------------------ 四、任务模块 ------------------------------ #
+# ------------------------------ 二、任务模块 ------------------------------ #
 
 
 @app.route('/task')
