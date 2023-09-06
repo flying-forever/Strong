@@ -1,3 +1,5 @@
+import datetime
+
 from flask import render_template, flash, redirect, url_for, session
 
 from strong.callbacks import login_required
@@ -81,7 +83,7 @@ def task_doing():
 @login_required
 def task_done():
     tasks = Task.query.filter_by(uid=session['uid']).all()
-    return render_template('task_done.html', tasks=tasks)
+    return render_template('task_done.html', tasks=tasks, datetime=datetime)
 
 
 @app.route('/task/create/', methods=['GET', 'POST'])

@@ -20,7 +20,7 @@
             <th scope="row">{{ task.id }}</th>
             <td>{{ task.name }}</td>
             <td>{{ task.exp }}</td>
-            <td>{{ task.time_finish }}</td>
+            <td>{{ task.time_finish + datetime.timedelta(hours=8) }}</td>
             <td>{{ task.describe }}</td>
             <td>
                 <a class="btn btn-success btn-sm" href="{{ url_for('task_submit', task_id=task.id) }}"
