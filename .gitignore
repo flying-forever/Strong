@@ -1,4 +1,5 @@
 .idea/
+.VSCodeCounter/
 migrations/
 try/
 __pycache__
