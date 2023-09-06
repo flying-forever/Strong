@@ -1,0 +1,13 @@
+{# 一键渲染简易表单 #}
+{% macro form_field_all(form) %}
+    {{ form.csrf_token }}
+    {% for key in form.__dict__['_fields'] %}
+        {% if ('submit' not in key) and ('csrf_token' not in key) %}
+            <div class="form-group">
+                {{ form.__dict__['_fields'][key]['label'] }}
+                {{ form.__dict__['_fields'][key](class='form-control') }}
+            </div>
+        {% endif %}
+    {% endfor %}
+    {{ form.submit(class='btn btn-primary')}}
+{% endmacro %}

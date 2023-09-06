@@ -1,4 +1,5 @@
 {% extends 'task.html' %}
+{% from 'macros.html' import form_field_all %}
 
 {% block content %}
 <form method="post">
@@ -14,12 +15,7 @@
     </div>
 
     {# 表单控件 #}
-    {{ form.csrf_token }}
-    <div class="form-group">
-        {{ form.describe.label }}
-        {{ form.describe(class='form-control') }}
-    </div>
-    {{ form.submit(class='btn btn-primary') }}
+    {{ form_field_all(form) }}
     <a class="btn btn-secondary" href="{{ url_for('task_doing') }}" role="botten">取消</a>
 </form>
 {% endblock %}
