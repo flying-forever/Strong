@@ -4,8 +4,15 @@
     {% for key in form.__dict__['_fields'] %}
         {% if ('submit' not in key) and ('csrf_token' not in key) %}
             <div class="form-group">
-                {{ form.__dict__['_fields'][key]['label'] }}
-                {{ form.__dict__['_fields'][key](class='form-control') }}
+                {% set field = form.__dict__['_fields'][key] %}
+                {{ field.label }}
+                {{ field(class='form-control') }}
+
+                {% if field.errors -%}
+                    {% for error in field.errors -%}
+                        <small class="error">{{ error }}</small><br>
+                    {%- endfor %}
+                {%- endif %}
             </div>
         {% endif %}
     {% endfor %}
