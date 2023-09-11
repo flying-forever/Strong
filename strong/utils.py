@@ -62,14 +62,3 @@ class TaskOrder:
 def make_template_context():
     """增加模板上下文变量"""
     return dict(TaskOrder=TaskOrder)
-
-
-def order_query_by(query, field, is_desc=True):
-    """
-    好像没什么用
-    @params
-    - query：待排序的查询对象，来自数据库
-    - field：排序依据字段
-    - is_desc -> bool：默认（True）为倒序"""
-    if is_desc:
-        ordered_query = query.order_by(field.desc())
