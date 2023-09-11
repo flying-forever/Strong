@@ -1,6 +1,28 @@
 {% extends 'task.html' %}
 {% block active_done %} btn-secondary {% endblock %}
 
+
+{% block top_bar %}
+{{ super() }}
+<div class="dropdown" style="margin-left:auto; margin-top: auto;">
+    {% set orders = {
+    TaskOrder.FINISH_DESC:'完成时间 ↑', TaskOrder.FINISH_ASC:'完成时间 ↓',
+    TaskOrder.ADD_DESC:'创建时间 ↑', TaskOrder.ADD_ASC:'创建时间 ↓',
+    TaskOrder.NAME_DESC:'任务名称 ↑', TaskOrder.NAME_ASC:'任务名称 ↓'} %}
+
+    <button class="btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+        aria-haspopup="true" aria-expanded="false">
+        {{ orders[order_id] }}
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        {% for order_id in orders %}
+        <a class="dropdown-item" href="{{ url_for('task_done', order_id=order_id) }}">{{ order_id }} {{ orders[order_id]
+            }}</a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
 {# 2 已完成任务列表 #}
 {% block task_list %}
 <table class="table">

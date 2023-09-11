@@ -1,3 +1,6 @@
+from strong import app
+
+
 class Time:
     """表示时间长度（而不是日期）"""
 
@@ -36,3 +39,37 @@ class Time:
 
     def __str__(self) -> str:
         return f"{self.hours}h {self.minutes}m"
+
+
+class TaskOrder:
+    """
+    参照Task数据库模型 - 给排序方式编号
+    @attribute
+    - 属性有“完整名”和“简写”两种形式，如“FD”是“FINISH_DESC”的简写
+
+    @problem
+    - 用单例模式又如何？"""
+
+    FD = FINISH_DESC = 1
+    FA = FINISH_ASC = 2
+    AD = ADD_DESC = 3
+    AA = ADD_ASC = 4
+    ND = NAME_DESC = 5
+    NA = NAME_ASC = 6
+
+
+@app.context_processor
+def make_template_context():
+    """增加模板上下文变量"""
+    return dict(TaskOrder=TaskOrder)
+
+
+def order_query_by(query, field, is_desc=True):
+    """
+    好像没什么用
+    @params
+    - query：待排序的查询对象，来自数据库
+    - field：排序依据字段
+    - is_desc -> bool：默认（True）为倒序"""
+    if is_desc:
+        ordered_query = query.order_by(field.desc())

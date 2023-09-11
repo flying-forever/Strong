@@ -3,7 +3,7 @@ import datetime
 from flask import render_template, flash, redirect, url_for, session
 
 from strong.callbacks import login_required
-from strong.utils import Time
+from strong.utils import Time, TaskOrder
 from strong.forms import TaskForm, TaskSubmitForm, LoginForm
 from strong.models import User, Task
 from strong import app, db
@@ -80,11 +80,31 @@ def task_doing():
     return render_template('task_doing.html', tasks=tasks)
 
 
-@app.route('/task/done/')
+# 代码丑陋，待重构
+@app.route('/task/done')
+@app.route('/task/done/<int:order_id>')
 @login_required
-def task_done():
-    tasks = Task.query.filter_by(uid=session['uid']).all()
-    return render_template('task_done.html', tasks=tasks, datetime=datetime, Time=Time)
+def task_done(order_id: int=1):
+    
+    tasks = Task.query.filter_by(uid=session['uid'])
+    TO = TaskOrder
+
+    if order_id == TO.FINISH_DESC:
+        tasks = tasks.order_by(Task.time_finish.desc())
+    elif order_id == TO.FINISH_ASC:
+        tasks = tasks.order_by(Task.time_finish.asc())
+    elif order_id == TO.ADD_DESC:
+        tasks = tasks.order_by(Task.time_add.desc())
+    elif order_id == TO.ADD_ASC:
+        tasks = tasks.order_by(Task.time_add.asc())
+    elif order_id == TO.NAME_DESC:
+        tasks = tasks.order_by(Task.name.desc())
+    elif order_id == TO.NAME_ASC:
+        tasks = tasks.order_by(Task.name.asc())
+
+    
+    tasks = tasks.all()
+    return render_template('task_done.html', order_id=order_id, tasks=tasks, datetime=datetime, Time=Time)
 
 
 @app.route('/task/create/', methods=['GET', 'POST'])

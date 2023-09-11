@@ -5,14 +5,14 @@
 {% block content %}
 
 {# 1 任务顶栏 #}
-{% block top_bar %}
 <div class="btn-group" role="group" aria-label="Basic example">
+    {% block top_bar %}
     <a href="{{ url_for('task_doing') }}" role="button" class="btn {% block active_doing %}{% endblock %}">待做</a>
     <a href="{{ url_for('task_done') }}" role="button" class="btn {% block active_done %}{% endblock %}">已完成</a>
     <a class="btn btn-success" href="{{ url_for('task_create') }}" role="button">+新建</a>
+    {% endblock top_bar %}
 </div>
 <hr>
-{% endblock top_bar %}
 
 {# 2 任务列表 #}
 {% block task_list %} ... {% endblock %}
