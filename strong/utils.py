@@ -1,6 +1,3 @@
-from strong import app
-
-
 class Time:
     """表示时间长度（而不是日期）"""
 
@@ -56,9 +53,3 @@ class TaskOrder:
     AA = ADD_ASC = 4
     ND = NAME_DESC = 5
     NA = NAME_ASC = 6
-
-
-@app.context_processor
-def make_template_context():
-    """增加模板上下文变量"""
-    return dict(TaskOrder=TaskOrder)
