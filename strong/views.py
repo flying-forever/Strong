@@ -13,11 +13,6 @@ from strong import app, db
 
 
 @app.route('/')
-def index():
-    """重复的，以应付该路由"""
-    return redirect(url_for('home'))
-
-
 @app.route('/home')
 @login_required
 def home():
@@ -68,11 +63,6 @@ def logout():
 
 
 @app.route('/task')
-def task():
-    """重复的，但保留以兼容"""
-    return redirect(url_for('task_doing'))
-
-
 @app.route('/task/doing/')
 @login_required
 def task_doing():
