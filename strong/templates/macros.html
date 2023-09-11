@@ -18,3 +18,34 @@
     {% endfor %}
     {{ form.submit(class='btn btn-primary')}}
 {% endmacro %}
+
+
+{# 添加一个模态框按钮 - 每个按钮应该提供一个不同的“id”参数 (不能以数字开头) #}
+{% macro modal_botton(id, btn_class, btn_name, title, body, footer_href) %}
+<button type="button" class="btn {{ btn_class }}" data-toggle="modal" data-target="#{{ id }}">
+    {{ btn_name }}
+</button>
+
+<div class="modal fade" id="{{ id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">{{ title }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {# 如何让调用者可以定义这段文字的样式呢？ #}
+                {{ body }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <a class="btn btn-danger btn" href="{{ footer_href }}" role="button">确定</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

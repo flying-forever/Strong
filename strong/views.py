@@ -135,3 +135,10 @@ def task_delete(task_id):
     db.session.commit()
     flash('成功删除任务！')
     return redirect(url_for('task_doing'))
+
+
+# ------------------------------ 三、胡乱尝试 ------------------------------ #
+@app.route('/test')
+def test():
+    """用于尝试一些新功能，或样式。"""
+    return render_template('test.html')
