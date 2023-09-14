@@ -20,10 +20,10 @@
             <td>{{ task.name }}</td>
             <td>{{ task.exp }}</td>
             <td>
-                <a class="btn btn-success btn-sm" href="{{ url_for('task_submit', task_id=task.id) }}"
-                    role="button">提交</a>
+                <a class="btn btn-success btn-sm"
+                    href="{{ url_for('task_submit', task_id=task.id, next=request.endpoint) }}" role="button">提交</a>
                 {{ modal_botton(
-                id='delete' + [task.id] | join, 
+                id='delete' + [task.id] | join,
                 btn_class='btn-danger btn-sm',
                 btn_name='删除', title='提醒',
                 body='你确定删除任务 ' + task.name + ' 吗？删除后不可恢复！',

@@ -47,8 +47,8 @@
             <td>{{ Time(minutes=task.use_minute) }}</td>
             <td>{{ task.describe }}</td>
             <td>
-                <a class="btn btn-success btn-sm" href="{{ url_for('task_submit', task_id=task.id) }}"
-                    role="button">修改</a>
+                <a class="btn btn-success btn-sm"
+                    href="{{ url_for('task_submit', task_id=task.id, next=request.endpoint) }}" role="button">修改</a>
             </td>
         </tr>
         {% endfor %}
