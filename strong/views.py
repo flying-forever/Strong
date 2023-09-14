@@ -133,7 +133,14 @@ def task_submit(task_id):
 
         flash('成功提交任务！')
         return redirect(url_for('task_done'))
+    
+    # 表单回显 --> 修改已完成的任务时
+    # 重构：能否在表单类中封装回显功能？
     form.describe.data = task.describe
+
+    use_time = Time(minutes=task.use_minute)
+    form.use_hour.data = use_time.hours
+    form.use_minute.data = use_time.minutes
     return render_template('task_submit.html', form=form, task=task)
 
 
