@@ -1,9 +1,10 @@
 import datetime
 
-from flask import render_template, flash, redirect, url_for, session
+from flask import render_template, redirect, url_for, session
 
 from strong.callbacks import login_required
 from strong.utils import Time, TaskOrder
+from strong.utils import flash_ as flash
 from strong.forms import TaskForm, TaskSubmitForm, LoginForm
 from strong.models import User, Task
 from strong import app, db
@@ -31,7 +32,7 @@ def register():
             flash('注册成功！')
             return redirect(url_for('login'))
         except Exception as e:
-            flash("该用户名已存在！请重新为自己构思一个独特的用户名吧！")
+            flash("该用户名已存在！请重新为自己构思一个独特的用户名吧！", 'danger')
     return render_template('register.html', form=form)
 
 
@@ -47,7 +48,7 @@ def login():
             session['uname'] = user.name
             return redirect(url_for('home'))
         else:
-            flash("用户名或密码错误！")
+            flash("用户名或密码错误！", 'danger')
     return render_template('login.html', form=form)
 
 

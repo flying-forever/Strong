@@ -1,3 +1,6 @@
+from flask import flash
+
+
 class Time:
     """表示时间长度（而不是日期）"""
 
@@ -53,3 +56,8 @@ class TaskOrder:
     AA = ADD_ASC = 4
     ND = NAME_DESC = 5
     NA = NAME_ASC = 6
+
+
+def flash_(message: str, category='success'):
+    """- 使flash有一个默认的样式分类：success"""
+    flash(message=message, category=category)

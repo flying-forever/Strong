@@ -25,7 +25,7 @@
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
                     {% if session['uname'] %}
-                        <a class="nav-item nav-link" href="{{ url_for('logout') }}">退出登录</a>
+                    <a class="nav-item nav-link" href="{{ url_for('logout') }}">退出登录</a>
                     {% endif %}
                 </div>
             </div>
@@ -51,16 +51,21 @@
             </div>
 
             {# 3 面板 #}
-            <div class="col">
+            <div class="col-10">
+
+                <!-- 重构：将消息闪现包装为一个函数？ -->
+                {# 4 消息闪现-上部 #}
+                {% for message in get_flashed_messages(with_categories=True) %}
+                <div class="row alert alert-{{ message[0] }}" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;&nbsp;</button>
+                    {{ message[1] }}
+                </div>
+                {% endfor %}
 
                 {% block content %}
                 <p> Hello, welcome to add some content for here! </p>
                 {% endblock %}
 
-                {# 4 消息闪现-下部 #}
-                {% for message in get_flashed_messages() %}
-                <p>{{ message }}</p>
-                {% endfor %}
             </div>
 
         </div>

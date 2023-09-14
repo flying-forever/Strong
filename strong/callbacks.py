@@ -11,7 +11,7 @@ def login_required(func):
     def decorated(*args, **kwargs):
         print('this is decorated of login_required...')
         if session.get('uid', None) is None:
-            flash('请先登录！')
+            flash('请先登录！', 'danger')
             return redirect(url_for('login'))
         return func(*args, **kwargs)
 
