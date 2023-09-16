@@ -1,79 +1,38 @@
 import datetime
 
-from flask import render_template, redirect, url_for, session
+from flask import render_template, redirect, url_for, session, Blueprint
 
 from strong.callbacks import login_required
 from strong.utils import Time, TaskOrder
 from strong.utils import flash_ as flash
-from strong.forms import TaskForm, TaskSubmitForm, LoginForm
+from strong.forms import TaskForm, TaskSubmitForm
 from strong.models import User, Task
-from strong import app, db
-
-
-# ------------------------------ 一、用户模块 ------------------------------ #
-
-
-@app.route('/')
-@app.route('/home')
-@login_required
-def home():
-    user = User.query.get(session['uid'])
-    return render_template('home.html', user=user)
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User(name=form.username.data, password=form.password.data)
-        try:
-            db.session.add(user)
-            db.session.commit()
-            flash('注册成功！')
-            return redirect(url_for('login'))
-        except Exception as e:
-            flash("该用户名已存在！请重新为自己构思一个独特的用户名吧！", 'danger')
-    return render_template('register.html', form=form)
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        # 验证用户名和密码以完成登录
-        user = User.query.filter_by(name=form.username.data).first()
-        if (user is not None) and (form.password.data == user.password):
-            # 登录成功
-            session['uid'] = user.id
-            session['uname'] = user.name
-            return redirect(url_for('home'))
-        else:
-            flash("用户名或密码错误！", 'danger')
-    return render_template('login.html', form=form)
-
-
-@app.route('/logout')
-def logout():
-    """退出登录"""
-    session['uid'] = None
-    session['uname'] = None
-    return redirect(url_for('login'))
+from strong import db
 
 
 # ------------------------------ 二、任务模块 ------------------------------ #
 
 
-@app.route('/task')
-@app.route('/task/doing/')
+task_bp = Blueprint('task', __name__, static_folder='static', template_folder='templates')
+
+
+@task_bp.context_processor
+def make_template_context():
+    """增加模板上下文变量"""
+    return dict(TaskOrder=TaskOrder)
+
+
+@task_bp.route('/')
+@task_bp.route('/doing')
 @login_required
 def task_doing():
     tasks = Task.query.filter_by(uid=session['uid']).all()
-    return render_template('task_doing.html', tasks=tasks)
+    return render_template('task/task_doing.html', tasks=tasks)
 
 
 # 代码丑陋，待重构
-@app.route('/task/done')
-@app.route('/task/done/<int:order_id>')
+@task_bp.route('/done')
+@task_bp.route('/done/<int:order_id>')
 @login_required
 def task_done(order_id: int=1):
     
@@ -95,10 +54,10 @@ def task_done(order_id: int=1):
 
     
     tasks = tasks.all()
-    return render_template('task_done.html', order_id=order_id, tasks=tasks, datetime=datetime, Time=Time)
+    return render_template('task/task_done.html', order_id=order_id, tasks=tasks, datetime=datetime, Time=Time)
 
 
-@app.route('/task/create/', methods=['GET', 'POST'])
+@task_bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def task_create():
     form = TaskForm()
@@ -110,11 +69,11 @@ def task_create():
         db.session.commit()
 
         flash('新任务添加成功！')
-        return redirect(url_for('task_doing'))
-    return render_template('task_create.html', form=form)
+        return redirect(url_for('.task_doing'))
+    return render_template('task/task_create.html', form=form)
 
 
-@app.route('/task/submit/<int:task_id>', methods=['GET', 'POST'])
+@task_bp.route('/submit/<int:task_id>', methods=['GET', 'POST'])
 @login_required
 def task_submit(task_id):
     form = TaskSubmitForm()
@@ -133,7 +92,7 @@ def task_submit(task_id):
         db.session.commit()
 
         flash('成功提交任务！')
-        return redirect(url_for('task_done'))
+        return redirect(url_for('.task_done'))
     
     # 表单回显 --> 修改已完成的任务时
     # 重构：能否在表单类中封装回显功能？
@@ -142,21 +101,21 @@ def task_submit(task_id):
     use_time = Time(minutes=task.use_minute)
     form.use_hour.data = use_time.hours
     form.use_minute.data = use_time.minutes
-    return render_template('task_submit.html', form=form, task=task)
+    return render_template('task/task_submit.html', form=form, task=task)
 
 
-@app.route('/task/delete/<int:task_id>')
+@task_bp.route('/delete/<int:task_id>')
 @login_required
 def task_delete(task_id):
     task = Task.query.get(task_id)
     db.session.delete(task)
     db.session.commit()
     flash('成功删除任务！')
-    return redirect(url_for('task_doing'))
+    return redirect(url_for('.task_doing'))
 
 
 # ------------------------------ 三、胡乱尝试 ------------------------------ #
-@app.route('/test')
+@task_bp.route('/test')
 def test():
     """用于尝试一些新功能，或样式。"""
     return render_template('_test.html')

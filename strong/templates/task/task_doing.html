@@ -1,4 +1,4 @@
-{% extends 'task.html' %}
+{% extends 'task/_task.html' %}
 {% from '_macros.html' import modal_botton %}
 {% block active_doing %} btn-secondary {% endblock %}
 
@@ -21,13 +21,13 @@
             <td>{{ task.exp }}</td>
             <td>
                 <a class="btn btn-success btn-sm"
-                    href="{{ url_for('task_submit', task_id=task.id, next=request.endpoint) }}" role="button">提交</a>
+                    href="{{ url_for('.task_submit', task_id=task.id, next=request.endpoint) }}" role="button">提交</a>
                 {{ modal_botton(
                 id='delete' + [task.id] | join,
                 btn_class='btn-danger btn-sm',
                 btn_name='删除', title='提醒',
                 body='你确定删除任务 ' + task.name + ' 吗？删除后不可恢复！',
-                footer_href=url_for('task_delete', task_id=task.id)) }}
+                footer_href=url_for('.task_delete', task_id=task.id)) }}
             </td>
         </tr>
         {% endfor %}

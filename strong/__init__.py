@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import pymysql
@@ -11,15 +11,27 @@ pymysql.install_as_MySQLdb()
 db = SQLAlchemy()
 migrate = Migrate()
 
-# 创建Flask程序实例
-app = Flask('strong')
 
-# 实例参数配置
-app.config.from_pyfile('config.py')
+def create_app(config_py=None):
 
-# 数据库延后注册
-db.init_app(app)
-migrate.init_app(app, db)
+    app = Flask('strong')
+    app.config.from_pyfile('config.py')
 
-# 导入数据模型，供视图函数使用
-from strong import views
+    from strong.blueprints import auth_bp, task_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(task_bp, url_prefix='/task')
+
+    register_index(app)
+
+    from strong import models
+
+    db.init_app(app)
+    migrate.init_app(app)
+
+    return app
+
+
+def register_index(app):
+    @app.route('/')
+    def index():
+        return redirect(url_for('auth.home'))

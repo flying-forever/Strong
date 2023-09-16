@@ -25,7 +25,7 @@
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
                     {% if session['uname'] %}
-                    <a class="nav-item nav-link" href="{{ url_for('logout') }}">退出登录</a>
+                    <a class="nav-item nav-link" href="{{ url_for('auth.logout') }}">退出登录</a>
                     {% endif %}
                 </div>
             </div>
@@ -42,9 +42,9 @@
             <div class="col-1">
                 {% block sidebar %}
                 <div class="btn-group-vertical" role="group" aria-label="Basic example">
-                    <a href="{{ url_for('home') }}" role="button"
+                    <a href="{{ url_for('auth.home') }}" role="button"
                         class="btn {% block active_home %}{% endblock %}">Home</a>
-                    <a href="{{ url_for('task_doing') }}" role="button"
+                    <a href="{{ url_for('task.task_doing') }}" role="button"
                         class="btn {% block active_task %}{% endblock %}">Task</a>
                 </div>
                 {% endblock sidebar %}
