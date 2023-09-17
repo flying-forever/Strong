@@ -44,7 +44,7 @@
             <td>{{ task.name }}</td>
             <td>{{ task.exp }}</td>
             <td>{{ task.time_finish + datetime.timedelta(hours=8) }}</td>
-            <td>{{ Time(minutes=task.use_minute) }}</td>
+            <td>{{ Time(minutes=task.use_minute) }} / {{ Time(minutes=task.need_minute) }}</td>
             <td>{{ task.describe }}</td>
             <td>
                 <a class="btn btn-success btn-sm"

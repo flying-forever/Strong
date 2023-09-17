@@ -7,9 +7,11 @@ class TaskForm(FlaskForm):
     """创建任务的表单"""
     name = StringField(label='任务名称', validators=[DataRequired('不能为空')])
     exp = IntegerField(label='经验值', validators=[NumberRange(1, 5, '单个任务经验值范围为1~5'), DataRequired('不能为空')])
+    need_minute = IntegerField(label='预计用时(m)', validators=[NumberRange(0, float("inf"), '应为正整数')], default=30)
     submit = SubmitField(label='确定')
 
 
+# 重构：表单只填写分钟数
 class TaskSubmitForm(FlaskForm):
     """提交任务，并填写完成效果的表单"""
     describe = StringField(label='完成效果', validators=[DataRequired('不能为空')])

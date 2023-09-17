@@ -27,7 +27,7 @@ def make_template_context():
 @login_required
 def task_doing():
     tasks = Task.query.filter_by(uid=session['uid']).all()
-    return render_template('task/task_doing.html', tasks=tasks)
+    return render_template('task/task_doing.html', tasks=tasks, Time=Time)
 
 
 # 代码丑陋，待重构
@@ -62,8 +62,8 @@ def task_done(order_id: int=1):
 def task_create():
     form = TaskForm()
     if form.validate_on_submit():
-
-        task = Task(name=form.name.data, exp=form.exp.data, uid=session['uid'])
+        # 重构：不想写这一行代码，能否默认从表单中提取所有参数，并传递给Task的构造函数？
+        task = Task(name=form.name.data, exp=form.exp.data, need_minute=form.need_minute.data, uid=session['uid'])
 
         db.session.add(task)
         db.session.commit()

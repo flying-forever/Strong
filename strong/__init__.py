@@ -26,7 +26,7 @@ def create_app(config_py=None):
     from strong import models
 
     db.init_app(app)
-    migrate.init_app(app)
+    migrate.init_app(app, db)
 
     return app
 

@@ -10,6 +10,7 @@
             <th scope="col">编号</th>
             <th scope="col">任务名</th>
             <th scope="col">经验值</th>
+            <th scope="col">预计用时</th>
             <th scope="col">操作</th>
         </tr>
     </thead>
@@ -19,6 +20,7 @@
             <th scope="row">{{ task.id }}</th>
             <td>{{ task.name }}</td>
             <td>{{ task.exp }}</td>
+            <td>{{ Time(minutes=task.need_minute) }}</td>
             <td>
                 <a class="btn btn-success btn-sm"
                     href="{{ url_for('.task_submit', task_id=task.id, next=request.endpoint) }}" role="button">提交</a>
