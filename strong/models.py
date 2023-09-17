@@ -1,6 +1,4 @@
 from datetime import datetime
-from sqlalchemy.orm import mapped_column, Mapped
-from sqlalchemy import Integer
 
 from strong import db
 
@@ -17,7 +15,7 @@ class Task(db.Model):
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     time_finish = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    need_minute: Mapped[int] = mapped_column(Integer, default=0) # 任务预计时间 | mapped_column默认不能为null
+    need_minute = db.Column(db.Integer, nullable=False, default=0) # 任务预计时间 | mapped_column默认不能为null
     use_minute = db.Column(db.Integer, nullable=False, default=0) # 完成任务耗时（分钟）
 
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))
