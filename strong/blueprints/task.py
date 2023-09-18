@@ -8,7 +8,7 @@ from strong.utils import flash_ as flash
 from strong.forms import TaskForm, TaskSubmitForm
 from strong.models import User, Task
 from strong import db
-
+# 重构：在蓝本上统一注册装饰器
 
 # ------------------------------ 二、任务模块 ------------------------------ #
 
@@ -63,7 +63,8 @@ def task_create():
     form = TaskForm()
     if form.validate_on_submit():
         # 重构：不想写这一行代码，能否默认从表单中提取所有参数，并传递给Task的构造函数？
-        task = Task(name=form.name.data, exp=form.exp.data, need_minute=form.need_minute.data, uid=session['uid'])
+        task = Task(name=form.name.data, exp=form.exp.data, need_minute=form.need_minute.data, \
+            uid=session['uid'], task_type=form.task_type.data)
 
         db.session.add(task)
         db.session.commit()
@@ -85,7 +86,15 @@ def task_submit(task_id):
             user = User.query.get(session['uid'])
             user.exp += task.exp
             db.session.commit()
+        
+        # 如果是重复任务，在提交时创建新任务
+        if task.task_type == 1:
+            task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
+                uid=task.uid, task_type=task.task_type)
+            db.session.add(task_new)
+            db.session.commit()
 
+        # 写入表单数据
         task.use_minute = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
         task.describe = form.describe.data
         task.is_finish = True # 表示任务已经完成
@@ -96,11 +105,11 @@ def task_submit(task_id):
     
     # 表单回显 --> 修改已完成的任务时
     # 重构：能否在表单类中封装回显功能？
-    form.describe.data = task.describe
-
     use_time = Time(minutes=task.use_minute)
     form.use_hour.data = use_time.hours
     form.use_minute.data = use_time.minutes
+    form.describe.data = task.describe
+    
     return render_template('task/task_submit.html', form=form, task=task)
 
 

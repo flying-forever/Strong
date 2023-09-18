@@ -4,7 +4,7 @@
 
 {# 1 待完成任务列表 #}
 {% block task_list %}
-<table class="table">
+<table class="table table-striped">
     <thead>
         <tr>
             <th scope="col">编号</th>
@@ -18,7 +18,14 @@
         {% for task in tasks if not task.is_finish %}
         <tr>
             <th scope="row">{{ task.id }}</th>
-            <td>{{ task.name }}</td>
+            <!-- 突出显示“重复任务” -->
+            <td>
+                {% if task.task_type == 1%}
+                <h6 style="color:green">{{ task.name }} - 重复</h6>
+                {% else %} 
+                {{ task.name }} 
+                {% endif %}
+            </td>
             <td>{{ task.exp }}</td>
             <td>{{ Time(minutes=task.need_minute) }}</td>
             <td>
