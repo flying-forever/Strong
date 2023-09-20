@@ -31,7 +31,6 @@ def remenber_login():
 @auth_bp.route('/home')
 @login_required
 def home():
-    print('home...')
     user = User.query.get(session['uid'])
     return render_template('auth/home.html', user=user)
 

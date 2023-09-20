@@ -15,18 +15,23 @@ migrate = Migrate()
 
 def create_app(config_py=None):
 
+    # 创建程序实例
     app = Flask('strong')
     app.config.from_pyfile('config.py')
 
+    # 注册蓝图
     from strong.blueprints import auth_bp, task_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(task_bp, url_prefix='/task')
 
+    # 要注册到app上的东西（而不是注册到蓝图）
     register_index(app)
     register_context(app)
 
+    # 导入模型类，让数据库实例能找到它
     from strong import models
 
+    # 初始化扩展
     db.init_app(app)
     migrate.init_app(app, db)
 
