@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, SelectField
+from wtforms import StringField, IntegerField, SubmitField, SelectField, BooleanField
 from wtforms.validators import DataRequired, NumberRange
 
 
@@ -27,4 +27,5 @@ class LoginForm(FlaskForm):
     - 注：暂时复用为注册表单，后期可能要改"""
     username = StringField(label='用户名', validators=[DataRequired('不能为空')])
     password = StringField(label='密码', validators=[DataRequired('不能为空')])
+    remenber = BooleanField(label='记住我', default=False)
     submit = SubmitField(label='确定')

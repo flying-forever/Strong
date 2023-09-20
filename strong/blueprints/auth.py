@@ -1,4 +1,5 @@
-from flask import render_template, redirect, url_for, session, Blueprint
+from flask import render_template, redirect, url_for, session, Blueprint, make_response, request
+from wtforms import BooleanField
 
 from strong.callbacks import login_required
 from strong.utils import flash_ as flash
@@ -13,10 +14,24 @@ from strong import db
 auth_bp = Blueprint('auth', __name__, static_folder='static', template_folder='templates')
 
 
+@auth_bp.before_request
+def remenber_login():
+    user_id: str = request.cookies.get('remenber_user') 
+
+    # 若没有登录，则自动登录
+    if user_id and not session['uid']: 
+        user = User.query.get(user_id)
+
+        session['uid'] = user.id
+        session['uname'] = user.name
+        print('已自动登录... ', user)
+    
+
 @auth_bp.route('/')
 @auth_bp.route('/home')
 @login_required
 def home():
+    print('home...')
     user = User.query.get(session['uid'])
     return render_template('auth/home.html', user=user)
 
@@ -47,7 +62,13 @@ def login():
             # 登录成功
             session['uid'] = user.id
             session['uname'] = user.name
-            return redirect(url_for('.home'))
+            
+            # 使用cookie记住登录
+            response = make_response(redirect(url_for('.home')))
+            if form.remenber.data is True:
+                response.set_cookie('remenber_user', str(user.id).encode('utf-8'), max_age=20)
+                
+            return response
         else:
             flash("用户名或密码错误！", 'danger')
     return render_template('auth/login.html', form=form)
@@ -58,5 +79,10 @@ def logout():
     """退出登录"""
     session['uid'] = None
     session['uname'] = None
-    return redirect(url_for('.login'))
+
+    # 并删除“记住登录”状态
+    response = make_response(redirect(url_for('.login')))
+    response.set_cookie('remenber_user', ''.encode('utf-8'), max_age=0)
+
+    return response
     

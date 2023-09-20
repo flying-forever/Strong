@@ -1,4 +1,5 @@
 {# 一键渲染简易表单 #}
+<!-- 重构：开始感觉到它的局限行，一些字段并不适合用它来渲染，比如单选框。 -->
 {% macro form_field_all(form) %}
     {{ form.csrf_token }}
     {% for key in form.__dict__['_fields'] %}
@@ -6,8 +7,14 @@
             <div class="form-group">
                 {% set field = form.__dict__['_fields'][key] %}
                 {{ field.label }}
-                {{ field(class='form-control') }}
 
+                <!-- 单选框不被渲染为表单控件 -->
+                {% if not isinstance(field, BooleanField) %}
+                    {{ field(class='form-control') }}
+                {% else %}
+                    {{ field() }}
+                {% endif %}
+                
                 {% if field.errors -%}
                     {% for error in field.errors -%}
                         <small class="error">{{ error }}</small><br>
