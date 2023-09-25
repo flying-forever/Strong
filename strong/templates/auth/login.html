@@ -1,14 +1,39 @@
 {% extends '_base.html' %}
-{% from '_macros.html' import form_field_all with context %}
+{% block navigation %}{% endblock %}
 
-{% block sidebar %}{% endblock sidebar %}
+{% block head %}
+{{ super() }}
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock head %}
 
-{% block content %}
-<div class="container-fluid">
-    <h2>登录</h2>
-    <form method="post">
-        {{ form_field_all(form) }}
-        <a class="btn btn-secondary" href="{{ url_for('auth.register') }}" role="button">去注册</a>
-    </form>
-</div>
-{% endblock %}
+{% block contain %}
+<body>
+    <div class="container" style="max-width: 480px;">
+
+        <!-- 标题 -->
+        <header>
+            <h1 class="text-center">
+                <strong class="text-success">Strong</strong>
+                <small class="text-muted sub-title">by steps</small>
+            </h1>
+        </header>
+
+        <!-- 登录表单 -->
+        <div class="border" style="border:2px; padding: 15px 60px 80px 60px;">
+
+            <form method="post">
+                {{ form.csrf_token }}
+                {{ form.username(class="form-control form-margin", placeholder="用户名") }}
+                {{ form.password(class="form-control form-margin", placeholder="密码") }}
+                {{ form.submit(class="form-margin-2 btn btn-primary") }}
+                <a class="btn btn-secondary form-margin-2" href="{{ url_for('auth.register') }}" role="button"
+                    style="float:right">去注册</a>
+                <br>
+                <div class="form-margin" style="float:right">
+                    <label><input type="checkbox"> 记住我</label>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+{% endblock contain %}

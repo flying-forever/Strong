@@ -1,5 +1,4 @@
 from flask import render_template, redirect, url_for, session, Blueprint, make_response, request
-from wtforms import BooleanField
 
 from strong.callbacks import login_required
 from strong.utils import flash_ as flash
@@ -25,7 +24,7 @@ def remenber_login():
         session['uid'] = user.id
         session['uname'] = user.name
         print('已自动登录... ', user)
-    
+
 
 @auth_bp.route('/')
 @auth_bp.route('/home')
@@ -63,6 +62,7 @@ def login():
             session['uname'] = user.name
             
             # 使用cookie记住登录
+            # 疑惑：实际保存的时间远大于我设置的20s，不知具体是多久。
             response = make_response(redirect(url_for('.home')))
             if form.remenber.data is True:
                 response.set_cookie('remenber_user', str(user.id).encode('utf-8'), max_age=20)
