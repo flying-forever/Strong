@@ -3,6 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from wtforms import BooleanField
 import pymysql
+import os
+
+from strong.config import config
 
 
 # 应对服务器上的bug：_mysql is not defined
@@ -17,7 +20,8 @@ def create_app(config_py=None):
 
     # 创建程序实例
     app = Flask('strong')
-    app.config.from_pyfile('config.py')
+    config_name = os.getenv('FLASK_CONFIG', default='base')
+    app.config.from_object(config[config_name])
 
     # 注册蓝图
     from strong.blueprints import auth_bp, task_bp
