@@ -26,7 +26,7 @@ def make_template_context():
 @task_bp.route('/doing')
 @login_required
 def task_doing():
-    tasks = Task.query.filter_by(uid=session['uid']).all()
+    tasks = Task.query.filter_by(uid=User.current_id()).all()
     return render_template('task/task_doing.html', tasks=tasks, Time=Time)
 
 
@@ -36,7 +36,7 @@ def task_doing():
 @login_required
 def task_done(order_id: int=1):
     
-    tasks = Task.query.filter_by(uid=session['uid'])
+    tasks = Task.query.filter_by(uid=User.current_id())
     TO = TaskOrder
 
     order_way = {
@@ -59,7 +59,7 @@ def task_create():
     if form.validate_on_submit():
         # 重构：不想写这一行代码，能否默认从表单中提取所有参数，并传递给Task的构造函数？
         task = Task(name=form.name.data, exp=form.exp.data, need_minute=form.need_minute.data, \
-            uid=session['uid'], task_type=form.task_type.data)
+            uid=User.current_id(), task_type=form.task_type.data)
 
         db.session.add(task)
         db.session.commit()
@@ -78,7 +78,7 @@ def task_submit(task_id):
 
         # 完成任务增加经验（初次提交）
         if not task.is_finish:
-            user = User.query.get(session['uid'])
+            user = User.current_user()
             user.exp += task.exp
             db.session.commit()
         
