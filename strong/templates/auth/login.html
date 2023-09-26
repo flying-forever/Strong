@@ -7,6 +7,7 @@
 {% endblock head %}
 
 {% block contain %}
+
 <body>
     <div class="container" style="max-width: 480px;">
 
@@ -17,6 +18,14 @@
                 <small class="text-muted sub-title">by steps</small>
             </h1>
         </header>
+
+        <!-- 消息闪现 -->
+        {% for message in get_flashed_messages(with_categories=True) %}
+        <div class="row alert alert-{{ message[0] }}" role="alert">
+            <button type="button" class="close" data-dismiss="alert">&times;&nbsp;</button>
+            {{ message[1] }}
+        </div>
+        {% endfor %}
 
         <!-- 登录表单 -->
         <div class="border" style="border:2px; padding: 15px 60px 80px 60px;">
@@ -30,7 +39,7 @@
                     style="float:right">去注册</a>
                 <br>
                 <div class="form-margin" style="float:right">
-                    <label><input type="checkbox"> 记住我</label>
+                    <label><input type="checkbox" name="remenber"> 记住我</label>
                 </div>
             </form>
         </div>
