@@ -6,9 +6,9 @@
 {{ super() }}
 <div class="dropdown" style="margin-left:auto; margin-top: auto;">
     {% set orders = {
-    TaskOrder.FINISH_DESC:'完成时间 ↑', TaskOrder.FINISH_ASC:'完成时间 ↓',
-    TaskOrder.ADD_DESC:'创建时间 ↑', TaskOrder.ADD_ASC:'创建时间 ↓',
-    TaskOrder.NAME_DESC:'任务名称 ↑', TaskOrder.NAME_ASC:'任务名称 ↓'} %}
+    TaskOrder.FD:'完成时间 ↑', TaskOrder.FA:'完成时间 ↓',
+    TaskOrder.AD:'创建时间 ↑', TaskOrder.AA:'创建时间 ↓',
+    TaskOrder.ND:'任务名称 ↑', TaskOrder.NA:'任务名称 ↓'} %}
 
     <button class="btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
         aria-haspopup="true" aria-expanded="false">

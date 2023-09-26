@@ -39,21 +39,16 @@ def task_done(order_id: int=1):
     tasks = Task.query.filter_by(uid=session['uid'])
     TO = TaskOrder
 
-    if order_id == TO.FINISH_DESC:
-        tasks = tasks.order_by(Task.time_finish.desc())
-    elif order_id == TO.FINISH_ASC:
-        tasks = tasks.order_by(Task.time_finish.asc())
-    elif order_id == TO.ADD_DESC:
-        tasks = tasks.order_by(Task.time_add.desc())
-    elif order_id == TO.ADD_ASC:
-        tasks = tasks.order_by(Task.time_add.asc())
-    elif order_id == TO.NAME_DESC:
-        tasks = tasks.order_by(Task.name.desc())
-    elif order_id == TO.NAME_ASC:
-        tasks = tasks.order_by(Task.name.asc())
+    order_way = {
+        TO.FD: Task.time_finish.desc(),
+        TO.FA: Task.time_finish.asc(),
+        TO.AD: Task.time_add.desc(),
+        TO.AA: Task.time_add.asc(),
+        TO.ND: Task.name.desc(),
+        TO.NA: Task.name.asc(),
+    }
+    tasks = tasks.order_by(order_way[order_id]).all()
 
-    
-    tasks = tasks.all()
     return render_template('task/task_done.html', order_id=order_id, tasks=tasks, datetime=datetime, Time=Time)
 
 
