@@ -63,6 +63,7 @@ class User(db.Model):
 
     def current_user():
         """通过会话从数据库查询并返回当前用户"""
+        # 疑惑：将这些方法使用@property装饰成属性有意义吗？
         return User.query.get(session['uid'])
 
     def current_id():

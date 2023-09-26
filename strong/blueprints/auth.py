@@ -55,7 +55,7 @@ def login():
         # 验证用户名和密码以完成登录
         user = User.query.filter_by(name=form.username.data).first()
         if (user is not None) and (form.password.data == user.password):
-            # 登录成功
+            
             user.login()
             
             # 使用cookie记住登录
