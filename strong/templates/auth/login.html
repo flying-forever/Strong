@@ -28,17 +28,17 @@
         {% endfor %}
 
         <!-- 登录表单 -->
-        <div class="border" style="border:2px; padding: 15px 60px 80px 60px;">
+        <div class="border" style="padding: 15px 60px 80px 60px;">
 
             <form method="post">
                 {{ form.csrf_token }}
-                {{ form.username(class="form-control form-margin", placeholder="用户名") }}
-                {{ form.password(class="form-control form-margin", placeholder="密码") }}
+                {{ form.username(class="form-control", placeholder="用户名") }}
+                {{ form.password(class="form-control", placeholder="密码") }}
                 {{ form.submit(class="form-margin-2 btn btn-primary") }}
-                <a class="btn btn-secondary form-margin-2" href="{{ url_for('auth.register') }}" role="button"
-                    style="float:right">去注册</a>
+                <a class="btn btn-secondary btn-right form-margin-2" href="{{ url_for('auth.register') }}"
+                    role="button">去注册</a>
                 <br>
-                <div class="form-margin" style="float:right">
+                <div class="btn-right mg-top">
                     <label><input type="checkbox" name="remenber"> 记住我</label>
                 </div>
             </form>

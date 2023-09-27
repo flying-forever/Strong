@@ -2,12 +2,20 @@
     font-size: 24px;
 }
 
-.form-margin {
+.form-control {
+    margin-top: 25px;
+}
+
+.mg-top {
     margin-top: 25px;
 }
 
 .form-margin-2 {
     margin-top: 40px;
+}
+
+.btn-right {
+    float:right;
 }
 
 header {
@@ -17,8 +25,4 @@ header {
 header h1 {
     font-size: 60px;
     font-weight: lighter;
-}
-
-body {
-    background-image: "D:/code_all/code_python/Web/Strong/strong/static/img/wolf.png";
 }
