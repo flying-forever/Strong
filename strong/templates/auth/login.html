@@ -20,12 +20,7 @@
         </header>
 
         <!-- 消息闪现 -->
-        {% for message in get_flashed_messages(with_categories=True) %}
-        <div class="row alert alert-{{ message[0] }}" role="alert">
-            <button type="button" class="close" data-dismiss="alert">&times;&nbsp;</button>
-            {{ message[1] }}
-        </div>
-        {% endfor %}
+        {{ flash_messages() }}
 
         <!-- 登录表单 -->
         <div class="border" style="padding: 15px 60px 80px 60px;">

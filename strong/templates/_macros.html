@@ -1,4 +1,4 @@
-{# 一键渲染简易表单 #}
+{# 1 一键渲染简易表单 #}
 <!-- 重构：开始感觉到它的局限行，一些字段并不适合用它来渲染，比如单选框。 -->
 {% macro form_field_all(form) %}
     {{ form.csrf_token }}
@@ -27,7 +27,7 @@
 {% endmacro %}
 
 
-{# 添加一个模态框按钮 - 每个按钮应该提供一个不同的“id”参数 (不能以数字开头) #}
+{# 2 添加一个模态框按钮 - 每个按钮应该提供一个不同的“id”参数 (不能以数字开头) #}
 {% macro modal_botton(id, btn_class, btn_name, title, body, footer_href) %}
 <button type="button" class="btn {{ btn_class }}" data-toggle="modal" data-target="#{{ id }}">
     {{ btn_name }}
@@ -55,4 +55,14 @@
         </div>
     </div>
 </div>
+{% endmacro %}
+
+{# 3 消息闪现-带样式 #}
+{% macro flash_messages() %}
+    {% for message in get_flashed_messages(with_categories=True) %}
+    <div class="row alert alert-{{ message[0] }}" role="alert">
+        <button type="button" class="close" data-dismiss="alert">&times;&nbsp;</button>
+        {{ message[1] }}
+    </div>
+    {% endfor %}
 {% endmacro %}
