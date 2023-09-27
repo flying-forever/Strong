@@ -16,6 +16,13 @@ from strong import db
 task_bp = Blueprint('task', __name__, static_folder='static', template_folder='templates')
 
 
+@task_bp.before_request
+@login_required
+def login_protect():
+    """为整个视图添加登录保护"""
+    pass
+
+
 @task_bp.context_processor
 def make_template_context():
     """增加模板上下文变量"""
@@ -24,7 +31,6 @@ def make_template_context():
 
 @task_bp.route('/')
 @task_bp.route('/doing')
-@login_required
 def task_doing():
     tasks = Task.query.filter_by(uid=User.current_id()).all()
     return render_template('task/task_doing.html', tasks=tasks, Time=Time)
@@ -33,7 +39,6 @@ def task_doing():
 # 代码丑陋，待重构
 @task_bp.route('/done')
 @task_bp.route('/done/<int:order_id>')
-@login_required
 def task_done(order_id: int=1):
     
     tasks = Task.query.filter_by(uid=User.current_id())
@@ -53,7 +58,6 @@ def task_done(order_id: int=1):
 
 
 @task_bp.route('/create', methods=['GET', 'POST'])
-@login_required
 def task_create():
     form = TaskForm()
     if form.validate_on_submit():
@@ -70,7 +74,6 @@ def task_create():
 
 
 @task_bp.route('/submit/<int:task_id>', methods=['GET', 'POST'])
-@login_required
 def task_submit(task_id):
     form = TaskSubmitForm()
     task = Task.query.get(task_id)
@@ -109,7 +112,6 @@ def task_submit(task_id):
 
 
 @task_bp.route('/delete/<int:task_id>')
-@login_required
 def task_delete(task_id):
     task = Task.query.get(task_id)
     db.session.delete(task)

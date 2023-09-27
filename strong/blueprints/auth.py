@@ -24,7 +24,6 @@ def remenber_login():
         print('已自动登录... ', user)
 
 
-@auth_bp.route('/')
 @auth_bp.route('/home')
 @login_required
 def home():
