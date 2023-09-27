@@ -79,27 +79,27 @@ def task_submit(task_id):
     form = TaskSubmitForm()
     task = Task.query.get(task_id)
     if form.validate_on_submit():
-
-        # 初次提交 --> 完成任务增加经验
-        if not task.is_finish:
-            user = User.current_user()
-            user.exp += task.exp
-        
-            # 如果是重复任务，在提交时创建新任务
-            if task.task_type == 1:
-                task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
+        def form_commit(task):
+            """写入表单数据到数据库"""
+            task.use_minute = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
+            task.describe = form.describe.data
+            task.is_finish = True # 表示任务已经完成
+            db.session.commit()
+            flash('提交成功！')
+            return redirect(url_for('.task_done'))
+        # 1 修改旧任务 --> 写入表单数据
+        if task.is_finish:
+            return form_commit(task=task)
+        # 2 提交重复任务（新） --> 创建一个新的拷贝
+        if task.task_type == 1:
+            task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
                     uid=task.uid, task_type=task.task_type)
-                db.session.add(task_new)
+            db.session.add(task_new)
+        # 3 提交任务（新） --> 增加经验
+        user = User.current_user()
+        user.exp += task.exp
+        return form_commit(task=task)
 
-        # 写入表单数据
-        task.use_minute = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
-        task.describe = form.describe.data
-        task.is_finish = True # 表示任务已经完成
-        db.session.commit()
-
-        flash('成功提交任务！')
-        return redirect(url_for('.task_done'))
-    
     # 表单回显 --> 修改已完成的任务时
     # 重构：能否在表单类中封装回显功能？
     use_time = Time(minutes=task.use_minute)
