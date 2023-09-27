@@ -36,7 +36,6 @@ def task_doing():
     return render_template('task/task_doing.html', tasks=tasks, Time=Time)
 
 
-# 代码丑陋，待重构
 @task_bp.route('/done')
 @task_bp.route('/done/<int:order_id>')
 def task_done(order_id: int=1):
@@ -75,22 +74,22 @@ def task_create():
 
 @task_bp.route('/submit/<int:task_id>', methods=['GET', 'POST'])
 def task_submit(task_id):
+    """提交/修改任务的视图"""
+    
     form = TaskSubmitForm()
     task = Task.query.get(task_id)
     if form.validate_on_submit():
 
-        # 完成任务增加经验（初次提交）
+        # 初次提交 --> 完成任务增加经验
         if not task.is_finish:
             user = User.current_user()
             user.exp += task.exp
-            db.session.commit()
         
-        # 如果是重复任务，在提交时创建新任务
-        if task.task_type == 1:
-            task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
-                uid=task.uid, task_type=task.task_type)
-            db.session.add(task_new)
-            db.session.commit()
+            # 如果是重复任务，在提交时创建新任务
+            if task.task_type == 1:
+                task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
+                    uid=task.uid, task_type=task.task_type)
+                db.session.add(task_new)
 
         # 写入表单数据
         task.use_minute = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
