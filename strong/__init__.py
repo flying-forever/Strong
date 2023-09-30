@@ -1,11 +1,11 @@
-from flask import Flask, redirect, url_for
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from wtforms import BooleanField
 import pymysql
 import os
 
 from strong.config import config
+from strong.registers import register_index, register_context
 
 
 # 应对服务器上的bug：_mysql is not defined
@@ -40,21 +40,3 @@ def create_app(config_py=None):
     migrate.init_app(app, db)
 
     return app
-
-
-def register_index(app):
-    @app.route('/')
-    def index():
-        
-        # 设置session的过期时间，默认为30天
-        from flask import session
-        session.permanent = True
-
-        return redirect(url_for('auth.home'))
-
-
-def register_context(app):
-    @app.context_processor
-    def make_template_context():
-        """增加模板上下文变量"""
-        return dict(BooleanField=BooleanField, isinstance=isinstance)
