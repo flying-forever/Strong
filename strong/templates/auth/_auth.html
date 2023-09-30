@@ -1,0 +1,28 @@
+{% extends '_base.html' %}
+{% block navigation %}{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock head %}
+
+{% block contain %}
+<div class="container" style="max-width: 480px;">
+
+    <!-- 标题 -->
+    <header>
+        <h1 class="text-center">
+            <strong class="text-success">Strong</strong>
+            <small class="text-muted sub-title">by steps</small>
+        </h1>
+    </header>
+
+    <!-- 消息闪现 -->
+    {{ flash_messages() }}
+
+    <!-- 登录/注册 表单 -->
+    <div class="border" style="padding: 15px 60px 80px 60px;">
+        {% block form %}{% endblock form %}
+    </div>
+</div>
+{% endblock contain %}

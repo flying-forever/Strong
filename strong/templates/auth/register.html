@@ -1,14 +1,11 @@
-{% extends '_base.html' %}
-{% from '_macros.html' import form_field_all with context %}
+{% extends 'auth./_auth.html' %}
 
-{% block sidebar %}{% endblock sidebar %}
-
-{% block content %}
-<div class="container-fluid">
-    <h2>注册</h2>
-    <form method="post">
-        {{ form_field_all(form) }}
-        <a class="btn btn-secondary" href="{{ url_for('auth.login') }}" role="button">去登录</a>
-    </form>
-</div>
-{% endblock %}
+{% block form %}
+<form method="post">
+    {{ form.csrf_token }}
+    {{ form.username(class="form-control", placeholder="注册用户名") }}
+    {{ form.password(class="form-control", placeholder="注册密码") }}
+    {{ form.submit(class="form-margin-2 btn btn-primary") }}
+    <a class="btn btn-secondary btn-right form-margin-2" href="{{ url_for('auth.login') }}" role="button">去登录</a>
+</form>
+{% endblock form %}
