@@ -1,3 +1,4 @@
+import math
 from flask import flash, session
 from strong.models import User
 
@@ -67,7 +68,7 @@ class Login:
     is_login = lambda : bool(session['uid'])
     current_id: int = lambda : session['uid']
     current_name: str = lambda : session['uname']
-    current_user = lambda: User.query.get(session['uid']) # 怀疑：是否会对性能影响较大？
+    current_user: User = lambda: User.query.get(session['uid']) # 怀疑：是否会对性能影响较大？
 
     def login(user):
         # 疑惑：是否会破坏数据层与业务逻辑的分离呢？有必要和User类耦合在一切吗？
@@ -85,3 +86,12 @@ class Login:
 def flash_(message: str, category='success'):
     """- 使flash有一个默认的样式分类：success"""
     flash(message=message, category=category)
+
+
+def get_level(exp: int):
+    """经验值 --> 对应等级"""
+    return math.ceil(math.sqrt(exp * 2 + 0.25) - 0.5)  # ceil向上取整（已对边界值测试）
+
+def get_exp(level: int):
+    """等级 --> 对应经验值"""
+    return int((level * level + level) / 2)

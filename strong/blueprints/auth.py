@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, session, Blueprint, make_response, request
 
 from strong.callbacks import login_required
-from strong.utils import Login
+from strong.utils import Login, get_level, get_exp
 from strong.utils import flash_ as flash
 from strong.forms import LoginForm
 from strong.models import User
@@ -28,8 +28,10 @@ def remenber_login():
 @auth_bp.route('/home')
 @login_required
 def home():
-    user = Login.current_user()
-    return render_template('auth/home.html', user=user)
+    user: User = Login.current_user()
+    level = get_level(exp=user.exp)
+    need_exp = get_exp(level + 1) - user.exp
+    return render_template('auth/home.html', user=user, level=level, need_exp=need_exp)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
