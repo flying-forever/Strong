@@ -3,7 +3,7 @@ import datetime
 from flask import render_template, redirect, url_for, session, Blueprint
 
 from strong.callbacks import login_required
-from strong.utils import Time, TaskOrder
+from strong.utils import Time, TaskOrder, Login
 from strong.utils import flash_ as flash
 from strong.forms import TaskForm, TaskSubmitForm
 from strong.models import User, Task
@@ -32,7 +32,7 @@ def make_template_context():
 @task_bp.route('/')
 @task_bp.route('/doing')
 def task_doing():
-    tasks = Task.query.filter_by(uid=User.current_id()).all()
+    tasks = Task.query.filter_by(uid=Login.current_id()).all()
     return render_template('task/task_doing.html', tasks=tasks, Time=Time)
 
 
@@ -40,7 +40,7 @@ def task_doing():
 @task_bp.route('/done/<int:order_id>')
 def task_done(order_id: int=1):
     
-    tasks = Task.query.filter_by(uid=User.current_id())
+    tasks = Task.query.filter_by(uid=Login.current_id())
     TO = TaskOrder
 
     order_way = {
@@ -62,7 +62,7 @@ def task_create():
     if form.validate_on_submit():
         # 重构：不想写这一行代码，能否默认从表单中提取所有参数，并传递给Task的构造函数？
         task = Task(name=form.name.data, exp=form.exp.data, need_minute=form.need_minute.data, \
-            uid=User.current_id(), task_type=form.task_type.data)
+            uid=Login.current_id(), task_type=form.task_type.data)
 
         db.session.add(task)
         db.session.commit()
@@ -96,7 +96,7 @@ def task_submit(task_id):
                     uid=task.uid, task_type=task.task_type)
             db.session.add(task_new)
         # 3 提交任务（新） --> 增加经验
-        user = User.current_user()
+        user = Login.current_user()
         user.exp += task.exp
         return form_commit(task=task)
 

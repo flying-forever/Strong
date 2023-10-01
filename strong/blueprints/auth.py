@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, session, Blueprint, make_response, request
 
 from strong.callbacks import login_required
+from strong.utils import Login
 from strong.utils import flash_ as flash
 from strong.forms import LoginForm
 from strong.models import User
@@ -18,16 +19,16 @@ def remenber_login():
     user_id: str = request.cookies.get('remenber_user') 
 
     # 若没有登录，则自动登录
-    if user_id and User.is_login(): 
+    if user_id and Login.is_login(): 
         user = User.query.get(user_id)
-        user.login()
+        Login.login(user=user)
         print('已自动登录... ', user)
 
 
 @auth_bp.route('/home')
 @login_required
 def home():
-    user = User.current_user()
+    user = Login.current_user()
     return render_template('auth/home.html', user=user)
 
 
@@ -55,7 +56,7 @@ def login():
         user = User.query.filter_by(name=form.username.data).first()
         if (user is not None) and (form.password.data == user.password):
             
-            user.login()
+            Login.login(user=user)
             
             # 使用cookie记住登录
             # 疑惑：实际保存的时间远大于我设置的20s，不知具体是多久。
@@ -72,7 +73,7 @@ def login():
 @auth_bp.route('/logout')
 def logout():
     """退出登录"""
-    User.logout()
+    Login.logout()
 
     # 并删除“记住登录”状态
     response = make_response(redirect(url_for('.login')))

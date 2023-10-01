@@ -1,4 +1,5 @@
-from flask import flash
+from flask import flash, session
+from strong.models import User
 
 
 class Time:
@@ -22,6 +23,7 @@ class Time:
         """返回值可能是小数"""
         return self.hours + self.minutes / 60
 
+    # 重构：改用运算符重载如何？
     def add(self, time=None, hours:int=0, minutes:int=0):
         """
         @params
@@ -58,7 +60,28 @@ class TaskOrder:
     NA = NAME_ASC = 6
 
 
+class Login:
+    """登录模块的session操作集成"""
+
+    # 类方法的简化定义 --> 缺点：1、不能编写文档, 2、不能操作类实例属性。
+    is_login = lambda : bool(session['uid'])
+    current_id: int = lambda : session['uid']
+    current_name: str = lambda : session['uname']
+    current_user = lambda: User.query.get(session['uid']) # 怀疑：是否会对性能影响较大？
+
+    def login(user):
+        # 疑惑：是否会破坏数据层与业务逻辑的分离呢？有必要和User类耦合在一切吗？
+        session['uid'] = user.id
+        session['uname'] = user.name
+        print(f"- 已登录用户：<{session['uid']},{session['uname']}>") 
+        
+    def logout():
+        # 疑惑：没用@staticmethod装饰器，也可以通过类直接调用
+        print(f"- 已退出用户：<{session['uid']},{session['uname']}>")
+        session['uid'] = None
+        session['uname'] = None
+
+
 def flash_(message: str, category='success'):
     """- 使flash有一个默认的样式分类：success"""
     flash(message=message, category=category)
- 

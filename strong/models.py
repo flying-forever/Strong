@@ -45,29 +45,3 @@ class User(db.Model):
 
     def __str__(self) -> str:
         return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
-
-    def login(self):
-        # 疑惑：是否会破坏数据层与业务逻辑的分离呢？有必要和User类耦合在一切吗？
-        session['uid'] = self.id
-        session['uname'] = self.name
-        print(f"- 已登录用户：<{session['uid']},{session['uname']}>")
-    
-    def logout():
-        # 疑惑：没用@staticmethod装饰器，也可以通过类直接调用
-        print(f"- 已退出用户：<{session['uid']},{session['uname']}>")
-        session['uid'] = None
-        session['uname'] = None
-
-    def is_login():
-        return bool(session['uid'])
-
-    def current_user():
-        """通过会话从数据库查询并返回当前用户"""
-        # 疑惑：将这些方法使用@property装饰成属性有意义吗？
-        return User.query.get(session['uid'])
-
-    def current_id():
-        return session['uid']
-    
-    def current_name():
-        return session['uname']
