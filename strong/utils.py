@@ -90,7 +90,7 @@ def flash_(message: str, category='success'):
 
 def get_level(exp: int):
     """经验值 --> 对应等级"""
-    return math.ceil(math.sqrt(exp * 2 + 0.25) - 0.5)  # ceil向上取整（已对边界值测试）
+    return int(math.sqrt(exp * 2 + 0.25) - 0.5)  # ceil向上取整（已对边界值测试）
 
 def get_exp(level: int):
     """等级 --> 对应经验值"""
