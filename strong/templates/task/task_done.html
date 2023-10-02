@@ -1,29 +1,35 @@
 {% extends 'task/_task.html' %}
-{% block active_done %} btn-secondary {% endblock %}
+{% block ac_done %} active {% endblock %}
 
-
+<!-- 1 下拉列表-排序选择 -->
 {% block top_bar %}
-{{ super() }}
-<div class="dropdown" style="margin-left:auto; margin-top: auto;">
+<li class="nav-item dropdown">
     {% set orders = {
-    TaskOrder.FD:'完成时间 ↑', TaskOrder.FA:'完成时间 ↓',
-    TaskOrder.AD:'创建时间 ↑', TaskOrder.AA:'创建时间 ↓',
-    TaskOrder.ND:'任务名称 ↑', TaskOrder.NA:'任务名称 ↓'} %}
+        TaskOrder.FD:'完成时间 ↑', TaskOrder.FA:'完成时间 ↓',
+        TaskOrder.AD:'创建时间 ↑', TaskOrder.AA:'创建时间 ↓',
+        TaskOrder.ND:'任务名称 ↑', TaskOrder.NA:'任务名称 ↓'} %}
 
-    <button class="btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-        aria-haspopup="true" aria-expanded="false">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+        aria-expanded="false">
         {{ orders[order_id] }}
-    </button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
         {% for order_id in orders %}
-        <a class="dropdown-item" href="{{ url_for('.task_done', order_id=order_id) }}">{{ order_id }} {{ orders[order_id]
-            }}</a>
+        <a class="dropdown-item" href="{{ url_for('.task_done', order_id=order_id) }}">{{ orders[order_id] }}</a>
         {% endfor %}
     </div>
-</div>
+</li>
 {% endblock %}
 
-{# 2 已完成任务列表 #}
+<!-- 2 搜索框-默认get请求 -->
+{% block top_bar_nav %}
+<form class="form-inline">
+    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+</form>
+{% endblock top_bar_nav %}
+
+<!-- 3 完成任务列表 -->
 {% block task_list %}
 <table class="table table-striped">
     <thead>
