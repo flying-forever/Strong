@@ -1,6 +1,6 @@
 import datetime
 
-from flask import render_template, redirect, url_for, session, Blueprint
+from flask import render_template, redirect, url_for, session, Blueprint, request
 
 from strong.callbacks import login_required
 from strong.utils import Time, TaskOrder, Login
@@ -39,10 +39,12 @@ def task_doing():
 @task_bp.route('/done')
 @task_bp.route('/done/<int:order_id>')
 def task_done(order_id: int=1):
-    
     tasks = Task.query.filter_by(uid=Login.current_id())
+    # 1 搜索
+    keyword = request.args.get('keyword')
+    tasks = tasks.filter(Task.name.like('%{}%'.format(keyword))) if keyword else tasks
+    # 2 排序
     TO = TaskOrder
-
     order_way = {
         TO.FD: Task.time_finish.desc(),
         TO.FA: Task.time_finish.asc(),

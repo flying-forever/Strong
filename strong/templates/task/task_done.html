@@ -15,7 +15,9 @@
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
         {% for order_id in orders %}
-        <a class="dropdown-item" href="{{ url_for('.task_done', order_id=order_id) }}">{{ orders[order_id] }}</a>
+        <a class="dropdown-item" href="{{ url_for('.task_done', order_id=order_id, keyword=request.args.get('keyword')) }}">
+            {{ orders[order_id] }}
+        </a>
         {% endfor %}
     </div>
 </li>
@@ -24,8 +26,8 @@
 <!-- 2 搜索框-默认get请求 -->
 {% block top_bar_nav %}
 <form class="form-inline">
-    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    <input name="keyword" class="form-control mr-sm-2" type="search" placeholder="关键词" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">搜索</button>
 </form>
 {% endblock top_bar_nav %}
 
