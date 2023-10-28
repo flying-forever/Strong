@@ -38,6 +38,8 @@ class User(db.Model):
     name = db.Column(db.String(64), nullable=False, unique=True) # 用户昵称
     password = db.Column(db.String(64), nullable=False) # 登录密码
     exp = db.Column(db.Integer, nullable=False, default=0) # 该用户总经验值
+    introduce = db.Column(db.String(128), nullable=False, default='空空如也') # 个人简介 
+    email = db.Column(db.String(64), nullable=False, default='None')
 
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) # 账号创建时间
 

@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, session, Blueprint, make_r
 from strong.callbacks import login_required
 from strong.utils import Login, get_level, get_exp
 from strong.utils import flash_ as flash
-from strong.forms import LoginForm
+from strong.forms import LoginForm, UserForm
 from strong.models import User
 from strong import db
 
@@ -32,6 +32,30 @@ def home():
     level = get_level(exp=user.exp)
     need_exp = get_exp(level + 1) - user.exp
     return render_template('auth/home.html', user=user, level=level, need_exp=need_exp)
+
+
+@auth_bp.route('/modify', methods=['GET', 'POST'])
+@login_required
+def modify():
+    """修改用户基本信息"""
+    form = UserForm()
+    user: User = User.query.get(Login.current_id())
+    level = get_level(exp=user.exp)
+    need_exp = get_exp(level + 1) - user.exp
+    
+    if form.validate_on_submit():
+        user.name = form.username.data 
+        user.introduce = form.introduce.data 
+        user.email = form.email.data
+        db.session.commit() 
+        flash('修改成功！')
+        return redirect(url_for('.home'))
+    # 表单回显
+    form.username.data = user.name 
+    form.introduce.data = user.introduce
+    form.email.data = user.email
+
+    return render_template('auth/modify.html', form=form, user=user, level=level, need_exp=need_exp)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])

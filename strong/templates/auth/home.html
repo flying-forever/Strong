@@ -2,6 +2,11 @@
 
 {% block active_home %} btn-primary {% endblock %}
 
+{% block head %}
+{{ super() }}
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock head %}
+
 {% block content %}
 <div class="row">
     <div class="col-2">
@@ -18,6 +23,11 @@
         {% else %}
             <p>未登录</p>
         {% endif %} 
+        <p>个人简介：{{ user.introduce }}</p>
+        <p>
+            邮箱：{{ user.email }}
+            <a class="btn btn-success btn-right" href="{{ url_for('auth.modify') }}" role="button">修改信息</a>
+        </p>
     </div>
 </div>
 <hr>

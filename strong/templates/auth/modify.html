@@ -1,0 +1,33 @@
+<!-- 重构：与homt.html相似度较高 -->
+{% extends '_base.html' %}
+
+{% block active_home %} btn-primary {% endblock %}
+
+{% block content %}
+<form method="post">
+    <div class="row">
+        <div class="col-2">
+            <img src="{{ url_for('static', filename='img/host.jpg') }}" class="img-fluid rounded-circle" alt="头像">
+        </div>
+        <div class="col">
+            {% if user %}
+                <h2>{{ user.name }} <small class="text-success">LV{{ level }}</small></h2>
+                <h3>{{ user.exp }} 
+                    <small><small>总经验
+                        <small> (下一级还需：{{ need_exp }})</small>
+                    </small></small>
+                </h3>
+            {% else %}
+                <p>未登录</p>
+            {% endif %} 
+        </div>
+    </div>
+    <hr>
+    {{ form.csrf_token }}
+    <p>用户名：{{ form.username }}</p>
+    <p>个人简介：{{ form.introduce }}</p>
+    <p>邮箱：{{ form.email }}</p>
+    {{ form.submit(class='btn btn-primary') }}
+    <a class="btn btn-secondary btn-right" href="{{ url_for('auth.home') }}" role="button">取消</a>
+</form>
+{% endblock %}

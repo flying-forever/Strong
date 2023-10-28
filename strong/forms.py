@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SubmitField, SelectField, BooleanField
-from wtforms.validators import DataRequired, NumberRange
+from wtforms.validators import DataRequired, NumberRange, Length
 
 
 class TaskForm(FlaskForm):
@@ -28,4 +28,11 @@ class LoginForm(FlaskForm):
     username = StringField(label='用户名', validators=[DataRequired('不能为空')])
     password = StringField(label='密码', validators=[DataRequired('不能为空')])
     remenber = BooleanField(label='记住我', default=False)
+    submit = SubmitField(label='确定')
+
+class UserForm(FlaskForm):
+    """修改个人基本信息"""
+    username = StringField(label='用户名', validators=[DataRequired('不能为空')])
+    email = StringField(label='邮箱', validators=[DataRequired('不能为空'), Length(max=64, message="输入长度不能超过64")])
+    introduce = StringField(label='个人简介', validators=[DataRequired('不能为空'), Length(max=128, message="输入长度不能超过128")])
     submit = SubmitField(label='确定')
