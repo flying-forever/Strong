@@ -15,6 +15,10 @@ pymysql.install_as_MySQLdb()
 db = SQLAlchemy()
 migrate = Migrate()
 
+# 扩展实例化 - 处理用户头像
+from flask_avatars import Avatars 
+avatars = Avatars()
+
 
 def create_app(config_py=None):
 
@@ -38,5 +42,6 @@ def create_app(config_py=None):
     # 初始化扩展
     db.init_app(app)
     migrate.init_app(app, db)
+    avatars.init_app(app)
 
     return app
