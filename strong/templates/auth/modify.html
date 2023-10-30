@@ -7,7 +7,11 @@
 <form method="post">
     <div class="row">
         <div class="col-2">
-            <img src="{{ url_for('static', filename='img/host.jpg') }}" class="img-fluid rounded-circle" alt="头像">
+            {% if user.avatar %}
+                <img src="{{ url_for('auth.get_file', filename=user.avatar) }}" class="img-fluid rounded-circle" alt="头像">
+            {% else %} 
+                <img src="{{ avatars.default() }}" class="img-fluid rounded-circle" alt="头像">
+            {% endif %}
         </div>
         <div class="col">
             {% if user %}
