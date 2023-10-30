@@ -1,4 +1,5 @@
 from flask import render_template, redirect, url_for, session, Blueprint, make_response, request, current_app
+from flask import send_from_directory
 
 import os
 
@@ -60,19 +61,29 @@ def modify():
     return render_template('auth/modify.html', form=form, user=user, level=level, need_exp=need_exp)
 
 
-# 没写完
 @auth_bp.route('/upload_avatar', methods=['GET', 'POST'])
 @login_required
 def upload_avatar():
     """上传自定义头像"""
+    user: User = Login.current_user()
     form = UploadForm()
     if form.validate_on_submit():
+        # 保存到文件系统
         f = form.photo.data 
         filename = random_filename(f.filename)
         f.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
+        # 文件名(而非路径)写入数据库 - 文件所在路径将是可变的
+        user.avatar = filename
+        db.session.commit()
         flash('上传成功！')
         return redirect(url_for('.home'))
     return render_template('auth/upload.html', form=form)
+
+
+@auth_bp.route('/uploads/<path:filename>')
+@login_required
+def get_file(filename):
+    return send_from_directory(current_app.config['UPLOAD_PATH'], filename)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
