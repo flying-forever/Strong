@@ -1,4 +1,4 @@
-import math
+import math, os, uuid
 from flask import flash, session
 from strong.models import User
 
@@ -95,3 +95,10 @@ def get_level(exp: int):
 def get_exp(level: int):
     """等级 --> 对应经验值"""
     return int((level * level + level) / 2)
+
+
+def random_filename(filename):
+    """生成随机的文件名，防止用户上传的文件名中带有恶意路径。"""
+    ext = os.path.splitext(filename)[1]
+    new_filename = uuid.uuid4().hex + ext   # 疑惑：uuid的原理？
+    return new_filename

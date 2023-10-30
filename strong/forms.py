@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, IntegerField, SubmitField, SelectField, BooleanField
 from wtforms.validators import DataRequired, NumberRange, Length
 
@@ -35,4 +36,8 @@ class UserForm(FlaskForm):
     username = StringField(label='用户名', validators=[DataRequired('不能为空')])
     email = StringField(label='邮箱', validators=[DataRequired('不能为空'), Length(max=64, message="输入长度不能超过64")])
     introduce = StringField(label='个人简介', validators=[DataRequired('不能为空'), Length(max=128, message="输入长度不能超过128")])
+    submit = SubmitField(label='确定')
+
+class UploadForm(FlaskForm):
+    photo = FileField('上传图片', validators=[FileRequired(), FileAllowed(['jpg','jpeg','png','gif'])])
     submit = SubmitField(label='确定')

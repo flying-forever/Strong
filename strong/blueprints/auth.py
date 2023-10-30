@@ -1,9 +1,11 @@
-from flask import render_template, redirect, url_for, session, Blueprint, make_response, request
+from flask import render_template, redirect, url_for, session, Blueprint, make_response, request, current_app
+
+import os
 
 from strong.callbacks import login_required
-from strong.utils import Login, get_level, get_exp
+from strong.utils import Login, get_level, get_exp, random_filename
 from strong.utils import flash_ as flash
-from strong.forms import LoginForm, UserForm
+from strong.forms import LoginForm, UserForm, UploadForm
 from strong.models import User
 from strong import db
 
@@ -56,6 +58,21 @@ def modify():
     form.email.data = user.email
 
     return render_template('auth/modify.html', form=form, user=user, level=level, need_exp=need_exp)
+
+
+# 没写完
+@auth_bp.route('/upload_avatar', methods=['GET', 'POST'])
+@login_required
+def upload_avatar():
+    """上传自定义头像"""
+    form = UploadForm()
+    if form.validate_on_submit():
+        f = form.photo.data 
+        filename = random_filename(f.filename)
+        f.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
+        flash('上传成功！')
+        return redirect(url_for('.home'))
+    return render_template('auth/upload.html', form=form)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
