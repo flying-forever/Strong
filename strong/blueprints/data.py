@@ -8,7 +8,7 @@ from strong.utils import Login
 data_bp = Blueprint('data', __name__, static_folder='static', template_folder='templates')
 
 
-# 重构：代码冗余高，算法效率低。
+# 重构：代码职责宽泛，冗余高，算法效率低。
 @data_bp.route('/')
 @login_required
 def data():
@@ -49,8 +49,11 @@ def data():
 
     # 4 概览
     hours_all = max(pday)
+    average_hour = round(hours_all / today, 2)
     hours_all_l = pday_l[pday.index(hours_all)]
     x = [f'{i}日' for i in range(32)]
 
-    return render_template('data/data.html', pday=pday, pday_l=pday_l, x=x, hours_all=hours_all, hours_all_l=hours_all_l)
+    return render_template(
+        'data/data.html', pday=pday, pday_l=pday_l, x=x, 
+        hours_all=hours_all, average_hour=average_hour, hours_all_l=hours_all_l)
 
