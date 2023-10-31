@@ -9,36 +9,41 @@
 
 {% block content %}
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<div id="main" style="width: 600px;height:400px;"></div>
+<div id="main" style="width: 960;height:540px;" class="container-fluid"></div>
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('main'), 'wonderland');
 
     // 指定图表的配置项和数据
+    // var xs = '{{ x }}'
     var option = {
         title: {
-            text: '第一个 ECharts 实例'
+            text: '本月学习 {{ hours_all }} 小时',
+            subtext: '上月此时 {{ hours_all_l }} 小时',
         },
-        tooltip: {},
+        tooltip: {
+            text: 'hello'
+        },
 
         legend: {
-            data: ['销量', '去年销量'],
+            data: ['上月', '本月'],
         },
 
+        //备注：在js代码中使用模板能跑，但是会报错好烦啊。
         xAxis: {
-            data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+            data: {{ x | safe }}
         },
         yAxis: {},
         series: [
             {
-                name: '销量',
+                name: '上月',
                 type: 'line',
-                data: [5, 20, 25, 26, 30, 33]
+                data: {{ pday_l }}
             },
             {
-                name: '去年销量',
+                name: '本月',
                 type: 'line',
-                data: [5, 6, 7, 10, 15, 20]
+                data: {{ pday }}
             }]
     };
 

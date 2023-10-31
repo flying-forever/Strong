@@ -20,7 +20,7 @@ class Task(db.Model):
 
     # 自动时间戳
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    time_finish = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    time_finish: datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # 外键与关系属性
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))
