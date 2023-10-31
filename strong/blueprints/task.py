@@ -16,6 +16,7 @@ from strong import db
 task_bp = Blueprint('task', __name__, static_folder='static', template_folder='templates')
 
 
+# 备注：还没写
 @task_bp.before_request
 @login_required
 def login_protect():

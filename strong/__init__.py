@@ -28,9 +28,10 @@ def create_app(config_py=None):
     app.config.from_object(config[config_name])
 
     # 注册蓝图
-    from strong.blueprints import auth_bp, task_bp
+    from strong.blueprints import auth_bp, task_bp, data_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(task_bp, url_prefix='/task')
+    app.register_blueprint(data_bp, url_prefix='/data')
 
     # 要注册到app上的东西（而不是注册到蓝图）
     register_index(app)

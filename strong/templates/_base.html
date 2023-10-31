@@ -50,6 +50,8 @@
                         class="btn {% block active_home %}{% endblock %}">个人中心</a>
                     <a href="{{ url_for('task.task_doing') }}" role="button"
                         class="btn {% block active_task %}{% endblock %}">任务面板</a>
+                    <a href="{{ url_for('data.data') }}" role="button"
+                        class="btn {% block active_data %}{% endblock %}">数据透视</a>
                 </div>
                 {% endblock sidebar %}
             </div>
