@@ -42,8 +42,9 @@ def data():
     # 3 分钟变小时，并保留两位小数
     for i in range(32):
         try:
-            pday[i] = round(pday[i] / 60.0, 2)
+            # 说明：pday_l应该在前，否则总会因为pday越界而被跳过
             pday_l[i] = round(pday_l[i] / 60.0, 2)
+            pday[i] = round(pday[i] / 60.0, 2)
         except Exception as e:
             pass
 
