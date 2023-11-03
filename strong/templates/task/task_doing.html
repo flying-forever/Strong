@@ -11,19 +11,20 @@
     {% set task = tasks[index] %}
     <div class="col-6">
         <li class="list-group-item" style="margin-top: 2px; background-color:rgb(250, 250, 250);">
-            <h5 class="list-group-item-heading" {% if task.task_type == 1 %} style="color:green;" {% endif %}>
+            <h6 class="list-group-item-heading" {% if task.task_type == 1 %} style="color:green;" {% endif %}>
                 <small>#{{ task.id }}</small> {{ task.name }}
-            </h5>
+            </h6>
             <div class="row">
                 <div class="col-8">
-                    <p class="list-group-item-text">{{ task.exp }}经验值 &nbsp;&nbsp;预计用时: {{ task.need_minute }}m</p>
+                    <small><p class="list-group-item-text">{{ task.exp }}经验值 &nbsp;&nbsp;预计用时: {{ task.need_minute }}m</p></small>
+            
                 </div>
                 <div class="col-4">
                     <a href="{{ url_for('.task_submit', task_id=task.id, next=request.endpoint) }}"
-                        class="btn btn-success btn" role="button">提交</a>
+                        class="btn btn-success btn-sm" role="button">提交</a>
                     {{ modal_botton(
                         id='delete' + [task.id] | join,
-                        btn_class='btn-danger btn',
+                        btn_class='btn-danger btn-sm',
                         btn_name='删除', title='提醒',
                         body='你确定删除任务 ' + task.name + ' 吗？删除后不可恢复！',
                         footer_href=url_for('.task_delete', task_id=task.id)
