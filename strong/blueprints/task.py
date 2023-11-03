@@ -33,7 +33,8 @@ def make_template_context():
 @task_bp.route('/')
 @task_bp.route('/doing')
 def task_doing():
-    tasks = Task.query.filter_by(uid=Login.current_id()).order_by(Task.time_add.desc()).all() # 时间逆序
+    tasks: list[Task] = Task.query.filter_by(uid=Login.current_id()).order_by(Task.time_add.desc()).all() # 时间逆序
+    tasks = [task for task in tasks if not task.is_finish] # 待完成的任务列表
     return render_template('task/task_doing.html', tasks=tasks, Time=Time)
 
 
