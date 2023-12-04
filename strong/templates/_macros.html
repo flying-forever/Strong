@@ -27,6 +27,29 @@
 {% endmacro %}
 
 
+{# 1.1 渲染一个表单字段 #}
+{% macro form_field(field) %}
+    {{ field.label }}
+    {{ field(class='form-control') }}
+    {% if field.errors -%}
+        {% for error in field.errors -%}
+            <small class="error">{{ error }}</small><br>
+        {%- endfor %}
+    {%- endif %}
+{% endmacro %}
+
+
+{# 1.2 渲染传入的表单字段列表 #}
+{% macro form_field_list(fields, form) %}
+    {{ form.csrf_token }}
+    {% for field in fields %}
+        <div class="form-group">
+            {{ form_field(field) }}
+        </div>
+    {% endfor %}
+{% endmacro %}
+
+
 {# 2 添加一个模态框按钮 - 每个按钮应该提供一个不同的“id”参数 (不能以数字开头) #}
 {% macro modal_botton(id, btn_class, btn_name, title, body, footer_href) %}
 <button type="button" class="btn {{ btn_class }}" data-toggle="modal" data-target="#{{ id }}">

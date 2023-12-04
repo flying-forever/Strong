@@ -47,4 +47,4 @@ class User(db.Model):
     tasks = db.relationship('Task', back_populates='user')
 
     def __str__(self) -> str:
-        return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
+        return f"<User id={self.id} name='{self.name}' exp={self.exp}>"
