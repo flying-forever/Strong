@@ -2,6 +2,28 @@
 
 看着是个简陋的待办事项程序，但它的灵魂是完成事项会获得“经验值”，得到自我激励效果。
 
+## 项目结构
+
+```bash
+strong/
+	bluprints/  #视图函数，即接收浏览器请求的代码在这里
+		auth.py		#登录、注册等用户相关的逻辑
+		data.py		#为数据可视化页面提供数据处理
+		task.py		#任务相关的逻辑
+	static/		#静态资源，用到的css、js框架，以及项目logo等在这里
+		css/	
+		img/
+		js/
+	templates/	#模板，即html页面在这里
+	uploads/	#用户上传的文件，如头像在这里
+	__init__.py #工厂函数，创建app、初始化扩展
+	config.py	#配置，如数据库的连接配置在这里
+	manage.py  	#运行它
+	...
+```
+
+
+
 ## 运行项目
 
 **1 下载代码**
@@ -70,6 +92,8 @@ python manage.py
 ```bash
 flask run
 ```
+
+
 
 
 
