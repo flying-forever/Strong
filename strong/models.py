@@ -61,6 +61,7 @@ class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False) # 书名
     page = db.Column(db.Integer, nullable=False) # 总页数
+    cover = db.Column(db.String(64), nullable=True) # 封面
 
     tasks = db.relationship('Task', back_populates='book')
 

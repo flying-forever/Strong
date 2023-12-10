@@ -5,7 +5,6 @@ import pymysql
 import os
 
 from strong.config import config
-from strong.registers import register_index, register_context
 
 
 # 应对服务器上的bug：_mysql is not defined
@@ -34,8 +33,10 @@ def create_app(config_py=None):
     app.register_blueprint(data_bp, url_prefix='/data')
 
     # 要注册到app上的东西（而不是注册到蓝图）
+    from strong.registers import register_index, register_context, register_getfile
     register_index(app)
     register_context(app)
+    register_getfile(app)
 
     # 导入模型类，让数据库实例能找到它
     from strong import models

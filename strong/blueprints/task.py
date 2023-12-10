@@ -1,17 +1,16 @@
-import datetime
-import re
+import datetime, re, os
 
-from flask import render_template, redirect, url_for, session, Blueprint, request
+from flask import render_template, redirect, url_for, session, Blueprint, request, current_app
 
 from strong.callbacks import login_required
-from strong.utils import Time, TaskOrder, Login
+from strong.utils import Time, TaskOrder, Login, random_filename
 from strong.utils import flash_ as flash
-from strong.forms import TaskForm, TaskSubmitForm, BookForm
+from strong.forms import TaskForm, TaskSubmitForm, BookForm, UploadForm
 from strong.models import User, Task, Book
 from strong import db
 # 重构：在蓝本上统一注册装饰器
 
-# ------------------------------ 二、任务模块 ------------------------------ #
+# ------------------------------ 一、基础模块 ------------------------------ #
 
 
 task_bp = Blueprint('task', __name__, static_folder='static', template_folder='templates')
@@ -29,6 +28,9 @@ def login_protect():
 def make_template_context():
     """增加模板上下文变量"""
     return dict(TaskOrder=TaskOrder)
+
+
+# ------------------------------ 二、任务模块 ------------------------------ #
 
 
 @task_bp.route('/')
@@ -167,7 +169,8 @@ def bookcase():
     books: list[Book] = []
     books = Book.query.filter(Book.uid==Login.current_id()).all()
 
-    books_show = [{'id':book.id, 'name':book.name, 'page':book.page, 'read_page':read_page(book), 'percent':0, 'read_hour':read_hour(book)} \
+    books_show = [{'id':book.id, 'name':book.name, 'page':book.page, 'cover':book.cover, \
+        'read_page':read_page(book), 'percent':0, 'read_hour':read_hour(book)}
         for book in books]
 
     for book in books_show:
@@ -237,6 +240,24 @@ def book_delete(book_id):
     db.session.commit()
     flash('删除成功')
     return redirect(url_for('.bookcase'))
+
+
+@task_bp.route('/upload_cover/<int:book_id>', methods=['GET','POST'])
+def upload_cover(book_id):
+    '''为书籍上传封面'''
+    book: Book = Book.query.filter(Book.id==book_id and Book.uid==Login.current_id()).first()
+    form = UploadForm()
+    if form.validate_on_submit():
+        # 保存到文件系统
+        f = form.photo.data 
+        filename = random_filename(f.filename)
+        f.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
+        # 文件名(而非路径)写入数据库 - 文件所在路径将是可变的
+        book.cover = filename
+        db.session.commit()
+        flash('上传成功！')
+        return redirect(url_for('.bookcase'))
+    return render_template('auth/upload.html', form=form)
 
 
 # ------------------------------ 四、胡乱尝试 ------------------------------ #

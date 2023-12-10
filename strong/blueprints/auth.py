@@ -80,12 +80,6 @@ def upload_avatar():
     return render_template('auth/upload.html', form=form)
 
 
-@auth_bp.route('/uploads/<path:filename>')
-@login_required
-def get_file(filename):
-    return send_from_directory(current_app.config['UPLOAD_PATH'], filename)
-
-
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = LoginForm()
