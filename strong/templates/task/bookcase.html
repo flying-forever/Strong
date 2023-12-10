@@ -1,0 +1,31 @@
+{% extends 'task/_task.html' %}
+{% block ac_book %} active {% endblock %}
+
+
+{% block top_bar %}
+<a class="btn btn-success" href="{{ url_for('.book_create') }}">+新增</a>
+{% endblock %}
+
+
+{% block task_list %}
+<div class="row">
+    {% for book in books %}
+    <div class="border col-sm-6 col-md-2">
+        <div class="thumbnail">
+            <img src="{{ url_for('static', filename='img/host.jpg') }} " alt="book"
+                style="height: 200px; width: 175px;">
+            <div class="caption">
+                <h5>{{ book['name'] }}</h5>
+                <p>{{ book['read_page'] }}/{{ book['page'] }}页 &nbsp;{{ book['percent'] }}% &nbsp;{{ book['read_hour'] }}h</p>
+                <p>
+                    <a href="{{ url_for('.book_update', book_id=book['id']) }}" class="btn btn-sm btn-primary"
+                        role="button">修改</a>
+                    <a href="{{ url_for('.book_delete', book_id=book['id']) }}" class="btn btn-sm btn-default"
+                        role="button">删除</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock task_list %}

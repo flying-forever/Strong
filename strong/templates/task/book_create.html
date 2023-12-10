@@ -1,0 +1,29 @@
+<!-- 肩负起创建新书籍， 修改书籍绑定的双重任务 -->
+
+{% extends 'task/_task.html' %}
+{% from '_macros.html' import form_field_all with context %} <!-- 注：这个with context，把它去掉报个bug，就知道它是干嘛的 -->
+{% block ac_book %} active {% endblock %}
+
+
+{% block top_bar %} 
+<a class="btn btn-success" href="{{ url_for('.bookcase') }}">返回</a>
+{% endblock %}
+
+
+{% block task_list %}
+<form method="post">
+    {{ form_field_all(form) }}
+</form>
+
+{% if bind_tasknames %}
+<p style="display: inline-block;">
+    已绑定的任务：
+    {% for taskname in bind_tasknames %}
+    <div class="btn-group" role="group" aria-label="名字和删除按钮">
+        <a class="btn btn-sm btn-info" href="#">{{ taskname }}</a>
+        <a class="btn btn-sm btn-info" href="{{ url_for('.book_unbind', taskname=taskname, book_id=book_id) }}">x</a>
+    </div>
+    {% endfor %}
+</p>
+{% endif %}
+{% endblock task_list %}

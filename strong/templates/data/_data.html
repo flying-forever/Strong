@@ -1,0 +1,21 @@
+{% extends '_base.html' %}
+
+{% block active_data %} btn-primary {% endblock %}
+
+{% block content %}
+
+<!-- 1 顶栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link {% block ac_data %}{% endblock %}" href="{{ url_for('.data') }}">学习时间</a>
+            {% block top_bar %}{% endblock top_bar %}
+        </div>
+    </div>
+    {% block top_bar_nav %}{% endblock top_bar_nav %}
+</nav>
+
+<!-- 2 展示页面 -->
+{% block show %} ... {% endblock %}
+
+{% endblock %}

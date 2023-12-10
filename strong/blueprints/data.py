@@ -1,8 +1,13 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, url_for
 from datetime import datetime
+import re
+
+from strong import db
 from strong.callbacks import login_required
-from strong.models import Task
-from strong.utils import Login
+from strong.models import Task, Book
+from strong.utils import Login, Time
+from strong.utils import flash_ as flash
+from strong.forms import BookForm
 
 
 data_bp = Blueprint('data', __name__, static_folder='static', template_folder='templates')
@@ -57,4 +62,3 @@ def data():
     return render_template(
         'data/data.html', pday=pday, pday_l=pday_l, x=x, 
         hours_all=hours_all, average_hour=average_hour, hours_all_l=hours_all_l)
-

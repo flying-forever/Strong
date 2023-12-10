@@ -20,11 +20,14 @@ class Task(db.Model):
 
     # 自动时间戳
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    time_finish: datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    time_finish: datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
     # 外键与关系属性
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', back_populates='tasks')
+
+    bid = db.Column(db.Integer, db.ForeignKey('book.id'))
+    book = db.relationship('Book', back_populates='tasks') # 注：一对一关系
 
     def __str__(self) -> str:
         return f"<Task name='{self.name}' exp={self.exp}>"
@@ -45,6 +48,22 @@ class User(db.Model):
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) # 账号创建时间
 
     tasks = db.relationship('Task', back_populates='user')
+    books = db.relationship('Book', back_populates='user')
 
     def __str__(self) -> str:
         return f"<User id={self.id} name='{self.name}' exp={self.exp}>"
+
+
+class Book(db.Model):
+    """书籍模型
+    @create: name, page, uid\n"""
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False) # 书名
+    page = db.Column(db.Integer, nullable=False) # 总页数
+
+    tasks = db.relationship('Task', back_populates='book')
+
+    uid = db.Column(db.Integer, db.ForeignKey('user.id'))  # 怀疑：其实可以通过tid间接找到uid？
+    user = db.relationship('User', back_populates='books')
+

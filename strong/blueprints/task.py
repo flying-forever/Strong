@@ -1,12 +1,13 @@
 import datetime
+import re
 
 from flask import render_template, redirect, url_for, session, Blueprint, request
 
 from strong.callbacks import login_required
 from strong.utils import Time, TaskOrder, Login
 from strong.utils import flash_ as flash
-from strong.forms import TaskForm, TaskSubmitForm
-from strong.models import User, Task
+from strong.forms import TaskForm, TaskSubmitForm, BookForm
+from strong.models import User, Task, Book
 from strong import db
 # 重构：在蓝本上统一注册装饰器
 
@@ -83,7 +84,7 @@ def task_submit(task_id):
     form = TaskSubmitForm()
     task = Task.query.get(task_id)
     if form.validate_on_submit():
-        def form_commit(task):
+        def form_commit(task: Task):
             """写入表单数据到数据库"""
             task.use_minute = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
             task.describe = form.describe.data
@@ -97,11 +98,12 @@ def task_submit(task_id):
         # 2 提交重复任务（新） --> 创建一个新的拷贝
         if task.task_type == 1:
             task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
-                    uid=task.uid, task_type=task.task_type)
+                    uid=task.uid, task_type=task.task_type, bid=task.bid)
             db.session.add(task_new)
         # 3 提交任务（新） --> 增加经验
         user = Login.current_user()
         user.exp += task.exp
+        task.time_finish = datetime.datetime.utcnow() # 记录初次提交的时间
         return form_commit(task=task)
 
     # 表单回显 --> 修改已完成的任务时
@@ -123,7 +125,123 @@ def task_delete(task_id):
     return redirect(url_for('.task_doing'))
 
 
-# ------------------------------ 三、胡乱尝试 ------------------------------ #
+# ------------------------------ 三、书架模块 ------------------------------ #
+
+
+def bind(taskname, book_id):
+    '''将匹配的任务绑定到书籍'''
+    tasks: list[Task] = Task.query.filter(Task.name.like(f'%{taskname}%')).all()
+    for task in tasks:
+        task.bid = book_id
+
+
+@task_bp.route('/bookcase')
+def bookcase():
+    def page_form_str(in_str):
+        '''从字符串中提取页数信息，用正则表达式'''
+
+        targets = [r'p(\d+)', r'(\d+)页']
+        matchs = [re.search(target, in_str) for target in targets]
+        for match in matchs:
+            if match:
+                return int(match.group(1))
+        return 0
+
+    def read_page(book: Book):
+        '''获取书籍已读页数'''
+        # 重构：低效实现，每本书都会执行一次查询
+        tasks: list[Task] = book.tasks
+        read_pages = [page_form_str(task.describe) for task in tasks]
+        return max(read_pages) if read_pages else 0
+
+    def read_hour(book: Book):
+        '''获取书籍已读时间'''
+
+        minute = 0
+        tasks: list[Task] = book.tasks 
+        for task in tasks:
+            minute += task.use_minute 
+        hour = round(minute / 60.0, 2) # 保留两位小数
+        return hour
+
+    books: list[Book] = []
+    books = Book.query.filter(Book.uid==Login.current_id()).all()
+
+    books_show = [{'id':book.id, 'name':book.name, 'page':book.page, 'read_page':read_page(book), 'percent':0, 'read_hour':read_hour(book)} \
+        for book in books]
+
+    for book in books_show:
+        book['percent'] = round(100 * book['read_page'] / book['page'], 2)
+    return render_template('task/bookcase.html', books=books_show, Time=Time)
+
+
+@task_bp.route('/bookcase/create', methods=['GET', 'POST'])
+def book_create():
+    form = BookForm()
+    if form.validate_on_submit():
+        # 补充：判断书名对当前用户是否重复
+        book = Book(name=form.bookname.data, page=form.page.data, uid=Login.current_id())
+        db.session.add(book)
+
+        # 任务绑定
+        bind(taskname=form.taskname.data, book_id=book.id)
+
+        db.session.commit()
+        flash('书籍创建成功！')
+        return redirect(url_for('.bookcase'))
+    return render_template('task/book_create.html', form=form)
+
+
+@task_bp.route('/bookcase/update/<int:book_id>', methods=['GET', 'POST'])
+def book_update(book_id):
+    form = BookForm()
+    book: Book = Book.query.get(book_id)
+    if form.validate_on_submit():
+        
+        # 基本信息修改
+        book.name = form.bookname.data
+        book.page = form.page.data
+
+        # 任务绑定
+        bind(taskname=form.taskname.data, book_id=book.id)
+        
+        db.session.commit()
+        flash('修改成功！')
+        return redirect(url_for('.book_update', book_id=book_id))
+
+    # 回显表单
+    bind_tasknames = []
+    for task in book.tasks:
+        if task.name not in bind_tasknames:
+            bind_tasknames.append(task.name)
+    form.bookname.data = book.name 
+    form.page.data = book.page
+
+    #重构：book_id使在book_unbind中能跳回来，有没有更优雅的重定向方式？
+    return render_template('task/book_create.html', form=form, bind_tasknames=bind_tasknames, book_id=book_id)
+
+
+@task_bp.route('/bookcase/unbind/<taskname>/<int:book_id>')
+def book_unbind(taskname, book_id):
+    un_tasks = Task.query.filter(Task.name==taskname and Task.uid==Login.current_id()).all() # 问题：怎么这个.all()要不要都一样
+    for task in un_tasks:
+        task.bid=None
+    db.session.commit()
+    return redirect(url_for('.book_update', book_id=book_id))
+
+
+@task_bp.route('/bookcase/delete/<int:book_id>')
+def book_delete(book_id):
+    book = Book.query.filter(Book.id==book_id and Book.uid==Login.current_id()).first()
+    db.session.delete(book) # 注：默认的级联操作，会自动删除task中对应的外键
+    db.session.commit()
+    flash('删除成功')
+    return redirect(url_for('.bookcase'))
+
+
+# ------------------------------ 四、胡乱尝试 ------------------------------ #
+
+
 @task_bp.route('/test')
 def test():
     """用于尝试一些新功能，或样式。"""

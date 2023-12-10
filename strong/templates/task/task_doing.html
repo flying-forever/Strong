@@ -2,6 +2,9 @@
 {% from '_macros.html' import modal_botton %}
 {% block ac_doing %} active {% endblock %}
 
+{% block top_bar %}
+<a class="btn btn-success" href="{{ url_for('.task_create') }}" role="button">+新建</a>
+{% endblock %}
 
 <!-- 1 待完成任务列表 -->
 {% block task_list %}
@@ -17,7 +20,7 @@
             <div class="row">
                 <div class="col-8">
                     <small><p class="list-group-item-text">{{ task.exp }}经验值 &nbsp;&nbsp;预计用时: {{ task.need_minute }}m</p></small>
-            
+                    
                 </div>
                 <div class="col-4">
                     <a href="{{ url_for('.task_submit', task_id=task.id, next=request.endpoint) }}"

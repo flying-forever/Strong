@@ -1,13 +1,13 @@
-{% extends '_base.html' %}
+{% extends 'data/_data.html' %}
 {% block head %}
 {{ super() }}
 <!-- 图表库Echarts及其主题 -->
 <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
 <script src="https://www.runoob.com/static/js/wonderland.js"></script>
 {% endblock head %}
-{% block active_data %} btn-primary {% endblock %}
+{% block ac_data %} active {% endblock %}
 
-{% block content %}
+{% block show %}
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
 <div id="main" style="width: 960;height:540px;" class="container-fluid"></div>
 <script type="text/javascript">
@@ -50,4 +50,4 @@
     // 使用刚指定的配置项和数据显示图表。
     myChart.setOption(option);
 </script>
-{% endblock content %}
+{% endblock show %}
