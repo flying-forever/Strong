@@ -131,10 +131,11 @@ def task_delete(task_id):
 
 
 def bind(taskname, book_id):
-    '''将匹配的任务绑定到书籍'''
+    '''将匹配的任务绑定到书籍，并db.session.commit()'''
     tasks: list[Task] = Task.query.filter(Task.name.like(f'%{taskname}%')).all()
     for task in tasks:
         task.bid = book_id
+    db.session.commit()
 
 
 @task_bp.route('/bookcase')
@@ -185,11 +186,11 @@ def book_create():
         # 补充：判断书名对当前用户是否重复
         book = Book(name=form.bookname.data, page=form.page.data, uid=Login.current_id())
         db.session.add(book)
+        db.session.commit()  # 问题：因为是新任务，所以要先提交后，才能与词条绑定。但这里细节还不太理解
 
         # 任务绑定
         bind(taskname=form.taskname.data, book_id=book.id)
 
-        db.session.commit()
         flash('书籍创建成功！')
         return redirect(url_for('.bookcase'))
     return render_template('task/book_create.html', form=form)
@@ -208,7 +209,6 @@ def book_update(book_id):
         # 任务绑定
         bind(taskname=form.taskname.data, book_id=book.id)
         
-        db.session.commit()
         flash('修改成功！')
         return redirect(url_for('.book_update', book_id=book_id))
 
