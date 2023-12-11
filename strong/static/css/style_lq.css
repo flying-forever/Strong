@@ -1,0 +1,175 @@
+/* 添加书本表单样式 */
+#addBookForm {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.add-book-form {
+    text-align: center;
+}
+
+.add-book-form {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #f7f7f7;
+}
+
+.add-book-form h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    display: inline-block;
+    width: 120px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+    width: 200px;
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+
+.form-group button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.form-group button:hover {
+    opacity: 0.8;
+}
+
+/* 书籍元素样式 */
+.book {
+    float: left;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    /* 设置外边距 */
+    margin-bottom: 10px;
+    display: inline-block;
+    align-items: center;
+    font-family: 楷体
+}
+
+
+.book img {
+    max-width: 175px;
+    margin-right: 10px;
+}
+
+.book-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.book-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.book-task {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.book-progress {
+    margin-top: 5px;
+}
+
+.book-progress-label {
+    font-weight: bold;
+}
+
+.book-progress-bar {
+    height: 10px;
+    background-color: #ccc;
+    margin-top: 5px;
+}
+
+.book-progress-bar-inner {
+    height: 100%;
+    background-color: #4CAF50;
+}
+
+.book_page {
+    display: inline-block;
+}
+
+.vertical-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.progress {
+    color: #4CAF50;
+}
+
+/* .progress-inner {
+    height: 100%;
+    background-color: #007bff;
+} */
+/* .file_botton {
+    background: #00bfff
+} */
+.input-file-button {
+    border: 1px solid #ccc;
+    padding: 3px 10px;
+    background-color: #00bfff;
+    display: inline-block;
+}
+
+.upload-button {
+    padding: 6px 25px;
+    /* background: #00bfff; */
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+input {
+    display: none;
+}
+
+.modify-button {
+    background-color: #4CAF50;
+    /* 设置背景色 */
+    color: white;
+    /* 设置文本颜色 */
+    border: none;
+    /* 去掉边框 */
+    padding: 10px 20px;
+    /* 按钮内部填充 */
+    text-align: center;
+    /* 文本居中 */
+    text-decoration: none;
+    /* 去掉下划线 */
+    display: inline-block;
+    /* 设置为行内块元素 */
+    font-size: 16px;
+    /* 字体大小 */
+    cursor: pointer;
+    /* 鼠标指针样式 */
+    border-radius: 5px;
+    /* 圆角 */
+}
+
+/* 鼠标悬停时的样式 */
+.modify-button:hover {
+    background-color: #3e8e41;
+}

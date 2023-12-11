@@ -2,36 +2,44 @@
 {% block ac_book %} active {% endblock %}
 
 
+{% block head %}
+{{ super() }}
+    <link rel="shortcut icon" href="assets/img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_lq.css') }}">
+{% endblock %}
+
+
 {% block top_bar %}
 <a class="btn btn-success" href="{{ url_for('.book_create') }}">+新增</a>
 {% endblock %}
 
 
 {% block task_list %}
-<div class="row">
-    {% for book in books %}
-    <div class="border col-sm-6 col-md-2">
-        <div class="thumbnail">
-            {% if book['cover'] %} 
-                <img src="{{ url_for('getfile', filename=book['cover']) }} " alt="book" style="height: 200px; width: 175px;">
-            {% else %}
-                <img src="{{ url_for('static', filename='img/host.jpg') }} " alt="book" style="height: 200px; width: 175px;">
-            {% endif %}
-
-            <div class="caption">
-                <h5>{{ book['name'] }}</h5>
-                <p>{{ book['read_page'] }}/{{ book['page'] }}页&nbsp;{{ book['percent'] }}%&nbsp;{{ book['read_hour'] }}h</p>
-                <p>
-                    <a href="{{ url_for('.book_update', book_id=book['id']) }}" class="btn btn-sm btn-primary"
-                        role="button">修改</a>
-                    <a href="{{ url_for('.upload_cover', book_id=book['id']) }}" class="btn btn-sm btn-secondary"
-                        role="button">封面</a>
-                    <a href="{{ url_for('.book_delete', book_id=book['id']) }}" class="btn btn-sm btn-danger"
-                        role="button">删除</a>
-                </p>
-            </div>
-        </div>
+{% for book in books %}
+<div class="book vertical-layout">
+    {% if book['cover'] %}
+        <img src="{{ url_for('getfile', filename=book['cover']) }} " alt="book" style="height: 200px; width: 175px;">
+    {% else %}
+        <img src="{{ url_for('static', filename='img/host.jpg') }} " alt="book" style="height: 200px; width: 175px;">
+    {% endif %}
+    
+    <h5><i class="ri-book-open-line"></i>{{ book['name'] }}</h5>
+    <div class="book_page">
+        <label>已读:{{ book['read_page'] }}/{{ book['page'] }}页</label>
     </div>
-    {% endfor %}
+    <div class="book_page">
+        <i class="ri-medal-line"></i>
+        <label>{{ book['percent'] }}%</label>&nbsp;
+        <label>{{ book['read_hour'] }}h</label>
+    </div>
+
+    <p>
+        <a href="{{ url_for('.book_update', book_id=book['id']) }}" class="btn btn-sm btn-primary" role="button">修改</a>
+        <a href="{{ url_for('.upload_cover', book_id=book['id']) }}" class="btn btn-sm btn-secondary"
+            role="button">封面</a>
+        <a href="{{ url_for('.book_delete', book_id=book['id']) }}" class="btn btn-sm btn-danger" role="button">删除</a>
+    </p>
 </div>
+{% endfor %}
 {% endblock task_list %}
