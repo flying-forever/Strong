@@ -26,8 +26,17 @@ def data():
         Task.query
         .filter_by(uid=Login.current_id(), is_finish=True)
         .with_entities(Task.time_finish, Task.use_minute))
-    tasks_l = [task for task in tasks if task.time_finish.month == (now.month - 1)]
-    tasks = [task for task in tasks if task.time_finish.month == now.month]
+
+    if now.month == 1:  
+        # 跨年
+        l_year = now.year - 1 
+        l_month = 12
+    else:
+        l_year = now.year
+        l_month = now.month - 1
+
+    tasks_l = [task for task in tasks if task.time_finish.month == l_month and task.time_finish.year == l_year]
+    tasks = [task for task in tasks if task.time_finish.month == now.month and task.time_finish.year == now.year]
 
     # 2.1 统计本月每天的学习时间
     today = now.day
