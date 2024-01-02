@@ -64,10 +64,11 @@ def data():
 
     # 4 概览
     hours_all = max(pday)
+    today_hour = round(pday[-1] - pday[-2], 2)
     average_hour = round(hours_all / today, 2)
     hours_all_l = pday_l[pday.index(hours_all)]
     x = [f'{i}日' for i in range(32)]
 
     return render_template(
         'data/data.html', pday=pday, pday_l=pday_l, x=x, 
-        hours_all=hours_all, average_hour=average_hour, hours_all_l=hours_all_l)
+        hours_all=hours_all, today_hour=today_hour, average_hour=average_hour, hours_all_l=hours_all_l)
