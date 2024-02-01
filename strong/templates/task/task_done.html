@@ -1,6 +1,11 @@
 {% extends 'task/_task.html' %}
 {% block ac_done %} active {% endblock %}
 
+{% block head %}{{ super() }}
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% endblock head %}
+
+
 <!-- 1 下拉列表-排序选择 -->
 {% block top_bar %}
 <li class="nav-item dropdown">
@@ -36,9 +41,9 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th scope="col">编号</th>
+            <th scope="col">N</th>
             <th scope="col">任务名</th>
-            <th scope="col">经验值</th>
+            <th scope="col">Exp</th>
             <th scope="col">完成时间</th>
             <th scope="col">耗时</th>
             <th scope="col">完成描述</th>
@@ -49,11 +54,11 @@
         {% for task in tasks if task.is_finish %}
         <tr>
             <th scope="row">{{ task.id }}</th>
-            <td>{{ task.name }}</td>
+            <td class="name">{{ task.name }}</td>
             <td>{{ task.exp }}</td>
             <td>{{ task.time_finish + datetime.timedelta(hours=8) }}</td>
-            <td>{{ Time(minutes=task.use_minute) }} / {{ Time(minutes=task.need_minute) }}</td>
-            <td>{{ task.describe }}</td>
+            <td>{{ Time(minutes=task.use_minute) }}</td>
+            <td class="describe">{{ task.describe }}</td>
             <td>
                 <a class="btn btn-success btn-sm"
                     href="{{ url_for('.task_submit', task_id=task.id, next=request.endpoint) }}" role="button">修改</a>
