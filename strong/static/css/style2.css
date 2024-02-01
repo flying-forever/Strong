@@ -1,0 +1,13 @@
+/* style.css中因直接定义标签的样式，会影响bootstrap的默认组件 */
+
+/* 2 用于已完成任务表格的单元格长度，避免溢出 */
+table td.describe {
+    max-width: 500px;
+}
+
+table td.name {
+    max-width: 250px;
+    overflow: hidden;
+    white-space: nowrap; /*不换行*/
+    text-overflow: ellipsis; /*省略号*/
+}

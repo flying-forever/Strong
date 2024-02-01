@@ -27,18 +27,3 @@ header h1 {
     font-size: 60px;
     font-weight: lighter;
 }
-
-/* 2 用于已完成任务表格的单元格长度，避免溢出 */
-table td.describe {
-    max-width: 500px;
-    overflow: hidden;
-
-    text-overflow: ellipsis; /*省略号*/
-}
-
-table td.name {
-    max-width: 250px;
-    overflow: hidden;
-    white-space: nowrap; /*不换行*/
-    text-overflow: ellipsis; /*省略号*/
-}
