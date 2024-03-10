@@ -5,7 +5,25 @@
 <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
 <script src="https://www.runoob.com/static/js/wonderland.js"></script>
 {% endblock head %}
-{% block ac_data %} active {% endblock %}
+
+<!-- 1 下拉列表-月份选择 -->
+{% block top_bar %}
+<li class="nav-item dropdown">
+    {% set months = [1,2,3,4,5,6,7,8,9,10,11,12] %}
+
+    <a class="nav-link dropdown-toggle" role="button" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+        aria-expanded="false">
+        {{ month }}月
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+        {% for m in months %}
+        <a class="dropdown-item" href="{{ url_for('.data', type=type, month=m) }}">
+            {{ m }}
+        </a>
+        {% endfor %}
+    </div>
+</li>
+{% endblock %}
 
 {% block show %}
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
@@ -36,9 +54,15 @@
         yAxis: {},
         series: [
             {
+                data: {{ pday_l }},
                 name: '上月',
                 type: 'line',
-                data: {{ pday_l }}
+                lineStyle: {
+                    color: 'gray' //灰色#C0C0C0
+                },
+                itemStyle: {
+                    borderColor: 'gray'
+                }
             },
             {
                 name: '本月',

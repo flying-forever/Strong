@@ -8,7 +8,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link {% block ac_data %}{% endblock %}" href="{{ url_for('.data') }}">学习时间</a>
+            <a class="nav-item nav-link {% if type==0 %}active{% endif %}" href="{{ url_for('.data', type=0, month=month) }}">堆叠</a>
+            <a class="nav-item nav-link {% if type==1 %}active{% endif %}" href="{{ url_for('.data', type=1, month=month) }}">日况</a>
             {% block top_bar %}{% endblock top_bar %}
         </div>
     </div>
