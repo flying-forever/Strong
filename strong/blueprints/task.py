@@ -196,6 +196,16 @@ def book_create():
         db.session.add(book)
         db.session.commit()  # 问题：因为是新任务，所以要先提交后，才能与词条绑定。但这里细节还不太理解
 
+        # 自动创建同名任务
+        c_task = form.c_task.data
+        if c_task:
+            # 备注：应让用户可填写更好
+            task = Task(name=f'《{form.bookname.data}》', exp=1, need_minute=30, \
+                uid=Login.current_id(), task_type=1)
+            task.bid = book.id
+            db.session.add(task)
+            db.session.commit()
+            
         # 任务绑定
         bind(taskname=form.taskname.data, book_id=book.id)
 

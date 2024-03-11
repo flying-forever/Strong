@@ -47,4 +47,5 @@ class BookForm(FlaskForm):
     bookname = StringField(label='书名', validators=[DataRequired('不能为空')])
     page = IntegerField(label='总页数', validators=[NumberRange(0, float("inf"), '应为正整数'), DataRequired('不能为空')])
     taskname = StringField(label='绑定的任务名', default='#') # 倒是候应该根据已有任务给选项？
+    c_task = BooleanField(label='创建相应任务', default=True)
     submit = SubmitField(label='确定')
