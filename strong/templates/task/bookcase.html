@@ -1,4 +1,5 @@
 {% extends 'task/_task.html' %}
+{% from '_macros.html' import modal_botton %}
 {% block ac_book %} active {% endblock %}
 
 
@@ -39,7 +40,13 @@
             <a href="{{ url_for('.book_update', book_id=book['id']) }}" class="btn btn-sm btn-primary" role="button">修改</a>
             <a href="{{ url_for('.upload_cover', book_id=book['id']) }}" class="btn btn-sm btn-secondary"
                 role="button">封面</a>
-            <a href="{{ url_for('.book_delete', book_id=book['id']) }}" class="btn btn-sm btn-danger" role="button">删除</a>
+            {{ modal_botton(
+                id='delete' + [book['id']] | join,
+                btn_class='btn-sm btn-danger',
+                btn_name='删除', title='提醒',
+                body='你确定删除书籍 ' + book['name'] + ' 吗？删除后不可恢复！',
+                footer_href=url_for('.book_delete', book_id=book['id'])
+            )}}
         </p>
     </div>    
     {% endfor %}

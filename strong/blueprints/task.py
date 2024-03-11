@@ -134,7 +134,8 @@ def bind(taskname, book_id):
     '''将匹配的任务绑定到书籍，并db.session.commit()'''
     tasks: list[Task] = Task.query.filter(Task.name.like(f'%{taskname}%')).all()
     for task in tasks:
-        task.bid = book_id
+        if task.bid is None:
+            task.bid = book_id
     db.session.commit()
 
 
