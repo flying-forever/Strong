@@ -159,7 +159,6 @@ def bookcase():
 
     def read_hour(book: Book):
         '''获取书籍已读时间'''
-
         minute = 0
         tasks: list[Task] = book.tasks 
         for task in tasks:
@@ -167,12 +166,21 @@ def bookcase():
         hour = round(minute / 60.0, 2) # 保留两位小数
         return hour
 
-    books: list[Book] = []
-    books = Book.query.filter(Book.uid==Login.current_id()).all()
+    def book_recent(book: Book):
+        '''获取book的最近阅读时间'''
+        early = datetime.datetime(2022,1,1)  # 一个早在系统之前的时间
+        times = [task.time_finish for task in book.tasks]
+        recent = max(times) if times else early
+        return recent
 
+
+    books: list[Book] = Book.query.filter(Book.uid==Login.current_id()).all()
+
+    # 备注：字典的扩展性似乎不错
     books_show = [{'id':book.id, 'name':book.name, 'page':book.page, 'cover':book.cover, \
-        'read_page':read_page(book), 'percent':0, 'read_hour':read_hour(book)}
+        'read_page':read_page(book), 'percent':0, 'read_hour':read_hour(book), 'recent': book_recent(book)}
         for book in books]
+    books_show.sort(key=lambda x:x['recent'], reverse=True)  # 按“最近使用”排序
 
     for book in books_show:
         book['percent'] = round(100 * book['read_page'] / book['page'], 2)
