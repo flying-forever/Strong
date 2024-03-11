@@ -1,6 +1,12 @@
 {% extends '_base.html' %}
-
+{% block head %}
+    {{ super() }}
+    <!-- 图表库Echarts及其主题 -->
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <script src="https://www.runoob.com/static/js/wonderland.js"></script>
+{% endblock head %}
 {% block active_data %} btn-primary {% endblock %}
+
 
 {% block content %}
 
@@ -8,8 +14,43 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link {% if type==0 %}active{% endif %}" href="{{ url_for('.data', type=0, month=month) }}">堆叠</a>
-            <a class="nav-item nav-link {% if type==1 %}active{% endif %}" href="{{ url_for('.data', type=1, month=month) }}">日况</a>
+            <a class="nav-item nav-link {% if type==0 %}active{% endif %}" href="{{ url_for('.data', type=0, month=month, year=year) }}">堆叠</a>
+            <a class="nav-item nav-link {% if type==1 %}active{% endif %}" href="{{ url_for('.data', type=1, month=month, year=year) }}">日况</a>
+            
+            <!-- a 下拉-月份选择 -->
+            <li class="nav-item dropdown">
+                {% set months = [1,2,3,4,5,6,7,8,9,10,11,12] %}
+            
+                <a class="nav-link dropdown-toggle" role="button" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    {{ month }}月
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    {% for m in months %}
+                    <a class="dropdown-item" href="{{ url_for('.data', type=type, month=m, year=year) }}">
+                        {{ m }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </li>
+
+            <!-- b 下拉-年份选择 -->
+            <li class="nav-item dropdown">
+                <!-- 备注：最好调整到截至当前年 -->
+                {% set years = [2023, 2024, 2025] %} 
+            
+                <a class="nav-link dropdown-toggle" role="button" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    {{ year }}年
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    {% for y in years %}
+                    <a class="dropdown-item" href="{{ url_for('.data', type=type, month=month, year=y) }}">
+                        {{ y }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </li>
             {% block top_bar %}{% endblock top_bar %}
         </div>
     </div>
@@ -17,6 +58,9 @@
 </nav>
 
 <!-- 2 展示页面 -->
-{% block show %} ... {% endblock %}
+{% block show %}
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="width: 960;height:540px;" class="container-fluid"></div>
+{% endblock %}
 
 {% endblock %}
