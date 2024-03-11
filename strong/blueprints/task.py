@@ -76,6 +76,9 @@ def task_create():
 
         flash('新任务添加成功！')
         return redirect(url_for('.task_doing'))
+    # 备注：让用户自己设置可能更好
+    form.exp.data = 1
+    form.need_minute.data = 40
     return render_template('task/task_create.html', form=form)
 
 

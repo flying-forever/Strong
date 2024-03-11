@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, IntegerField, SubmitField, SelectField, BooleanField
+from wtforms import StringField, IntegerField, SubmitField, SelectField, BooleanField, PasswordField
 from wtforms.validators import DataRequired, NumberRange, Length
 
 
@@ -27,7 +27,7 @@ class LoginForm(FlaskForm):
     登录表单
     - 注：暂时复用为注册表单，后期可能要改"""
     username = StringField(label='用户名', validators=[DataRequired('不能为空')])
-    password = StringField(label='密码', validators=[DataRequired('不能为空')])
+    password = PasswordField(label='密码', validators=[DataRequired('不能为空')])
     remenber = BooleanField(label='记住我', default=False)
     submit = SubmitField(label='确定')
 
@@ -49,3 +49,4 @@ class BookForm(FlaskForm):
     taskname = StringField(label='绑定的任务名', default='#') # 倒是候应该根据已有任务给选项？
     c_task = BooleanField(label='创建相应任务', default=True)
     submit = SubmitField(label='确定')
+    

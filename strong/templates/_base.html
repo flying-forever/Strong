@@ -7,6 +7,7 @@
         content="width=device-width, user-scalable=yes, initial-scale=0.3, maxmum-scale=1.0, minimum-scale=0.3">
     {% block head %}
     {% block title %}<title> Strong </title>{% endblock %}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.jpg') }}">
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.3.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
@@ -20,7 +21,7 @@
     <!-- Image and text -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">
-            <img src="{{ url_for('static', filename='img/logo_jh.png') }}" width="30" height="30"
+            <img src="{{ url_for('static', filename='img/logo_three.jpg') }}" width="30" height="30"
                 class="d-inline-block align-top" alt="">
             Strong
         </a>
