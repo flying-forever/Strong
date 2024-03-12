@@ -3,6 +3,7 @@ from flask import jsonify, send_from_directory
 
 import os, json
 from datetime import datetime
+from urllib.parse import quote
 
 from strong.callbacks import login_required
 from strong.utils import Login, get_level, get_exp, random_filename
@@ -136,9 +137,9 @@ def logout():
 def export_user():
     '''导出用户的书籍和任务数据，得到一个json文件
     - 注：不保存图片'''
-    # 备注：附带一些元信息？如导出时间。
+    # 备注：哪些字段需要导出，哪些字段导入需要用到，可以捋一下。
 
-    def obj2json(objs: list, excludes: list):
+    def obj2dict(objs: list, excludes: list):
         '''将对象列表变成json数据，并排除一些属性'''
         # 备注：可以补充说明一下json数据的内部结构
         ds = {}
@@ -150,25 +151,26 @@ def export_user():
         return ds
 
     user: User = Login.current_user()
-    books: list[Book] = user.books
+    books: list[Book] = user.books  # <class 'sqlalchemy.orm.collections.InstrumentedList'>, 其实不是list
     tasks: list[Task] = user.tasks
-    # 1 书籍
-    excludes = ['_sa_instance_state', 'cover']
-    d_books = obj2json(books, excludes)
-    # 2 任务
-    excludes = ['_sa_instance_state']
-    d_tasks = obj2json(tasks, excludes)
-    # 3 用户信息
+    excludes_b = ['_sa_instance_state', 'cover']
+    excludes_t = ['_sa_instance_state']
+    excludes_u = ['_sa_instance_state', 'password', 'avatar', 'time_add', 'books', 'tasks']
+    
+    d_books = obj2dict(books, excludes_b)  # dict[id:int, 对象字典]
+    d_tasks = obj2dict(tasks, excludes_t)
     d_user = user.__dict__
-    excludes = ['_sa_instance_state', 'password', 'avatar', 'time_add', 'books', 'tasks']
-    for k in excludes:
+    for k in excludes_u:
         d_user.pop(k)
 
-    # 4 返回数据文件
+    # 返回数据文件
+    # books|tasks：dict[id:str, 对象字典], user: 对象字典
     data = {'books':d_books, 'tasks':d_tasks, 'user':d_user}
     data = jsonify(data)
+    tm = datetime.now().strftime(r"%Y-%m-%d")  # 文件被导出的时间
+
     response = make_response(data)
-    response.headers['Content-Disposition'] = 'attachment; filename=data.json'
+    response.headers['Content-Disposition'] = f'attachment; filename={quote(user.name)}{tm}.json'  # quote:编码中文
     return response
     
 
@@ -176,75 +178,87 @@ def export_user():
 @login_required
 def import_user():
     '''用上传的json文件，“覆盖”用户数据'''
-    # 备注：把一次导入作为原子操作，未全部成功时回滚？
-    # 备注：这一段代码非常丑陋
+
+    def create_book(books):
+        '''@books: modified'''
+        # 备注：能否已有的书籍就直接修改？
+        for id in books:
+            create_b = Book(uid=Login.current_id())
+            for k in books[id]:
+                if k not in ['id', 'uid', 'bid']:
+                    create_b.__dict__[k] = books[id][k]
+            books[id] = create_b  # 方便task绑定到新的bid
+            db.session.add(create_b)
+        print('book success...')
+
+    def create_task(tasks, books):
+        '''同时绑定书籍'''
+        books: dict[str, Book]
+        for task in tasks.values():
+            # 2.1 创建
+            create_t = Task(uid=Login.current_id())
+            for k in task:
+                if k not in ['id', 'uid', 'bid', 'time_add', 'time_finish']:
+                    create_t.__dict__[k] = task[k]
+            # 2.2 绑定书籍
+            bid_old = task['bid']  # str(number) | None
+            if bid_old:
+                create_t.bid = books[str(bid_old)].id
+            # 2.3 从字符串解析时间对象
+            time_add = datetime.strptime(task['time_add'], r'%a, %d %b %Y %H:%M:%S %Z')
+            time_finish = datetime.strptime(task['time_finish'], r'%a, %d %b %Y %H:%M:%S %Z')
+            create_t.time_add = time_add
+            create_t.time_finish = time_finish
+
+            db.session.add(create_t)
+        print('task success...')
+
+    def modify_user(uinfo):
+        # 如果操作__dict__，不会同步到数据库
+        user: User = Login.current_user() 
+        user.email = uinfo['email']
+        user.exp = uinfo['exp']
+        user.introduce = uinfo['introduce']
+        print('user success...')
 
     form = UpJsonForm()
     if form.validate_on_submit():
+        # 1 解析json文件
         f = form.file.data.read() 
         f = json.loads(f)
         uinfo, books, tasks = f['user'], f['books'], f['tasks']
+
         user: User = Login.current_user() 
-        wait_dels = [b for b in user.books] + [t for t in user.tasks]
+        user_old = {'email':user.email, 'exp':user.exp, 'introduce':user.introduce}
+        data_old = [b for b in user.books] + [t for t in user.tasks]
 
+        # 备注：错误被捕获之后，我不再知道是哪一行出错
         try:
-            # 1 创建书籍
-            # 备注：能否已有的书籍就直接修改？
-            for id in books:
-                create_b = Book(uid=user.id)
-                for k in books[id]:
-                    if k not in ['id', 'uid', 'bid']:
-                        create_b.__dict__[k] = books[id][k]
-                books[id] = create_b  # 方便task绑定到新的bid
-                db.session.add(create_b)
-            # a = None
-            # a[1] = 0
+            # 写新去旧
+            create_book(books)
             db.session.commit()
-
+            create_task(tasks, books)
+            modify_user(uinfo)
+            
+            for item in data_old:
+                db.session.delete(item)
+            db.session.commit()
         except Exception as e:
-            db.session.rollback()
-            print('[error] import_user...', e)
-            flash('导入失败', 'danger')
+            # 除新复旧
+            user_db: User = Login.current_user()
+            user_db.exp = user_old['exp']
+            user_db.email = user_old['email']
+            user_db.introduce = user_old['introduce']
+            for item in [b for b in user.books] + [t for t in user.tasks]:
+                db.session.delete(item)
+
+            for item in data_old:
+                db.session.add(item)
+            db.session.commit()
+            print('导入数据失败...', type(e), e)
+            flash('导入数据失败', 'danger')
             return redirect(url_for('.home'))
 
-        try:
-            # 2 创建任务并绑定书籍
-            books: dict[str, Book]
-            for task in tasks.values():
-                # 2.1 创建
-                create_t = Task(uid=user.id)
-                for k in task:
-                    if k not in ['id', 'uid', 'bid', 'time_add', 'time_finish']:
-                        create_t.__dict__[k] = task[k]
-                # 2.2 绑定书籍
-                bid_old = task['bid']  # str(number) | None
-                if bid_old:
-                    create_t.bid = books[str(bid_old)].id
-                # 2.3 从字符串解析时间对象
-                time_add = datetime.strptime(task['time_add'], r'%a, %d %b %Y %H:%M:%S %Z')
-                time_finish = datetime.strptime(task['time_finish'], r'%a, %d %b %Y %H:%M:%S %Z')
-                create_t.time_add = time_add
-                create_t.time_finish = time_finish
-
-                db.session.add(create_t)
-
-            # 3 写入用户信息
-            user.name = uinfo['name']
-            user.email = uinfo['email']
-            user.exp = uinfo['exp']
-            user.introduce = uinfo['introduce']
-            db.session.commit()
-
-        except Exception as e:
-            db.session.rollback()
-            print('[error] import_user...', e)
-            flash('导入失败', 'danger')
-            return redirect(url_for('.home'))
-
-        # 4 删除旧数据
-        for item in wait_dels:
-            db.session.delete(item)
-        db.session.commit()
         flash('数据导入成功')
         return redirect(url_for('.home'))
     return render_template('auth/upload.html', form=form)

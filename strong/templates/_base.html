@@ -1,4 +1,4 @@
-{% from '_macros.html' import flash_messages %}
+{% from '_macros.html' import flash_messages, modal_botton %}
 <html>
 
 <head>
@@ -25,12 +25,18 @@
                 class="d-inline-block align-top" alt="">
             Strong
         </a>
-        {# 对齐到右侧 #}
-        <div style="margin-left:auto; text-align:right;">
+        {# 对齐到右侧 text-align:right;?#}
+        <div style="margin-left:auto;">
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
                     {% if session['uname'] %}
-                    <a class="nav-item nav-link" href="{{ url_for('auth.import_user') }}">导入</a>
+                    {{ modal_botton(
+                        id='import_user' + [1] | join,
+                        btn_class='btn-light btn-sm',
+                        btn_name='导入', title='提醒',
+                        body='你确定吗？这将覆盖你当前所有数据，且有一定风险，请确保已经“导出”备份。',
+                        footer_href=url_for('auth.import_user')
+                    )}}
                     <a class="nav-item nav-link" href="{{ url_for('auth.export_user') }}">导出</a>
                     <a class="nav-item nav-link" href="{{ url_for('auth.logout') }}">退出登录</a>
                     {% endif %}
