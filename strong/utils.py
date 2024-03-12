@@ -64,7 +64,7 @@ class TaskOrder:
 class Login:
     """登录模块的session操作集成"""
 
-    # 类方法的简化定义 --> 缺点：1、不能编写文档, 2、不能操作类实例属性。
+    # 类方法的简化定义 --> 缺点：1、不能编写文档, 2、不能操作类实例属性, 3、不便于类型推断。
     is_login = lambda : bool(session['uid'])
     current_id: int = lambda : session['uid']
     current_name: str = lambda : session['uname']

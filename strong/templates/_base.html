@@ -30,6 +30,8 @@
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
                     {% if session['uname'] %}
+                    <a class="nav-item nav-link" href="{{ url_for('auth.import_user') }}">导入</a>
+                    <a class="nav-item nav-link" href="{{ url_for('auth.export_user') }}">导出</a>
                     <a class="nav-item nav-link" href="{{ url_for('auth.logout') }}">退出登录</a>
                     {% endif %}
                 </div>

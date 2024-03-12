@@ -42,6 +42,10 @@ class UploadForm(FlaskForm):
     photo = FileField('上传图片', validators=[FileRequired(), FileAllowed(['jpg','jpeg','png','gif'])])
     submit = SubmitField(label='确定')
 
+class UpJsonForm(FlaskForm):
+    file = FileField('上传.json用户数据文件', validators=[FileRequired(), FileAllowed(['json'])])
+    submit = SubmitField(label='确定')
+
 class BookForm(FlaskForm):
     """书籍创建/修改表单"""
     bookname = StringField(label='书名', validators=[DataRequired('不能为空')])

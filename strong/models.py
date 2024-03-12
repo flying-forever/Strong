@@ -68,3 +68,5 @@ class Book(db.Model):
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))  # 怀疑：其实可以通过tid间接找到uid？
     user = db.relationship('User', back_populates='books')
 
+    def __str__(self) -> str:
+        return f"<Book id={self.id} name={self.name}>"

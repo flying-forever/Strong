@@ -2,13 +2,11 @@
 <!-- 重构：修改头像可以集成到修改个人基本信息一块儿 -->
 <!-- 重构：修改头像可以使用弹窗，而非整个的html页面？ -->
 {% extends '_base.html' %}
-
+{% from '_macros.html' import form_field_all with context %}
 {% block active_home %} btn-primary {% endblock %}
 
 {% block content %}
 <form method="post" enctype="multipart/form-data">
-    {{ form.csrf_token }}
-    {{ form.photo }}
-    {{ form.submit }}
+    {{ form_field_all(form) }}
 </form>
 {% endblock %}
