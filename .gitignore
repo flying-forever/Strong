@@ -4,3 +4,4 @@ migrations/
 try/
 __pycache__
 uploads/ 
+*try.*
