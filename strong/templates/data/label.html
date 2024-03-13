@@ -1,0 +1,44 @@
+{% extends 'data/_data.html' %}
+
+
+{% block show %}
+{{ super() }}
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'), 'wonderland');
+    var datas = {{ datas | safe }};
+    console.log(datas)
+    var option = {
+        title: {
+            text: "你的星球",
+            subtext: "{{ user.name }}",
+            // top: "bottom",
+            left: "right"
+        },
+        tooltip: {},
+        legend: [{
+            data: ["类目0", "类目1", "类目2", "类目3", "类目4", "类目5", "类目6", "类目7", "类目8"]
+        }],
+        animationDuration: 1500,
+        animationEasingUpdate: "quinticInOut",
+        series:[{
+            name:'技能',
+            type:'graph',
+            layout: 'force',
+            roam:true, //鼠标缩放
+            draggable:true, //可拖拽
+            // symbol:'circle',//形状,可以设置图片
+            // label:{show:true},
+            nodes: datas['nodes'],
+            links: datas['links'],
+            force:{
+                repulsion:[4,50],
+                edgeLength:[20,50],
+                gravity:0.07,
+            },
+        }]
+    }
+
+    // 将示例数据注入到图表实例中
+    myChart.setOption(option);
+</script>
+{% endblock show %}

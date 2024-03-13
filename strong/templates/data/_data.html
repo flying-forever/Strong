@@ -2,7 +2,7 @@
 {% block head %}
     {{ super() }}
     <!-- 图表库Echarts及其主题 -->
-    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <script src="https://cdn.staticfile.org/echarts/5.5.0/echarts.min.js"></script>
     <script src="https://www.runoob.com/static/js/wonderland.js"></script>
 {% endblock head %}
 {% block active_data %} btn-primary {% endblock %}
@@ -16,7 +16,8 @@
         <div class="navbar-nav">
             <a class="nav-item nav-link {% if type==0 %}active{% endif %}" href="{{ url_for('.data', type=0, month=month, year=year) }}">堆叠</a>
             <a class="nav-item nav-link {% if type==1 %}active{% endif %}" href="{{ url_for('.data', type=1, month=month, year=year) }}">日况</a>
-            
+            <a class="nav-item nav-link {% if type==2 %}active{% endif %}" href="{{ url_for('.graph', type=2, month=month, year=year) }}">星图</a>
+
             <!-- a 下拉-月份选择 -->
             <li class="nav-item dropdown">
                 {% set months = [1,2,3,4,5,6,7,8,9,10,11,12] %}

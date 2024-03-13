@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from datetime import datetime
-import re
+import re, math, json
 
 from strong import db
 from strong.callbacks import login_required
-from strong.models import Task, Book
+from strong.models import Task, Book, User
 from strong.utils import Login, Time
 from strong.utils import flash_ as flash
 from strong.forms import BookForm
@@ -104,3 +104,49 @@ def data(type: int=0):
         hours_all=hours_all, today_hour=today_hour, average_hour=average_hour, hours_all_l=hours_all_l,
         type=type, month=month, year=year)
     
+
+@data_bp.route('/graph')
+@login_required
+def graph():
+    # 备注：先简单实现，利用数据库的反向引用
+    # 备注：自动引用太多，且与前端样式耦合重
+    # 记录：字段名字容易写错，如symbolSize -> SymbolSize
+    # 备注：id冲突问题有待处理
+    # 备注：尺寸适配问题待解决
+    # 备注：（待做）合并相同的任务
+    def num_generator(n=123456798):
+        for i in range(n):
+            yield i 
+    link_id = num_generator()
+
+    user: User = Login.current_user()
+    nodes = []
+    links = []
+
+    # 查询书籍生成结点
+    allTime = 0
+    for b in user.books:
+        bTime = sum([t.use_minute for t in b.tasks])
+        allTime += bTime
+        nodes.append({'id':b.id, 'name':b.name, 'value':bTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':10}})
+
+    # 查询任务生成结点，生成与书籍链接
+    for t in user.tasks:
+        nodes.append({'id':t.id + 1000, 'name':t.name, 'value':t.use_minute, 'symbolSize':1})
+        if t.bid:
+            links.append({'id':next(link_id), 'source':t.id + 1000, 'target':t.bid})
+
+    # 将书籍链接到总结点
+    links += [{'id':next(link_id), 'source':b.id, 'target':0} for b in user.books]
+    nodes.append({'id':0, 'name':user.name, 'value':allTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':16}})
+
+    # 整合数据 - 单位转换与格式适配
+    for node in nodes:
+        node['value'] = round(node['value'] / 60.0, 2)
+        node['symbolSize'] = math.sqrt(node['value']) * 5 + 1
+    for link in links:
+        link['source'] = str(link['source'])
+        link['target'] = str(link['target'])
+    datas = {'nodes':nodes, 'links':links}
+    datas = json.dumps(datas)
+    return render_template('data/label.html', datas=datas, user=user, type=2)
