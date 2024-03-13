@@ -109,15 +109,15 @@ def data(type: int=0):
 @login_required
 def graph():
     # 备注：先简单实现，利用数据库的反向引用
-    # 备注：自动引用太多，且与前端样式耦合重
+    # 备注：自动引用太多，且与前端样式耦合高
     # 记录：字段名字容易写错，如symbolSize -> SymbolSize
     # 备注：id冲突问题有待处理
     # 备注：尺寸适配问题待解决
-    # 备注：（待做）合并相同的任务
-    def num_generator(n=123456798):
+    def num_generator(n=123456789):
         for i in range(n):
             yield i 
     link_id = num_generator()
+    idOffset = 12345678  # 避免task与book的id冲突
 
     user: User = Login.current_user()
     nodes = []
@@ -130,12 +130,16 @@ def graph():
         allTime += bTime
         nodes.append({'id':b.id, 'name':b.name, 'value':bTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':10}})
 
-    # 查询任务生成结点，生成与书籍链接
+    # 合并同名任务，生成结点
+    d = {}  # dict[name:node]
     for t in user.tasks:
-        nodes.append({'id':t.id + 1000, 'name':t.name, 'value':t.use_minute, 'symbolSize':1})
+        if t.name not in d:
+            d[t.name] = {'id':t.id + idOffset, 'name':t.name, 'value':0, 'symbolSize':1}
+            nodes.append(d[t.name])
         if t.bid:
-            links.append({'id':next(link_id), 'source':t.id + 1000, 'target':t.bid})
-
+            links.append({'id':next(link_id), 'source':t.id + idOffset, 'target':t.bid})
+        d[t.name]['value'] += t.use_minute 
+        
     # 将书籍链接到总结点
     links += [{'id':next(link_id), 'source':b.id, 'target':0} for b in user.books]
     nodes.append({'id':0, 'name':user.name, 'value':allTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':16}})
