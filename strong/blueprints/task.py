@@ -287,7 +287,7 @@ def upload_cover(book_id):
 
 @task_bp.route('/tag/create', methods=['GET', 'POST'])
 def tag_create():
-    # 试改用json交换数据
+    '''试改用json交换数据'''
     # 备注：异步请求的表单验证问题？
     # 备注：分支太多啦！
     # 备注：这部分代码其实应该和def graph放在一块儿
@@ -298,7 +298,7 @@ def tag_create():
     tagid = request.form.get('tagid')
     tagname = request.form.get('tagname') 
     pname = request.form.get('pname') 
-    print('form', tagid, tagname, pname)
+    # print('form', tagid, tagname, pname)
 
     uid = Login.current_id()
     is_tag = True  # 只有传入加了offset的id，才是task
@@ -349,6 +349,21 @@ def tag_create():
 
     db.session.commit()
     return jsonify({'success':True, 'new_node':new_node, 'new_link':new_link})
+
+
+@task_bp.route('/tag/delete', methods=['GET', 'POST'])
+def tag_delete():
+    '''异步删除标签'''
+    # 如果是task，id偏移很大，反正在数据库也查不到
+    res = {'success':True, 'message':'...'}
+    tagid = request.form.get('tagid')
+    tag = Tag.query.filter(tagid==Tag.id and Login.current_id()==Tag.uid).first()
+    if tag:
+        db.session.delete(tag)
+        db.session.commit()
+    else:
+        res['success'] = False
+    return jsonify(res)
 
 
 # ------------------------------ 五、胡乱尝试 ------------------------------ #

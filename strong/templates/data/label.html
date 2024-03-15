@@ -40,10 +40,12 @@
                         <div class="btn-toolbar" id="childs" role="toolbar" aria-label="Toolbar with button groups">
                         </div>
                     </div>
+                    <!-- 被点击的星球的id -->
                     <input id="tagid" type="hidden" value="" name="tagid">
                 </div>
                 <!-- 底栏 -->
                 <div class="modal-footer">
+                    <button id="tag_delete" type="button" class="btn btn-danger">删除标签</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
                     <button id="submit" type="submit" class="btn btn-primary">保存</button>
                 </div>
@@ -97,12 +99,13 @@
             // symbol:'circle',//形状,可以设置图片
             label: { show: true, fontSize: 10 },
             force: {
-                repulsion: [100, 300],
-                edgeLength: [50, 150],
+                repulsion: [80, 200],
+                edgeLength: [50, 250],
                 gravity: 0.1,
             },
         }]
     }
+    myChart.setOption(option);
 
     // 监听 zoom 事件，当缩放发生时执行对应的处理程序
     myChart.on('graphroam', function (params) {
@@ -121,11 +124,10 @@
             label.fontSize = labelFontSize;
             myChart.setOption(option);
         }
-
     });
 
     // 2 点击星球事件
-    // 改成双击？
+    // 备注：改成双击？
     myChart.on('click',
         function (params) {
             console.log(params.name, params.value, params.data);
@@ -184,9 +186,6 @@
         }
     )
 
-    // 将示例数据注入到图表实例中
-    myChart.setOption(option);
-
     // 3 模态框隐藏 -> 刷新
     $('#tagModal').on('hidden.bs.modal', function (e) {
         // 备注：怎么能直接刷新为初始状态，不用一个个操作？
@@ -207,13 +206,13 @@
         modal.find('.modal-title').text('新的标签');
     });
 
-    // 5 异步发送表单请求
+    // 5 新建标签 - 异步发送表单请求
     $('#submit').on('click', function (e) {
         e.preventDefault();
         var formData = $('#tagForm').serialize(); // 序列化表单数据
         // console.log(formData);
         $.ajax({
-            url: '{{ url_for('task.tag_create') }}',
+            url: "{{ url_for('task.tag_create') }}",
             type: 'POST',
             data: formData,
             success: function (response) {
@@ -256,6 +255,40 @@
             error: function (xhr, status, error) {
                 console.error('Error', error);
             },
+        });
+    });
+
+    // 6 删除标签 - 异步请求
+    $('#tag_delete').on('click', function (e) {
+        // 备注：好多样板代码
+        var formData = $('#tagForm').serialize(); // 序列化表单数据
+        $.ajax({
+            url: "{{ url_for('task.tag_delete') }}",
+            type: 'POST',
+            data: formData,
+            success: function (res) {
+                if (res.success) {
+                    // 动态更新，删除对应node
+                    var id = $('#tagid').val();
+                    console.log(id);
+                    option.series[0].nodes = option.series[0].nodes.filter(function (node) {
+                        return node.id != $('#tagid').val(); // 返回ID不等于指定ID的节点
+                    });
+                    myChart.setOption(option);
+
+                    $('#message').text('操作成功').show();
+                    setTimeout(function () {
+                        $('#message').hide();
+                        $('#tagModal').modal('hide');
+                    }, 500);
+                } else {
+                    $('#message').text('操作失败').show();
+                    setTimeout(function () {
+                        $('#message').hide();
+                    }, 1500);
+                }
+            },
+            error: function (xhr, status, error) { console.error('Error', error); },
         });
     });
 
