@@ -5,7 +5,7 @@ import re, math, json
 from strong import db
 from strong.callbacks import login_required
 from strong.models import Task, Book, User
-from strong.utils import Login, Time
+from strong.utils import Login, Time, Clf
 from strong.utils import flash_ as flash
 from strong.forms import BookForm
 
@@ -109,26 +109,31 @@ def data(type: int=0):
 @login_required
 def graph():
     # 备注：先简单实现，利用数据库的反向引用
-    # 备注：自动引用太多，且与前端样式耦合高
+    # 备注：字段引用太多，且与前端样式耦合高
     # 记录：字段名字容易写错，如symbolSize -> SymbolSize
     # 备注：id冲突问题有待处理
-    # 备注：尺寸适配问题待解决
+    # 备注：尺寸适配问题待解决(归一化)
+    # 备注：标签组织成了树形结构，值的计算得重写一下
+
     def num_generator(n=123456789):
         for i in range(n):
             yield i 
     link_id = num_generator()
-    idOffset = 12345678  # 避免task与book的id冲突
+    idOffset = Clf.idOffset  # task的id加上偏移，避免与tag的id冲突
 
     user: User = Login.current_user()
     nodes = []
     links = []
-
-    # 查询书籍生成结点
+    
+    # 查询标签生成结点
     allTime = 0
-    for b in user.books:
-        bTime = sum([t.use_minute for t in b.tasks])
+    for tag in user.tags:
+        bTime = sum([t.use_minute for t in tag.tasks])
         allTime += bTime
-        nodes.append({'id':b.id, 'name':b.name, 'value':bTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':10}})
+        nodes.append({'id':tag.id, 'name':tag.name, 'value':bTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':10}})
+        # 和父标签的连接
+        if tag.pid:
+            links.append({'id':next(link_id), 'source':tag.id, 'target':tag.pid})
 
     # 合并同名任务，生成结点
     d = {}  # dict[name:node]
@@ -136,20 +141,20 @@ def graph():
         if t.name not in d:
             d[t.name] = {'id':t.id + idOffset, 'name':t.name, 'value':0, 'symbolSize':1}
             nodes.append(d[t.name])
-        if t.bid:
-            links.append({'id':next(link_id), 'source':t.id + idOffset, 'target':t.bid})
+            if t.tag_id:
+                links.append({'id':next(link_id), 'source':t.id + idOffset, 'target':t.tag_id})
         d[t.name]['value'] += t.use_minute 
         
     # 将书籍链接到总结点
-    links += [{'id':next(link_id), 'source':b.id, 'target':0} for b in user.books]
-    nodes.append({'id':0, 'name':user.name, 'value':allTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':16}})
+    # links += [{'id':next(link_id), 'source':b.id, 'target':0} for b in user.tags]
+    # nodes.append({'id':0, 'name':user.name, 'value':allTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':16}})
 
     # 整合数据 - 单位转换与格式适配
     for node in nodes:
         node['value'] = round(node['value'] / 60.0, 2)
         node['symbolSize'] = math.sqrt(node['value']) * 5 + 1
     for link in links:
-        link['source'] = str(link['source'])
+        link['source'] = str(link['source'])  # echarts中字符串找id，整数找索引
         link['target'] = str(link['target'])
     datas = {'nodes':nodes, 'links':links}
     datas = json.dumps(datas)

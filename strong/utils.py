@@ -83,6 +83,11 @@ class Login:
         session['uname'] = None
 
 
+class Clf:
+    # data中将task和tag展示到图，task加上偏移避免id冲突。在修改图中的tag时，也要用到它判断id是task|tag
+    idOffset = 123456789
+
+
 def flash_(message: str, category='success'):
     """- 使flash有一个默认的样式分类：success"""
     flash(message=message, category=category)

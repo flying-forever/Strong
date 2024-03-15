@@ -29,6 +29,9 @@ class Task(db.Model):
     bid = db.Column(db.Integer, db.ForeignKey('book.id'))
     book = db.relationship('Book', back_populates='tasks') # 注：一对一关系
 
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
+    tag = db.relationship('Tag', back_populates='tasks') # 注：一对一关系
+
     def __str__(self) -> str:
         return f"<Task name='{self.name}' exp={self.exp}>"
 
@@ -49,6 +52,7 @@ class User(db.Model):
 
     tasks = db.relationship('Task', back_populates='user')
     books = db.relationship('Book', back_populates='user')
+    tags = db.relationship('Tag', back_populates='user')
 
     def __str__(self) -> str:
         return f"<User id={self.id} name='{self.name}' exp={self.exp}>"
@@ -70,3 +74,25 @@ class Book(db.Model):
 
     def __str__(self) -> str:
         return f"<Book id={self.id} name={self.name}>"
+
+
+class Tag(db.Model):
+    '''标签模型，树形结构
+    备注：Tag表能否合并到Task表中？'''
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+    pid = db.Column(db.Integer, db.ForeignKey('tag.id'))  # 父节点
+    uid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    
+    # 自引用一对多，树形结构，也叫邻接列表关系
+    parent = db.relationship('Tag', back_populates='childs', remote_side=[id])  # 查询tag.pid == Tag.id
+    childs = db.relationship('Tag', back_populates='parent')  # tag.id == Tag.pid
+
+    # 到task的一对多
+    tasks = db.relationship('Task', back_populates='tag')
+    # 到user的多对一
+    user = db.relationship('User', back_populates='tags')
+
+    def __str__(self) -> str:
+        return f"<Tag id={self.id} name={self.name} pid={self.pid}>"

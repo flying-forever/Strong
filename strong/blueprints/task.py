@@ -1,12 +1,12 @@
 import datetime, re, os
 
-from flask import render_template, redirect, url_for, session, Blueprint, request, current_app
+from flask import render_template, redirect, url_for, session, Blueprint, request, current_app, jsonify
 
 from strong.callbacks import login_required
-from strong.utils import Time, TaskOrder, Login, random_filename
+from strong.utils import Time, TaskOrder, Login, random_filename, Clf
 from strong.utils import flash_ as flash
-from strong.forms import TaskForm, TaskSubmitForm, BookForm, UploadForm
-from strong.models import User, Task, Book
+from strong.forms import TaskForm, TaskSubmitForm, BookForm, UploadForm, TagForm
+from strong.models import User, Task, Book, Tag
 from strong import db
 # 重构：在蓝本上统一注册装饰器
 
@@ -282,7 +282,76 @@ def upload_cover(book_id):
     return render_template('auth/upload.html', form=form)
 
 
-# ------------------------------ 四、胡乱尝试 ------------------------------ #
+# ------------------------------ 四、标签模块 ------------------------------ #
+
+
+@task_bp.route('/tag/create', methods=['GET', 'POST'])
+def tag_create():
+    # 试改用json交换数据
+    # 备注：异步请求的表单验证问题？
+    # 备注：分支太多啦！
+    # 备注：这部分代码其实应该和def graph放在一块儿
+    # 备注：异步更新星图，可能需要前端传递一些数据
+    # 备注：为node和link建立一个类？
+
+    # 1 解析数据:str | '' | None
+    tagid = request.form.get('tagid')
+    tagname = request.form.get('tagname') 
+    pname = request.form.get('pname') 
+    print('form', tagid, tagname, pname)
+
+    uid = Login.current_id()
+    is_tag = True  # 只有传入加了offset的id，才是task
+    new_link = None 
+    new_node = None
+
+    # 2 修改 | 新建
+    if tagid:
+        tagid = int(tagid)
+        is_tag = tagid < Clf.idOffset
+        # 传入：tag | task
+        if is_tag:
+            tag = Tag.query.get(tagid)
+            tag.name = tagname
+        else:
+            tasks = Task.query.filter(tagname==Task.name and uid==Task.uid).all()
+    else:
+        # 同一个用户的标签不能重名
+        tag = Tag.query.filter(tagname==Tag.name and Tag.uid==uid).first() 
+        if tag:
+            return jsonify({'success':False, 'message':'标签名重复'})
+        tag = Tag(name=tagname, uid=uid)
+
+        # 新建时
+        db.session.add(tag)
+        db.session.commit()  # tag被提交了才有id
+
+        # 备注：把symbolSize放到前端是不是好些
+        value = sum([t.use_minute for t in tag.tasks])
+        new_node = {'id':tag.id, 'name':tag.name, 'value':value, 'symbolSize':1, 'label':{'show':True, 'fontSize':10}}  
+
+    # 3 绑定
+    if pname:
+        ptag = Tag.query.filter(pname==Tag.name and Tag.uid==uid).first()
+        if not ptag:
+            return jsonify({'success':False, 'message':'父标签名不存在'})
+        # self: tag | task
+        if is_tag:
+            tag.parent = ptag
+            new_link = {'id':Clf.idOffset * 2 + tag.id, 'source':str(tag.id), 'target':str(ptag.id)}  # 不知道echarts的linkid排到多少了
+        else:
+            for t in tasks:
+                t.tag_id = ptag.id
+                print('t.tag', t, t.tag, t.tag_id)
+                # 在.data.graph中，也是取同名任务的第一个id
+                if new_link is None:
+                    new_link = {'id':Clf.idOffset * 2 + t.id, 'source':str(Clf.idOffset + t.id), 'target':str(t.tag_id)}  # 不知道echarts的linkid排到多少了
+
+    db.session.commit()
+    return jsonify({'success':True, 'new_node':new_node, 'new_link':new_link})
+
+
+# ------------------------------ 五、胡乱尝试 ------------------------------ #
 
 
 @task_bp.route('/test')
