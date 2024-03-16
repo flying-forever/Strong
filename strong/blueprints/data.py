@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from datetime import datetime
 import re, math, json
 
@@ -32,27 +32,36 @@ def hour_per_day(year: int, month: int, tasks: list=None) -> list:
 # ------------------------------ 二、数据图表 ------------------------------ #
 
 
-# 重构：要不要把两个图表拆到不同函数呢？
 @data_bp.route('/')
-@data_bp.route('/<int:type>')
+def index():
+    return redirect(url_for('.graph'))
+
+
+# 重构：要不要把两个图表拆到不同函数呢？
+@data_bp.route('/get_data', methods=['GET', 'POST'])
 @login_required
-def data(type: int=0):
+def get_data():
     """月度统计与对比
     - 说明：折线堆叠图，本月和上月各一条线
     - types:
         - 0 : 折线堆叠图
-        - 1 : 普通折线图，区域填充"""
+        - 1 : 普通折线图，区域填充
+    - 返回: json"""
 
     # [choice] 月份选择 & 年份选择
+    type = request.form.get('type', type=int)
+    month = request.form.get('month', type=int)
+    year = request.form.get('year', type=int)
     now = datetime.utcnow()
-    month = request.args.get('month', type=int)
-    year = request.args.get('year', type=int)
+    print(year, month)
+    print('args', request.args)
 
     if not year:
         year = now.year
     if not month:
         month = now.month 
     today = now.day if month == now.month else 31
+    print(year, month)
 
     # 1 查询本月以及上月的数据
     tasks: list[Task] = (
@@ -93,16 +102,30 @@ def data(type: int=0):
         # 不使用堆叠版 - 回滚
         pday, pday_l = h_pday, h_pday_l
 
+    datas = {'pday':pday, 'pday_l':pday_l, 'x':x, \
+        'hours_all':hours_all, 'today_hour':today_hour, 'average_hour':average_hour, 'hours_all_l':hours_all_l, \
+        'type':type, 'month':month, 'year':year}
+    return jsonify(datas)
+
+
+@data_bp.route('/<int:type>')
+@login_required
+def data(type: int=0):
+    # 备注：这部分年月逻辑于get_data重复了
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+    if not month or not year:
+        now = datetime.utcnow()
+        year, month = now.year, now.month
+    print('页面', year, month)
+    
     #[choice] 图表模板选择
     if type == 0:
         template = 'data/data.html'
     elif type == 1:
         template = 'data/data2.html'
 
-    return render_template(
-        template, pday=pday, pday_l=pday_l, x=x, 
-        hours_all=hours_all, today_hour=today_hour, average_hour=average_hour, hours_all_l=hours_all_l,
-        type=type, month=month, year=year)
+    return render_template(template, type=type, month=month, year=year)
     
 
 class Node:

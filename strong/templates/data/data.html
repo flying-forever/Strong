@@ -2,48 +2,6 @@
 
 
 {% block show %}
-{{ super() }}
-<script type="text/javascript">
-    // 基于准备好的dom，初始化echarts实例
-    var myChart = echarts.init(document.getElementById('main'), 'wonderland');
-
-    // 指定图表的配置项和数据
-    var dataX = {{ x | safe }}; //safe:显示中文
-    var dataA = {{ pday }};
-    var dataB = {{ pday_l }};
-
-    var option = {
-        title: {
-            text: '本月学习 {{ hours_all }} 小时',
-            subtext: '上月此时 {{ hours_all_l }} 小时 | 今日 {{ today_hour }} 小时, 日均 {{ average_hour }} 小时, ',
-        },
-        tooltip: {
-            text: 'hello'
-        },
-
-        legend: {
-            data: ['上月', '本月'],
-        },
-
-        xAxis: {
-            data: dataX
-        },
-        yAxis: {},
-        series: [
-            {
-                data: dataB,
-                name: '上月',
-                type: 'line',
-                color: 'gray',
-            },
-            {
-                name: '本月',
-                type: 'line',
-                data: dataA
-            }]
-    };
-
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.setOption(option);
-</script>
+<div id="chart1" style="width: 1080;height:640px;" class="container-fluid"></div>
+{% include 'data/#chart1.html' %}
 {% endblock show %}

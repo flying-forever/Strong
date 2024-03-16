@@ -1,82 +1,8 @@
-<!-- 折现图，两条折线之间区域用颜色填充 -->
 {% extends 'data/_data.html' %}
 
 
+<!-- 折线图，两条线之间用颜色填充 -->
 {% block show %}
-{{ super() }}
-<script type="text/javascript">
-    // 初始化 ECharts 实例，注：div框在父模板
-    var myChart = echarts.init(document.getElementById('main'));
-
-    // 数据
-    var dataX = {{ x | safe }}; //safe:显示中文
-    var dataA = {{ pday }};
-    var dataB = {{ pday_l }};
-    var colorA = 'rgba(0, 255, 0, 0.8)';
-    var colorB = 'rgba(255, 0, 0, 0.7)';
-
-    // 1 配置项
-    var option = {
-        title: {
-            text: '本月学习 {{ hours_all }} 小时',
-            subtext: '上月此时 {{ hours_all_l }} 小时 | 今日 {{ today_hour }} 小时, 日均 {{ average_hour }} 小时, ',
-        },
-        tooltip: {
-            text: 'hello'
-        },
-        legend: {
-            data: ['上月', '本月'],
-        },
-
-        // 设置 X 轴
-        xAxis: {
-            type: 'category',
-            data: dataX
-        },
-        // 设置 Y 轴
-        yAxis: {
-            type: 'value'
-        },
-        // 设置数据系列
-        series: [{
-            name: '上月',
-            type: 'line',
-            data: dataA,
-            color: '#009fcc', //青蓝
-        }, {
-            name: '本月',
-            type: 'line',
-            data: dataB,
-            color: 'gray',
-        }, 
-        
-        // 2 填充实现
-        {
-            // 用于绘制面积 - 2线B
-            type: 'line',
-            areaStyle: {
-                color: colorB
-            },
-            data: dataB.slice(0, dataA.length),
-            symbol: 'none',
-            lineStyle: {
-                width: 0,  //隐藏线条
-            },
-        },{
-            // 用于绘制面积 - 1线A
-            type: 'line',
-            areaStyle: {
-                color: colorA,
-            },
-            data: dataA,
-            symbol: 'none',
-            lineStyle: {
-                width: 0,  //隐藏线条
-            },
-        }, ]
-    };
-
-    // 使用刚指定的配置项和数据显示图表
-    myChart.setOption(option);
-</script>
+<div id="chart2" style="width: 1080;height:640px;" class="container-fluid"></div>
+{% include 'data/#chart2.html' %}
 {% endblock show %}

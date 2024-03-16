@@ -1,0 +1,57 @@
+<script type="text/javascript">
+    // 备注：异步方式切换页面会有闪白，而原模板渲染没有
+    // 6 删除标签 - 异步请求
+    $(document).ready(function () {
+        $.ajax({
+            url: "{{ url_for('data.get_data') }}",
+            type: 'POST',
+            data: {'type':'0', 'month':'{{month}}', 'year':'{{year}}'},  //用引号套起来，避免编辑器语法报错
+            success: function (data) {
+                console.log('{{year}} {{month}}');
+                // 基于准备好的dom，初始化echarts实例
+                var myChart = echarts.init(document.getElementById('chart1'), 'wonderland');
+
+                // 指定图表的配置项和数据
+                var dataX = data.x;
+                var dataA = data.pday;
+                var dataB = data.pday_l;
+
+                var option = {
+                    title: {
+                        text: '本月学习 ' + data.hours_all + ' 小时',
+                        subtext: '上月此时 ' + data.hours_all_l + ' 小时 | 今日 ' + data.today_hour + ' 小时, 日均 ' + data.average_hour + ' 小时, ',
+                        left:'left',
+                    },
+                    tooltip: {
+                        text: 'hello'
+                    },
+
+                    legend: {
+                        data: ['上月', '本月'],
+                    },
+
+                    xAxis: {
+                        data: dataX
+                    },
+                    yAxis: {},
+                    series: [
+                        {
+                            data: dataB,
+                            name: '上月',
+                            type: 'line',
+                            color: 'gray',
+                        },
+                        {
+                            name: '本月',
+                            type: 'line',
+                            data: dataA
+                        }]
+                };
+
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+            },
+            error: function (xhr, status, error) { console.error('Error', error); },
+        });
+    });
+</script>
