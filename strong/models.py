@@ -33,7 +33,7 @@ class Task(db.Model):
     tag = db.relationship('Tag', back_populates='tasks') # 注：一对一关系
 
     def __str__(self) -> str:
-        return f"<Task name='{self.name}' exp={self.exp}>"
+        return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
 
 
 class User(db.Model):

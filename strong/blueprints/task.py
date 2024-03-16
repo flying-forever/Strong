@@ -248,7 +248,7 @@ def book_update(book_id):
 
 @task_bp.route('/bookcase/unbind/<taskname>/<int:book_id>')
 def book_unbind(taskname, book_id):
-    un_tasks = Task.query.filter(Task.name==taskname and Task.uid==Login.current_id()).all() # 问题：怎么这个.all()要不要都一样
+    un_tasks = Task.query.filter(Task.name==taskname, Task.uid==Login.current_id()).all() # 问题：怎么这个.all()要不要都一样
     for task in un_tasks:
         task.bid=None
     db.session.commit()
@@ -257,7 +257,7 @@ def book_unbind(taskname, book_id):
 
 @task_bp.route('/bookcase/delete/<int:book_id>')
 def book_delete(book_id):
-    book = Book.query.filter(Book.id==book_id and Book.uid==Login.current_id()).first()
+    book = Book.query.filter(Book.id==book_id, Book.uid==Login.current_id()).first()
     db.session.delete(book) # 注：默认的级联操作，会自动删除task中对应的外键
     db.session.commit()
     flash('删除成功')
@@ -267,7 +267,7 @@ def book_delete(book_id):
 @task_bp.route('/upload_cover/<int:book_id>', methods=['GET','POST'])
 def upload_cover(book_id):
     '''为书籍上传封面'''
-    book: Book = Book.query.filter(Book.id==book_id and Book.uid==Login.current_id()).first()
+    book: Book = Book.query.filter(Book.id==book_id, Book.uid==Login.current_id()).first()
     form = UploadForm()
     if form.validate_on_submit():
         # 保存到文件系统
@@ -314,10 +314,11 @@ def tag_create():
             tag = Tag.query.get(tagid)
             tag.name = tagname
         else:
-            tasks = Task.query.filter(tagname==Task.name and uid==Task.uid).all()
+            tasks = Task.query.filter(tagname==Task.name, Task.uid==uid).all()
+            print([(t,t.uid) for t in tasks])
     else:
         # 同一个用户的标签不能重名
-        tag = Tag.query.filter(tagname==Tag.name and Tag.uid==uid).first() 
+        tag = Tag.query.filter(tagname==Tag.name, Tag.uid==uid).first() 
         if tag:
             return jsonify({'success':False, 'message':'标签名重复'})
         tag = Tag(name=tagname, uid=uid)
@@ -332,7 +333,7 @@ def tag_create():
 
     # 3 绑定
     if pname:
-        ptag = Tag.query.filter(pname==Tag.name and Tag.uid==uid).first()
+        ptag = Tag.query.filter(pname==Tag.name, Tag.uid==uid).first()
         if not ptag:
             return jsonify({'success':False, 'message':'父标签名不存在'})
         # self: tag | task
@@ -342,10 +343,22 @@ def tag_create():
         else:
             for t in tasks:
                 t.tag_id = ptag.id
-                print('t.tag', t, t.tag, t.tag_id)
+                # print('t.tag', t, t.tag, t.tag_id)
                 # 在.data.graph中，也是取同名任务的第一个id
                 if new_link is None:
                     new_link = {'id':Clf.idOffset * 2 + t.id, 'source':str(Clf.idOffset + t.id), 'target':str(t.tag_id)}  # 不知道echarts的linkid排到多少了
+    # 解绑
+    else:
+        # tag | task
+        if is_tag:
+            tag.pid = None 
+            new_link = {'id':Clf.idOffset * 2 + t.id, 'source':str(Clf.idOffset + t.id), 'target':str(0)}  # target0删除link
+        else:
+            for t in tasks:
+                t.tag_id = None
+                if new_link is None:
+                    new_link = {'id':Clf.idOffset * 2 + t.id, 'source':str(Clf.idOffset + t.id), 'target':str(t.tag_id)} 
+
 
     db.session.commit()
     return jsonify({'success':True, 'new_node':new_node, 'new_link':new_link})
@@ -357,7 +370,7 @@ def tag_delete():
     # 如果是task，id偏移很大，反正在数据库也查不到
     res = {'success':True, 'message':'...'}
     tagid = request.form.get('tagid')
-    tag = Tag.query.filter(tagid==Tag.id and Login.current_id()==Tag.uid).first()
+    tag = Tag.query.filter(tagid==Tag.id, Login.current_id()==Tag.uid).first()
     if tag:
         db.session.delete(tag)
         db.session.commit()

@@ -105,57 +105,82 @@ def data(type: int=0):
         type=type, month=month, year=year)
     
 
-@data_bp.route('/graph')
-@login_required
-def graph():
-    # 备注：先简单实现，利用数据库的反向引用
-    # 备注：字段引用太多，且与前端样式耦合高
-    # 记录：字段名字容易写错，如symbolSize -> SymbolSize
-    # 备注：id冲突问题有待处理
-    # 备注：尺寸适配问题待解决(归一化)
-    # 备注：标签组织成了树形结构，值的计算得重写一下
-
+class Node:
     def num_generator(n=123456789):
         for i in range(n):
             yield i 
     link_id = num_generator()
-    idOffset = Clf.idOffset  # task的id加上偏移，避免与tag的id冲突
 
-    user: User = Login.current_user()
-    nodes = []
-    links = []
+    def __init__(self, id, name, value=None, parent=None, pid=None) -> None:
+        self.id = id
+        self.name = name
+        self.value = value  # hour
+        self.parent = parent 
+        self.children = []
+
+        self.pid: int|None = pid  # 辅助属性
+
+    def set_parent(self, parent):
+        self.parent = parent
+        self.parent.children.append(self)
+    def compute(self):
+        if self.value is None:
+            self.value = 0
+        for child in self.children:
+            self.value += child.value
+    def forward(self):
+        for child in self.children:
+            if child.value is None:
+                child.forward()
+        self.compute()
+
+    def get_data(self):
+        '''返回echarts需要的节点字典'''
+        return {'id':self.id, 'name':self.name, 'value':round(self.value,2), 'symbolSize':math.sqrt(self.value)*5+1}
+    def get_link(self):
+        return {'id':next(self.link_id), 'source':str(self.id), 'target':str(self.pid)} if self.pid else None
+
+
+@data_bp.route('/graph')
+@login_required
+def graph():
+    '''学习时间的关系图'''
+    # 这一版代码看着清晰多了，面向对象吗？
     
-    # 查询标签生成结点
-    allTime = 0
-    for tag in user.tags:
-        bTime = sum([t.use_minute for t in tag.tasks])
-        allTime += bTime
-        nodes.append({'id':tag.id, 'name':tag.name, 'value':bTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':10}})
-        # 和父标签的连接
-        if tag.pid:
-            links.append({'id':next(link_id), 'source':tag.id, 'target':tag.pid})
+    user: User = Login.current_user()
+    nodes: dict[int, Node] = {}  # id->node
 
-    # 合并同名任务，生成结点
-    d = {}  # dict[name:node]
+    # 1 构建树，计算值
+    # 1.1 创建节点
+    for tag in user.tags:
+        node = Node(id=tag.id, name=tag.name, pid=tag.pid)
+        nodes[tag.id] = node
+
+    # 合并同名任务
+    d: dict[str, Node] = {}
     for t in user.tasks:
         if t.name not in d:
-            d[t.name] = {'id':t.id + idOffset, 'name':t.name, 'value':0, 'symbolSize':1}
-            nodes.append(d[t.name])
-            if t.tag_id:
-                links.append({'id':next(link_id), 'source':t.id + idOffset, 'target':t.tag_id})
-        d[t.name]['value'] += t.use_minute 
-        
-    # 将书籍链接到总结点
-    # links += [{'id':next(link_id), 'source':b.id, 'target':0} for b in user.tags]
-    # nodes.append({'id':0, 'name':user.name, 'value':allTime, 'symbolSize':1, 'label':{'show':True, 'fontSize':16}})
+            d[t.name] = Node(id=t.id+Clf.idOffset, name=t.name, pid=t.tag_id, value=0)  # task是叶子节点，不会被pid索引的
+        d[t.name].value += t.use_minute / 60  # m->h
+    
+    for node in d.values():
+        nodes[node.id] = node
 
-    # 整合数据 - 单位转换与格式适配
-    for node in nodes:
-        node['value'] = round(node['value'] / 60.0, 2)
-        node['symbolSize'] = math.sqrt(node['value']) * 5 + 1
-    for link in links:
-        link['source'] = str(link['source'])  # echarts中字符串找id，整数找索引
-        link['target'] = str(link['target'])
-    datas = {'nodes':nodes, 'links':links}
-    datas = json.dumps(datas)
+    # 1.2 连接节点，从每个根节点递归计算值
+    for node in nodes.values():
+        if node.pid:
+            node.set_parent(nodes[node.pid])
+    for node in nodes.values():
+        if node.pid is None:
+            node.forward()
+
+    # 2 遍历树，返回点集和边集
+    enodes, elinks = [], []
+    for node in nodes.values():
+        enodes.append(node.get_data())
+        link = node.get_link()
+        if link:
+            elinks.append(link)
+
+    datas = {'nodes':enodes, 'links':elinks}
     return render_template('data/label.html', datas=datas, user=user, type=2)
