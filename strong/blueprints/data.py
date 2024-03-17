@@ -48,6 +48,10 @@ def get_data():
         - 1 : 普通折线图，区域填充
     - 返回: json"""
 
+    uid = request.form.get('uid', type=int)
+    if not uid:
+        uid = Login.current_id()
+
     # [choice] 月份选择 & 年份选择
     type = request.form.get('type', type=int)
     month = request.form.get('month', type=int)
@@ -66,7 +70,7 @@ def get_data():
     # 1 查询本月以及上月的数据
     tasks: list[Task] = (
         Task.query
-        .filter_by(uid=Login.current_id(), is_finish=True)
+        .filter_by(uid=uid, is_finish=True)
         .with_entities(Task.time_finish, Task.use_minute))
 
     if month == 1:  

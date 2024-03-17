@@ -1,13 +1,16 @@
+<!-- 显示当前访问的用户的信息 -->
+<!-- 备注：与home页面重复 -->
 {% extends '_base.html' %}
 {% from 'data/#chart1.html' import chart1 %}
 {% from 'data/#chart2.html' import chart2 %}
+{% block active_social %} btn-primary {% endblock %}
 
-{% block active_home %} btn-primary {% endblock %}
 
 {% block head %}
 {{ super() }}
 <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 {% endblock head %}
+
 
 {% block content %}
 <div class="row">
@@ -33,8 +36,7 @@
         <p>个人简介：{{ user.introduce }}</p>
         <p>
             邮箱：{{ user.email }}
-            <a class="btn btn-secondary btn-right" href="{{ url_for('auth.upload_avatar') }}" role="button">上传头像</a>
-            <a class="btn btn-success btn-right" href="{{ url_for('auth.modify') }}" role="button">修改信息</a>
+            <a class="btn btn-success btn-right" href="{{ url_for('auth.modify') }}" role="button">关注</a>
         </p>
     </div>
 </div>
@@ -44,11 +46,11 @@
 <div class="row">
     <div class="col-6">
         <div id="chart1" style="width: 600;height:400;" class="container-fluid"></div>
-        {{ chart1() }}
+        {{ chart1(user.id) }}
     </div>
     <div class="col-6">
         <div id="chart2" style="width: 600;height:400;" class="container-fluid"></div>
-        {{ chart2() }}
+        {{ chart2(user.id) }}
     </div>
 </div>
 {% endblock %}

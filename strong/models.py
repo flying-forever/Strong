@@ -39,6 +39,7 @@ class Task(db.Model):
 class User(db.Model):
     """用户模型
     - 集成了一些基于session的用户操作"""
+    # 备注：经常会需要user模型的部分信息，并与其它信息混合返回
 
     id = db.Column(db.Integer, primary_key=True) # 用户编号
     name = db.Column(db.String(64), nullable=False, unique=True) # 用户昵称

@@ -1,0 +1,44 @@
+<!-- 用户列表 -->
+{% extends '_base.html' %}
+{% block active_social %} btn-primary {% endblock %}
+
+{% macro user_card(name, introduce, level, learn_time, avatar, uid) %}
+<div class="col-4 px-2">
+    <div class="card mb-2 py-1" style="max-width: 540px; max-height: 180px;">
+        <div class="row">
+            <div class="col-4 px-4 py-1">
+                {% if avatar %} 
+                    <img src="{{ url_for('getfile', filename=avatar) }}" class="img-fluid rounded-circle" alt="头像"> 
+                {% else %} 
+                    <img src="{{ avatars.default() }}" class="img-fluid rounded-circle" alt="头像"> 
+                {% endif %} 
+                <!-- <img src="{{ url_for('static', filename='img/host.jpg') }} " alt="book"
+                    style="height: 100px; width: 100px;" class="rounded-circle"> -->
+            </div>
+            <div class="col">
+                <h5 class="card-title">{{name}} LV{{level}}</h5>
+                <p class="card-text"><small>&nbsp;{{introduce}}</small></p>
+                <div class="col-12 px-1">
+                    <p class="card-text"><small class="text-muted">今日学习 {{learn_time}} 小时&nbsp;&nbsp;</small>
+                    <a class="btn-sm btn-primary" href="#" role="botten">关注</a>
+                    <a class="btn-sm btn-success" href="{{ url_for('auth.visit', uid=uid) }}" role="botten">参观</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% block content %}
+{% for i in range(users.__len__() // 3 + 1) %}
+<div class="row">
+    {% for j in range(3) %}
+    {% set index = i * 3 + j %}
+    {% if index < users.__len__() %} 
+    {% set u=users[index] %} 
+        {{ user_card(u['name'], u['introduce'], u['level'], u['time'], u['avatar'], u['user'].id) }} 
+    {% endif %} {% endfor %}
+</div>
+{% endfor %}
+{% endblock content %}

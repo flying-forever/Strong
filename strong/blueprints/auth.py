@@ -40,6 +40,30 @@ def home():
     return render_template('auth/home.html', user=user, level=level, need_exp=need_exp)
 
 
+@auth_bp.route('/visit/<int:uid>')
+@login_required
+def visit(uid):
+    '''拜访一个用户的主页'''
+    # 备注：和home视图有重复
+    # session['target_uid'] = uid
+    user: User = User.query.get(uid)
+    level = get_level(exp=user.exp)
+    need_exp = get_exp(level + 1) - user.exp 
+    return render_template('social/user.html', user=user, level=level, need_exp=need_exp)
+
+
+@auth_bp.route('/users')
+@login_required
+def users():
+    '''显示用户列表'''
+    data = []
+    users: list[User] = User.query.all()
+    for u in users:
+        level = get_level(exp=u.exp)
+        data.append({'user':u, 'name':u.name, 'level':level, 'introduce':u.introduce, 'time':0, 'avatar':u.avatar})        
+    return render_template('social/users.html', users=data)
+
+
 @auth_bp.route('/modify', methods=['GET', 'POST'])
 @login_required
 def modify():

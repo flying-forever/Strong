@@ -1,10 +1,11 @@
+{% macro chart2(uid) %}
 <script type="text/javascript">
     // 6 删除标签 - 异步请求
     $(document).ready(function () {
         $.ajax({
             url: "{{ url_for('data.get_data') }}",
             type: 'POST',
-            data: { 'type': '1', 'month': '{{month}}', 'year': '{{year}}' },  //用引号套起来，避免编辑器语法报错
+            data: { 'type': '1', 'month': '{{month}}', 'year': '{{year}}', 'uid':'{{uid}}'},  //用引号套起来，避免编辑器语法报错
             success: function (data) {
                 console.log('{{year}} {{month}}');
                 // 基于准备好的dom，初始化echarts实例
@@ -18,6 +19,7 @@
                 var colorB = 'rgba(255, 0, 0, 0.7)';
 
                 var option = {
+                    // 备注：可以修改一下title的内容
                     title: {
                         text: '本月学习 ' + data.hours_all + ' 小时',
                         subtext: '上月此时 ' + data.hours_all_l + ' 小时 | 今日 ' + data.today_hour + ' 小时, 日均 ' + data.average_hour + ' 小时, ',
@@ -85,3 +87,4 @@
         });
     });
 </script>
+{% endmacro %}

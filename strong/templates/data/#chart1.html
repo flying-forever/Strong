@@ -1,3 +1,4 @@
+{% macro chart1(uid) %}
 <script type="text/javascript">
     // 备注：异步方式切换页面会有闪白，而原模板渲染没有
     // 6 删除标签 - 异步请求
@@ -5,7 +6,7 @@
         $.ajax({
             url: "{{ url_for('data.get_data') }}",
             type: 'POST',
-            data: {'type':'0', 'month':'{{month}}', 'year':'{{year}}'},  //用引号套起来，避免编辑器语法报错
+            data: {'type':'0', 'month':'{{month}}', 'year':'{{year}}', 'uid':'{{uid}}'},  //用引号套起来，避免编辑器语法报错
             success: function (data) {
                 console.log('{{year}} {{month}}');
                 // 基于准备好的dom，初始化echarts实例
@@ -55,3 +56,4 @@
         });
     });
 </script>
+{% endmacro %}
