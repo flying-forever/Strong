@@ -337,4 +337,3 @@ def users():
         level = get_level(exp=u.exp)
         data.append({'user':u, 'name':u.name, 'level':level, 'introduce':u.introduce, 'time':0, 'avatar':u.avatar})        
     return render_template('social/users.html', users=data)
-

@@ -1,8 +1,9 @@
 {% extends 'data/_data.html' %}
+{% from 'data/#chart2.html' import chart2 %}
 
 
 <!-- 折线图，两条线之间用颜色填充 -->
 {% block show %}
 <div id="chart2" style="width: 1080;height:640px;" class="container-fluid"></div>
-{% include 'data/#chart2.html' %}
+{{ chart2() }}
 {% endblock show %}

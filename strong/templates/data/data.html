@@ -1,7 +1,7 @@
 {% extends 'data/_data.html' %}
-
+{% from 'data/#chart1.html' import chart1 %}
 
 {% block show %}
 <div id="chart1" style="width: 1080;height:640px;" class="container-fluid"></div>
-{% include 'data/#chart1.html' %}
+{{ chart1() }}
 {% endblock show %}
