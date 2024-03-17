@@ -13,7 +13,9 @@ from strong.forms import BookForm
 data_bp = Blueprint('data', __name__, static_folder='static', template_folder='templates')
 
 
-# ------------------------------ 一、功能函数 ------------------------------ #
+@data_bp.route('/')
+def index():
+    return redirect(url_for('.graph'))
 
 
 def hour_per_day(year: int, month: int, tasks: list=None) -> list:
@@ -29,15 +31,9 @@ def hour_per_day(year: int, month: int, tasks: list=None) -> list:
     return h_pday
 
 
-# ------------------------------ 二、数据图表 ------------------------------ #
+# ------------------------------ 一、数据图表 ------------------------------ #
 
 
-@data_bp.route('/')
-def index():
-    return redirect(url_for('.graph'))
-
-
-# 重构：要不要把两个图表拆到不同函数呢？
 @data_bp.route('/get_data', methods=['GET', 'POST'])
 @login_required
 def get_data():
@@ -46,7 +42,8 @@ def get_data():
     - types:
         - 0 : 折线堆叠图
         - 1 : 普通折线图，区域填充
-    - 返回: json"""
+    - 异步返回json"""
+    # 备注：要不要把两个图表拆到不同函数呢？
 
     uid = request.form.get('uid', type=int)
     if not uid:
@@ -115,6 +112,7 @@ def get_data():
 @data_bp.route('/<int:type>')
 @login_required
 def data(type: int=0):
+    '''月度数据页'''
     # 备注：这部分年月逻辑于get_data重复了
     month = request.args.get('month', type=int)
     year = request.args.get('year', type=int)

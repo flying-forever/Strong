@@ -5,7 +5,7 @@ from flask import render_template, redirect, url_for, session, Blueprint, reques
 from strong.callbacks import login_required
 from strong.utils import Time, TaskOrder, Login, random_filename, Clf
 from strong.utils import flash_ as flash
-from strong.forms import TaskForm, TaskSubmitForm, BookForm, UploadForm, TagForm
+from strong.forms import TaskForm, TaskSubmitForm, BookForm, UploadForm
 from strong.models import User, Task, Book, Tag
 from strong import db
 # 重构：在蓝本上统一注册装饰器

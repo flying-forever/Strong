@@ -54,7 +54,4 @@ class BookForm(FlaskForm):
     c_task = BooleanField(label='创建相应任务', default=True)
     submit = SubmitField(label='确定')
    
-class TagForm(FlaskForm):
-    '''创建标签'''
-    tagname = StringField(label='标签名', validators=[DataRequired('不能为空')])
-    pname = StringField(label='父标签名', default='空')
+   

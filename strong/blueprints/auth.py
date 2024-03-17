@@ -14,9 +14,6 @@ from strong.models import User, Book, Task, Tag
 from strong import db
 
 
-# ------------------------------ 一、用户模块 ------------------------------ #
-
-
 auth_bp = Blueprint('auth', __name__, static_folder='static', template_folder='templates')
 
 
@@ -31,6 +28,62 @@ def remenber_login():
         print('已自动登录... ', user)
 
 
+# ------------------------------ 一、用户登录 ------------------------------ #
+
+
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User(name=form.username.data, password=form.password.data)
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash('注册成功！')
+            return redirect(url_for('.login'))
+        except Exception as e:
+            flash("该用户名已存在！请重新为自己构思一个独特的用户名吧！", 'danger')
+    return render_template('auth/register.html', form=form)
+
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    # 重构：已经登录则不重复登录
+    form = LoginForm()
+    if form.validate_on_submit():
+        # 验证用户名和密码以完成登录
+        user = User.query.filter_by(name=form.username.data).first()
+        if (user is not None) and (form.password.data == user.password):
+            
+            Login.login(user=user)
+            
+            # 使用cookie记住登录
+            # 疑惑：实际保存的时间远大于我设置的20s，不知具体是多久。
+            response = make_response(redirect(url_for('.home')))
+            if form.remenber.data is True:
+                response.set_cookie('remenber_user', str(user.id).encode('utf-8'), max_age=20)
+                
+            return response
+        else:
+            flash("用户名或密码错误！", 'danger')
+    return render_template('auth/login.html', form=form)
+
+
+@auth_bp.route('/logout')
+def logout():
+    """退出登录"""
+    Login.logout()
+
+    # 并删除“记住登录”状态
+    response = make_response(redirect(url_for('.login')))
+    response.set_cookie('remenber_user', ''.encode('utf-8'), max_age=0)
+
+    return response
+
+
+# ------------------------------ 二、个人信息 ------------------------------ #
+
+
 @auth_bp.route('/home')
 @login_required
 def home():
@@ -38,30 +91,6 @@ def home():
     level = get_level(exp=user.exp)
     need_exp = get_exp(level + 1) - user.exp
     return render_template('auth/home.html', user=user, level=level, need_exp=need_exp)
-
-
-@auth_bp.route('/visit/<int:uid>')
-@login_required
-def visit(uid):
-    '''拜访一个用户的主页'''
-    # 备注：和home视图有重复
-    # session['target_uid'] = uid
-    user: User = User.query.get(uid)
-    level = get_level(exp=user.exp)
-    need_exp = get_exp(level + 1) - user.exp 
-    return render_template('social/user.html', user=user, level=level, need_exp=need_exp)
-
-
-@auth_bp.route('/users')
-@login_required
-def users():
-    '''显示用户列表'''
-    data = []
-    users: list[User] = User.query.all()
-    for u in users:
-        level = get_level(exp=u.exp)
-        data.append({'user':u, 'name':u.name, 'level':level, 'introduce':u.introduce, 'time':0, 'avatar':u.avatar})        
-    return render_template('social/users.html', users=data)
 
 
 @auth_bp.route('/modify', methods=['GET', 'POST'])
@@ -107,56 +136,6 @@ def upload_avatar():
     return render_template('auth/upload.html', form=form)
 
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
-def register():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User(name=form.username.data, password=form.password.data)
-        try:
-            db.session.add(user)
-            db.session.commit()
-            flash('注册成功！')
-            return redirect(url_for('.login'))
-        except Exception as e:
-            flash("该用户名已存在！请重新为自己构思一个独特的用户名吧！", 'danger')
-    return render_template('auth/register.html', form=form)
-
-
-# 重构：已经登录则不重复登录
-@auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        # 验证用户名和密码以完成登录
-        user = User.query.filter_by(name=form.username.data).first()
-        if (user is not None) and (form.password.data == user.password):
-            
-            Login.login(user=user)
-            
-            # 使用cookie记住登录
-            # 疑惑：实际保存的时间远大于我设置的20s，不知具体是多久。
-            response = make_response(redirect(url_for('.home')))
-            if form.remenber.data is True:
-                response.set_cookie('remenber_user', str(user.id).encode('utf-8'), max_age=20)
-                
-            return response
-        else:
-            flash("用户名或密码错误！", 'danger')
-    return render_template('auth/login.html', form=form)
-
-
-@auth_bp.route('/logout')
-def logout():
-    """退出登录"""
-    Login.logout()
-
-    # 并删除“记住登录”状态
-    response = make_response(redirect(url_for('.login')))
-    response.set_cookie('remenber_user', ''.encode('utf-8'), max_age=0)
-
-    return response
-
-
 @auth_bp.route('/export')
 @login_required
 def export_user():
@@ -200,7 +179,7 @@ def export_user():
     response = make_response(data)
     response.headers['Content-Disposition'] = f'attachment; filename={quote(user.name)}{tm}.json'  # quote:编码中文
     return response
-    
+
 
 @auth_bp.route('/import', methods=['GET', 'POST'])
 @login_required
@@ -331,4 +310,31 @@ def import_user():
         flash('数据导入成功')
         return redirect(url_for('.home'))
     return render_template('auth/upload.html', form=form)
+
+
+# ------------------------------ 三、好友社交  ------------------------------ #
+
+
+@auth_bp.route('/visit/<int:uid>')
+@login_required
+def visit(uid):
+    '''拜访一个用户的主页'''
+    # 备注：和home视图有重复
+    # session['target_uid'] = uid
+    user: User = User.query.get(uid)
+    level = get_level(exp=user.exp)
+    need_exp = get_exp(level + 1) - user.exp 
+    return render_template('social/user.html', user=user, level=level, need_exp=need_exp)
+
+
+@auth_bp.route('/users')
+@login_required
+def users():
+    '''显示用户列表'''
+    data = []
+    users: list[User] = User.query.all()
+    for u in users:
+        level = get_level(exp=u.exp)
+        data.append({'user':u, 'name':u.name, 'level':level, 'introduce':u.introduce, 'time':0, 'avatar':u.avatar})        
+    return render_template('social/users.html', users=data)
 
