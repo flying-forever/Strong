@@ -1,0 +1,19 @@
+<!-- 用户列表 -->
+{% extends 'social/_social.html' %}
+{% from '_macros.html' import user_card  with context %}
+{% block followers %} active {% endblock %}
+
+
+<!-- 备注：是不是可以和users页面合并 -->
+{% block show %}
+{% for i in range(users.__len__() // 3 + 1) %}
+<div class="row">
+    {% for j in range(3) %}
+    {% set index = i * 3 + j %}
+    {% if index < users.__len__() %} 
+    {% set u=users[index] %} 
+        {{ user_card(u['name'], u['introduce'], u['level'], u['time'], u['avatar'], u['user'].id, u['followed']) }} 
+    {% endif %} {% endfor %}
+</div>
+{% endfor %}
+{% endblock %}

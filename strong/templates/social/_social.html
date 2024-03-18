@@ -1,0 +1,25 @@
+{% extends '_base.html' %}
+{% block active_social %} btn-primary {% endblock %}
+
+
+{% block content %}
+<!-- 1 顶栏 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link {% block following %}{% endblock %}" href="{{ url_for('auth.following') }}">关注</a>
+            <a class="nav-item nav-link {% block followers %}{% endblock %}" href="{{ url_for('auth.followers') }}">被关注</a>
+            <a class="nav-item nav-link {% block people %}{% endblock %}" href="{{ url_for('auth.users') }}">陌生人</a>
+            {% block top_bar %}{% endblock top_bar %}
+        </div>
+    </div>
+    {% block top_bar_nav %}{% endblock top_bar_nav %}
+</nav>
+
+
+<!-- 2 展示页面 -->
+{% block show %}
+    ...
+{% endblock %}
+
+{% endblock %}

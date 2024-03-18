@@ -17,9 +17,9 @@
     <div class="col-2"> 
         <!-- 重构：使用扩展没啥必要，自己放张图片效果也是一样的。 --> 
         {% if user.avatar %} 
-            <img src="{{ url_for('getfile', filename=user.avatar) }}" class="img-fluid rounded-circle" alt="头像"> 
+            <img src="{{ url_for('getfile', filename=user.avatar) }}" class="img-fluid rounded-circle" alt="头像" style="height: 175px; width: 175px;"> 
         {% else %} 
-            <img src="{{ avatars.default() }}" class="img-fluid rounded-circle" alt="头像"> 
+            <img src="{{ avatars.default() }}" class="img-fluid rounded-circle" alt="头像" style="height: 175px; width: 175px;"> 
         {% endif %} 
     </div>  
     <div class="col"> 
@@ -36,7 +36,7 @@
         <p>个人简介：{{ user.introduce }}</p>
         <p>
             邮箱：{{ user.email }}
-            <a class="btn btn-success btn-right" href="{{ url_for('auth.modify') }}" role="button">关注</a>
+            <a class="btn btn-success btn-right" href="#" role="button">关注</a>
         </p>
     </div>
 </div>

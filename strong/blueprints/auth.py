@@ -10,7 +10,7 @@ from strong.callbacks import login_required
 from strong.utils import Login, get_level, get_exp, random_filename
 from strong.utils import flash_ as flash
 from strong.forms import LoginForm, UserForm, UploadForm, UpJsonForm
-from strong.models import User, Book, Task, Tag
+from strong.models import User, Book, Task, Tag, Follow
 from strong import db
 
 
@@ -140,7 +140,7 @@ def upload_avatar():
 @login_required
 def export_user():
     '''导出用户的书籍和任务数据，得到一个json文件
-    - 注：不保存图片'''
+    - 注：不保存图片；也不包括好友关系，仅个人数据。'''
     # 备注：哪些字段需要导出，哪些字段导入需要用到，可以捋一下。
 
     def obj2dict(objs: list, excludes: list):
@@ -315,6 +315,14 @@ def import_user():
 # ------------------------------ 三、好友社交  ------------------------------ #
 
 
+def today_time(user):
+    '''指定用户今天的学习时间'''
+    now = datetime.utcnow()
+    times = [t.use_minute for t in user.tasks if t.time_finish.day == now.day and t.time_finish.month == now.month and t.time_finish.year == now.year]
+    time = round(sum(times) / 60.0, 2) 
+    return time
+
+
 @auth_bp.route('/visit/<int:uid>')
 @login_required
 def visit(uid):
@@ -334,6 +342,66 @@ def users():
     data = []
     users: list[User] = User.query.all()
     for u in users:
+        if u.id == Login.current_id(): continue
         level = get_level(exp=u.exp)
-        data.append({'user':u, 'name':u.name, 'level':level, 'introduce':u.introduce, 'time':0, 'avatar':u.avatar})        
+        followed = Follow.query.filter(Follow.follower_id==Login.current_id(), Follow.followed_id==u.id).first()
+        data.append({'user':u, 'name':u.name, 'level':level, 'introduce':u.introduce, 'time':today_time(u), 'avatar':u.avatar, 'followed':followed})        
     return render_template('social/users.html', users=data)
+
+
+@auth_bp.route('/following')
+@login_required
+def following():
+    '''自己关注的用户列表'''
+    # 备注：和users代码相冗余，封装函数，或者用户类？
+    data = []
+    follows: list[Follow] = Login.current_user().following
+    users = [f.followed for f in follows]
+    for u in users:
+        level = get_level(exp=u.exp)
+        followed = Follow.query.filter(Follow.follower_id==Login.current_id(), Follow.followed_id==u.id).first()
+        data.append({'user':u, 'name':u.name, 'level':level, 'introduce':u.introduce, 'time':today_time(u), 'avatar':u.avatar, 'followed':followed})        
+    return render_template('social/following.html', users=data)
+
+
+@auth_bp.route('/followers')
+@login_required
+def followers():
+    '''粉丝列表'''
+    # 备注：和users代码相冗余
+    data = []
+    follows: list[Follow] = Login.current_user().followers
+    users = [f.follower for f in follows]
+    for u in users:
+        level = get_level(exp=u.exp)
+        followed = Follow.query.filter(Follow.follower_id==Login.current_id(), Follow.followed_id==u.id).first()
+        data.append({'user':u, 'name':u.name, 'level':level, 'introduce':u.introduce, 'time':today_time(u), 'avatar':u.avatar, 'followed':followed})        
+    return render_template('social/followers.html', users=data)
+
+
+@auth_bp.route('/follow/<int:uid>')
+@login_required
+def follow(uid):
+    '''[API]关注'''
+    current_id: User = Login.current_id()
+    fl_ = Follow.query.filter(Follow.follower_id==current_id, Follow.followed_id==uid).first()
+    if not fl_:
+        fl = Follow(follower_id=current_id, followed_id=uid)
+        db.session.add(fl)
+        db.session.commit() 
+    return jsonify({'success':True})
+
+
+@auth_bp.route('/rank')
+@login_required
+def rank():
+    '''当前用户的学习时间排行榜'''
+    data = []
+    user = Login.current_user()
+    follows: list[Follow] = user.following
+    users = [f.followed for f in follows] + [user]
+    for u in users:
+        level = get_level(exp=u.exp)
+        data.append({'name':u.name, 'level':level, 'time':today_time(u), 'id':u.id})    
+    data.sort(key=lambda x:x['time'], reverse=True)
+    return jsonify(data)

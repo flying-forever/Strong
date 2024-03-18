@@ -4,7 +4,7 @@ import re, math, json
 
 from strong import db
 from strong.callbacks import login_required
-from strong.models import Task, Book, User
+from strong.models import Task, Book, User, Tag
 from strong.utils import Login, Time, Clf
 from strong.utils import flash_ as flash
 from strong.forms import BookForm
@@ -144,6 +144,8 @@ class Node:
         self.children = []
 
         self.pid: int|None = pid  # 辅助属性
+    def __repr__(self) -> str:
+        return f'<Node id={self.id} name={self.name}, pid={self.pid}>'
 
     def set_parent(self, parent):
         self.parent = parent
@@ -195,6 +197,7 @@ def graph():
     for node in nodes.values():
         if node.pid:
             node.set_parent(nodes[node.pid])
+            
     for node in nodes.values():
         if node.pid is None:
             node.forward()

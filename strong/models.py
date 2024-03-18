@@ -36,6 +36,16 @@ class Task(db.Model):
         return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
 
 
+class Follow(db.Model):
+    '''关注模型，参数：follower_id，followed_id'''
+    follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)  # 关注人者
+    followed_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)  # 被关注者
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    follower = db.relationship('User', foreign_keys=[follower_id], back_populates='following', lazy='joined')
+    followed = db.relationship('User', foreign_keys=[followed_id], back_populates='followers', lazy='joined')
+
+
 class User(db.Model):
     """用户模型
     - 集成了一些基于session的用户操作"""
@@ -51,6 +61,8 @@ class User(db.Model):
 
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) # 账号创建时间
 
+    following = db.relationship('Follow', foreign_keys=[Follow.follower_id], back_populates='follower', lazy='dynamic', cascade='all')  # 关注
+    followers = db.relationship('Follow', foreign_keys=[Follow.followed_id], back_populates='followed', lazy='dynamic', cascade='all')  # 粉丝
     tasks = db.relationship('Task', back_populates='user')
     books = db.relationship('Book', back_populates='user')
     tags = db.relationship('Tag', back_populates='user')

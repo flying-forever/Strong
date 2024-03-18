@@ -1,22 +1,21 @@
 {% extends '_base.html' %}
-{% from 'data/#chart1.html' import chart1 %}
-{% from 'data/#chart2.html' import chart2 %}
-
 {% block active_home %} btn-primary {% endblock %}
+
 
 {% block head %}
 {{ super() }}
 <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 {% endblock head %}
 
+
 {% block content %}
 <div class="row">
     <div class="col-2"> 
         <!-- 重构：使用扩展没啥必要，自己放张图片效果也是一样的。 --> 
         {% if user.avatar %} 
-            <img src="{{ url_for('getfile', filename=user.avatar) }}" class="img-fluid rounded-circle" alt="头像"> 
+            <img src="{{ url_for('getfile', filename=user.avatar) }}" class="img-fluid rounded-circle" alt="头像" style="height: 175px; width: 175px;"> 
         {% else %} 
-            <img src="{{ avatars.default() }}" class="img-fluid rounded-circle" alt="头像"> 
+            <img src="{{ avatars.default() }}" class="img-fluid rounded-circle" alt="头像" style="height: 175px; width: 175px;"> 
         {% endif %} 
     </div>  
     <div class="col"> 
@@ -42,13 +41,19 @@
 <!-- 数据表 小号展示 -->
 <div class="row" style="height:50;"></div>
 <div class="row">
-    <div class="col-6">
-        <div id="chart1" style="width: 600;height:400;" class="container-fluid"></div>
+    <div class="col-4">
+        <div id="chart1" style="width: 515;height:400;" class="container-fluid pl-0"></div>
+        {% from 'data/#chart1.html' import chart1 %}
         {{ chart1() }}
     </div>
-    <div class="col-6">
-        <div id="chart2" style="width: 600;height:400;" class="container-fluid"></div>
+    <div class="col-5">
+        <div id="chart2" style="width: 515;height:400;" class="container-fluid pl-6 pr-0"></div>
+        {% from 'data/#chart2.html' import chart2 %}
         {{ chart2() }}
+    </div>
+    <!-- 排行榜 -->
+    <div class="col">
+        {% include 'auth/#rank.html' %}
     </div>
 </div>
 {% endblock %}
