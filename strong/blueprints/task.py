@@ -282,87 +282,60 @@ def upload_cover(book_id):
     return render_template('auth/upload.html', form=form)
 
 
-# ------------------------------ 四、标签模块 ------------------------------ #
+# ------------------------------ 四、标签模块 api ------------------------------ #
 
 
-@task_bp.route('/tag/create', methods=['GET', 'POST'])
-def tag_create():
-    '''试改用json交换数据'''
-    # 备注：异步请求的表单验证问题？
-    # 备注：分支太多啦！
-    # 备注：这部分代码其实应该和def graph放在一块儿
-    # 备注：异步更新星图，可能需要前端传递一些数据
-    # 备注：为node和link建立一个类？
+def tag_create(tag_name, pid, uid, **kwargs):
+    '''重名 -> False'''
+    tag = Tag.query.filter(Tag.name==tag_name, Tag.uid==uid).first()
+    if tag is not None: return False
+    tag = Tag(name=tag_name, uid=uid, pid=pid)
+    db.session.add(tag)
+    db.session.commit()
+    return True
 
+def tag_update(tag_id, tag_name, pid, uid, **kwargs):
+    # 备注：这样好像太灵活，比如传入一个找不到的pname，也会将父节点置空
+    tag = Tag.query.filter(Tag.id==tag_id, Tag.uid==uid).first()
+    tag.name = tag_name
+    tag.pid = pid
+    db.session.commit()
+    return True
+
+def task_bind_update(task_name, pid: int | None, uid, **kwargs):
+    print('task_name:', task_name, 'pid:', pid)
+    tasks = Task.query.filter(Task.name==task_name, Task.uid==uid).all()
+    print('tasks,', tasks)
+    for t in tasks:
+        t.tag_id = pid
+    db.session.commit()
+    return True
+
+@task_bp.route('/tag/node', methods=['GET', 'POST'])
+def tag_node():
     # 1 解析数据:str | '' | None
-    tagid = request.form.get('tagid')
-    tagname = request.form.get('tagname').strip()
-    pname = request.form.get('pname') 
-    # print('form', tagid, tagname, pname)
+    print('form:', request.form)
+    node_id = request.form.get('tagid')
+    name = request.form.get('tagname').strip()
+    pname = request.form.get('pname')
 
     uid = Login.current_id()
-    is_tag = True  # 只有传入加了offset的id，才是task
-    new_link = None 
-    new_node = None
+    pid = Tag.query.filter(Tag.name==pname, Tag.uid==uid).first().id if pname else None
 
-    # 2 修改 | 新建
-    if tagid:
-        tagid = int(tagid)
-        is_tag = tagid < Clf.idOffset
-        # 传入：tag | task
-        if is_tag:
-            tag = Tag.query.get(tagid)
-            tag.name = tagname
-        else:
-            tasks = Task.query.filter(tagname==Task.name, Task.uid==uid).all()
-            print([(t,t.uid) for t in tasks])
+    # 2 判断操作类型
+    ops = [tag_create, tag_update, task_bind_update]
+    messages = ['创建出错，标签名不能重复', '标签更新出错', '任务绑定出错']
+    if '' == node_id:
+        op = 0
+    elif int(node_id) < Clf.idOffset:
+        op = 1
     else:
-        # 同一个用户的标签不能重名
-        tag = Tag.query.filter(tagname==Tag.name, Tag.uid==uid).first() 
-        if tag:
-            return jsonify({'success':False, 'message':'标签名重复'})
-        tag = Tag(name=tagname, uid=uid)
-
-        # 新建时
-        db.session.add(tag)
-        db.session.commit()  # tag被提交了才有id
-
-        # 备注：把symbolSize放到前端是不是好些
-        value = sum([t.use_minute for t in tag.tasks])
-        new_node = {'id':tag.id, 'name':tag.name, 'value':value, 'symbolSize':1, 'label':{'show':True, 'fontSize':10}}  
-
-    # 3 绑定
-    if pname:
-        ptag = Tag.query.filter(pname==Tag.name, Tag.uid==uid).first()
-        if not ptag:
-            return jsonify({'success':False, 'message':'父标签名不存在'})
-        # self: tag | task
-        if is_tag:
-            tag.parent = ptag
-            new_link = {'id':Clf.idOffset * 2 + tag.id, 'source':str(tag.id), 'target':str(ptag.id)}  # 不知道echarts的linkid排到多少了
-        else:
-            for t in tasks:
-                t.tag_id = ptag.id
-                # print('t.tag', t, t.tag, t.tag_id)
-                # 在.data.graph中，也是取同名任务的第一个id
-                if new_link is None:
-                    new_link = {'id':Clf.idOffset * 2 + t.id, 'source':str(Clf.idOffset + t.id), 'target':str(t.tag_id)}  # 不知道echarts的linkid排到多少了
-    # 解绑
-    else:
-        # tag | task
-        if is_tag:
-            tag.pid = None 
-            new_link = {'id':Clf.idOffset * 2 + t.id, 'source':str(Clf.idOffset + t.id), 'target':str(0)}  # target0删除link
-        else:
-            for t in tasks:
-                t.tag_id = None
-                if new_link is None:
-                    new_link = {'id':Clf.idOffset * 2 + t.id, 'source':str(Clf.idOffset + t.id), 'target':str(t.tag_id)} 
-
-
-    db.session.commit()
-    return jsonify({'success':True, 'new_node':new_node, 'new_link':new_link})
-
+        op = 2
+    res = {}
+    res['success'] = ops[op](uid=uid, tag_id=node_id, pid=pid, tag_name=name, task_name=name)
+    res['message'] = messages[op] if not res['success'] else ''
+    return jsonify(res)
+    
 
 @task_bp.route('/tag/delete', methods=['GET', 'POST'])
 def tag_delete():

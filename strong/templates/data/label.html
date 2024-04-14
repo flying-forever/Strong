@@ -1,6 +1,4 @@
 {% extends 'data/_data.html' %}
-
-
 {% block top_bar %}
 <a id="tag_create" class="btn btn-success" href="#">+新标签</a>
 {% endblock %}
@@ -8,7 +6,6 @@
 
 {% block show %}
 {{ super() }}
-
 
 <!-- 标签修改，模态框 -->
 <div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
@@ -22,7 +19,7 @@
                 </button>
             </div>
             <!-- 模态框正文 -->
-            <form id="tagForm" action="{{ url_for('task.tag_create') }}">
+            <form id="tagForm" action="">
                 <div class="alert alert-success" role="alert" id="message" style="display: none;">用于发送提示消息</div>
                 <div class="modal-body" id="modalBody">
                     <!-- 输入列表 -->
@@ -54,65 +51,42 @@
     </div>
 </div>
 
-
 <!-- 星图，echarts -->
 <script type="text/javascript">
     var myChart = echarts.init(document.getElementById('main'), 'wonderland');
-    var datas = {{ datas | safe }};
+    var datas = {{ datas | tojson | safe }};  // tojson过滤，将True变成true
 
-    // console.log(datas)
     // 1 图表配置
     var option = {
-        title: {
-            text: "你的星球",
-            subtext: "{{ user.name }}",
-            // top: "bottom",
-            left: "right"
-        },
-        tooltip: {},
-        legend: [{
-            data: ["类目0", "类目1", "类目2", "类目3", "类目4", "类目5", "类目6", "类目7", "类目8"]
-        }],
-        animationDuration: 1500,
-        animationEasingUpdate: "quinticInOut",
-        backgroundColor: {
-            // 中心渐变阴影
-            type: 'radial',
-            x: 0.5,
-            y: 0.5,
-            r: 0.5,
-            colorStops: [{
-                offset: 0, color: '#8e8e8e' // 0% 处的颜色
-            }, {
-                offset: 1, color: '#fafafa' // 100% 处的颜色
-            }],
-            global: false // 缺省为 false
+        tooltip: {
+            trigger: 'item',
+            triggerOn: 'mousemove'
         },
         series: [{
-            nodes: datas['nodes'],
-            links: datas['links'],
-            name: '星球',
-            type: 'graph',
-            layout: 'force',
+            type: 'tree',
+            data: [datas, {name:'tag'}],
+            top: '10%',
+            bottom: '10%',
+            layout: 'radial',
+            symbol: 'emptyCircle',
+            symbolSize: 7,
+            initialTreeDepth: 2,
+            animationDurationUpdate: 750,
+            emphasis: {
+                focus: 'descendant'
+            },
             roam: true, //鼠标缩放
             draggable: true, //可拖拽
-            // symbol:'circle',//形状,可以设置图片
-            label: { show: true, fontSize: 8 },
-            force: {
-                repulsion: [80, 200],
-                edgeLength: [10, 150],
-                gravity: 0.1,
-            },
+            // label: { show: true, fontSize: 12},  // 注释时对series的整体label操作就失效
         }]
     }
     myChart.setOption(option);
 
-    // 监听 zoom 事件，当缩放发生时执行对应的处理程序
-    myChart.on('graphroam', function (params) {
-
-        // 获取当前缩放比例
+    // 1.1 监听 zoom 事件，当缩放发生时执行对应的处理程序
+    myChart.on('treeroam', function (params) {
+        // 备注：连续缩放时，会导致明显的卡顿。
         // 备注：每个node的size单独操作呢？
-        var scale = params.zoom;  // 拖拽事件会得到undefine
+        var scale = params.zoom;  // 拖拽事件会得到undefine，可查看echarts的event相关文档
 
         var label = option.series[0].label;
         if (scale) {
@@ -126,36 +100,10 @@
         }
     });
 
-    // 2 点击星球事件
-    // 备注：改成双击？
-    myChart.on('click',
+    // 2 双击星球 —> 唤出模态框
+    myChart.on('dblclick',
         function (params) {
             console.log(params.name, params.value, params.data);
-            // 在模态框加入关联的按钮组
-            newBtns = function (name, containerId) {
-                // 创建一个新的按钮组
-                var btns = document.createElement('div');
-                btns.className = 'btn-group mr-1 mb-1';
-                btns.role = 'group';
-
-                // 将按钮加入组
-                var btn = document.createElement('a');
-                btn.className = 'btn btn-sm btn-info';
-                btn.href = '#';  // 传递id
-                btn.textContent = name;
-                btns.appendChild(btn);
-
-                // 将按钮2加入组
-                var btn = document.createElement('a');
-                btn.className = 'btn btn-sm btn-info';
-                btn.href = '#';  // 传递id
-                btn.textContent = 'x';
-                btns.appendChild(btn);
-
-                // 组放入页面
-                var container = document.getElementById(containerId); // 选择容器元素
-                container.appendChild(btns); // 将新按钮组添加到容器中
-            }
 
             var modal = $('#tagModal');
             modal.modal('show');
@@ -163,35 +111,29 @@
             modal.find('input#tagname').val(params.name);
             modal.find('input#tagid').val(params.data.id);  // 
 
-            // 生成id索引的node字典
-            var nodes = datas['nodes'];
-            var dnodes = {}
-            for (var i = 0; i < nodes.length; i++) {
-                var node = nodes[i];
-                dnodes[node.id] = node;
-            }
-
-            // 找到关联的子结点，link中source是作为子，target是父
-            var links = datas['links'];
-            for (var i = 0; i < links.length; i++) {
-                var link = links[i];
-                if (link.target == params.data.id) {
-                    // console.log("child:", dnodes[link.source]);
-                    newBtns(dnodes[link.source].name, 'childs');
-                }
-                if (link.source == params.data.id) {
-                    modal.find('input#pname').val(dnodes[link.target].name);
+            // 找父节点
+            find_parent = function (node) {
+                var childs = node.children;
+                for (var i = 0; i < childs.length; i++) {
+                    if (childs[i].name == params.data.name) {
+                        modal.find('input#pname').val(node.name);
+                        return true
+                    } else {
+                        if(find_parent(childs[i])){ return true; }
+                    }
                 }
             }
+            var root = option.series[0].data[0];
+            find_parent(root)
         }
     )
 
-    // 3 模态框隐藏 -> 刷新
+    // 3 模态框隐藏 -> 清空内容
     $('#tagModal').on('hidden.bs.modal', function (e) {
         // 备注：怎么能直接刷新为初始状态，不用一个个操作？
         // 刷新表单值
         $('form input').val('');
-        // 刷新填入的标签元素
+        // 刷新填入的标签元素 (现在多余了)
         var clearIds = ['childs'];
         for (var i = 0; i < clearIds.length; i++) {
             var container = document.getElementById(clearIds[i]);
@@ -206,13 +148,13 @@
         modal.find('.modal-title').text('新的标签');
     });
 
-    // 5 新建标签 - 异步发送表单请求
+    // 5 新建标签 - 异步发送表单请求，动态更新
     $('#submit').on('click', function (e) {
         e.preventDefault();
         var formData = $('#tagForm').serialize(); // 序列化表单数据
         // console.log(formData);
         $.ajax({
-            url: "{{ url_for('task.tag_create') }}",
+            url: "{{ url_for('task.tag_node') }}",
             type: 'POST',
             data: formData,
             success: function (response) {
@@ -222,24 +164,16 @@
                 console.log(res);
                 if (res.success) {
                     $('#message').text('操作成功').show();
-                    // echarts动态更新
-                    // 备注：只有添加新的，那删除旧的呢？
-                    if (res.new_node) { option.series[0].nodes.push(res.new_node); }
-
-                    // 同源修改，否则插入
-                    if (res.new_link) {
-                        var link = res.new_link;
-                        var links = option.series[0].links;
-                        var is_find = false;
-                        for (var i = 0; i < links.length; i++) {
-                            if (links[i].source == link.source) {
-                                links[i].target = link.target;
-                                is_find = true;
-                            }
+                    $.ajax({    
+                        // 备注：这个ajax请求写得简洁，其它都有大段的非核心代码。
+                        url: "{{ url_for('data.get_tree_data', time_id=time_id) }}",
+                        type: 'GET', 
+                        success: function (response) {
+                            var data = response;
+                            option.series[0].data[0] = data;
+                            myChart.setOption(option);
                         }
-                        if (is_find == false) { option.series[0].links.push(res.new_link); }
-                    }
-                    myChart.setOption(option); // echarts会自动找到差异并更改
+                    })
 
                     setTimeout(function () {
                         $('#message').hide();
@@ -271,9 +205,21 @@
                     // 动态更新，删除对应node
                     var id = $('#tagid').val();
                     console.log(id);
-                    option.series[0].nodes = option.series[0].nodes.filter(function (node) {
-                        return node.id != $('#tagid').val(); // 返回ID不等于指定ID的节点
-                    });
+
+                    // 找到id对应的标签，在tree中删除
+                    var root = option.series[0].data[0];
+                    del_node = function (childs, id) {
+                        for (var i = 0; i < childs.length; i++) {
+                            if (childs[i].id == id) {
+                                console.log('del_node', childs[i]);
+                                childs.splice(i, 1);
+                                return true;
+                            } else {
+                                if (del_node(childs[i].children, id)) {return true;}
+                            }
+                        }
+                    }
+                    del_node(root.children, id);
                     myChart.setOption(option);
 
                     $('#message').text('操作成功').show();

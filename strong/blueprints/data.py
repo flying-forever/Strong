@@ -138,9 +138,12 @@ class Node:
     def __repr__(self) -> str:
         return f'<Node id={self.id} name={self.name}, pid={self.pid}>'
 
+    def is_task(self):
+        return self.id >= Clf.idOffset
     def set_parent(self, parent):
         self.parent = parent
         self.parent.children.append(self)
+        self.pid = self.parent.id  # 保持判断一致
     def compute(self):
         if self.value is None:
             self.value = 0
@@ -152,23 +155,22 @@ class Node:
                 child.forward()
         self.compute()
 
-    def get_data(self):
-        '''返回echarts需要的节点字典'''
-        return {'id':self.id, 'name':self.name, 'value':round(self.value,2), 'symbolSize':math.sqrt(self.value)*5+1}
-    def get_link(self):
-        return {'id':next(self.link_id), 'source':str(self.id), 'target':str(self.pid)} if self.pid else None
+    def tree2dict(self):
+        '''将整颗树返回为一个字典, return -> node_dict'''
+        # Node.children == [] 时递归回升
+        node_dict = {'id':self.id, 'name':self.name, 'value':round(self.value,2), 'symbolSize':math.sqrt(self.value)*5+1, 'children':[]}
+        for child in self.children:
+            child: Node
+            node_dict['children'].append(child.tree2dict())
+        return node_dict
 
 
-@data_bp.route('/graph')
-@login_required
-def graph():
-    '''学习时间的关系图'''
-    # 这一版代码看着清晰多了，面向对象吗？
+def tree_data(time_id):
+    '''返回标签系统的树结构数据'''
 
     # [choice 时间选择 0至今 1近一周 2近一月, 3近一季]
     user: User = Login.current_user()
     gaps = [10**5, 7, 30, 90]
-    time_id = request.args.get('time_id', type=int, default=0)  ;print('args', request.args)
     tasks = [task for task in user.tasks if abs(task.time_finish - datetime.utcnow()) < timedelta(days=gaps[time_id])]
     
     nodes: dict[int, Node] = {}  # id->node
@@ -179,7 +181,7 @@ def graph():
         node = Node(id=tag.id, name=tag.name, pid=tag.pid)
         nodes[tag.id] = node
 
-    # 合并同名任务
+    # 1.2 合并同名任务
     d: dict[str, Node] = {}
     for t in tasks:
         if t.name not in d:
@@ -189,22 +191,38 @@ def graph():
     for node in d.values():
         nodes[node.id] = node
 
-    # 1.2 连接节点，从每个根节点递归计算值
+    # 1.3 连接节点，从每个根节点递归计算值; 没有标签的任务连接到other
+    other = Node(id=-1, name='other', pid=None)
+    nodes[other.id] = other
     for node in nodes.values():
         if node.pid:
             node.set_parent(nodes[node.pid])
-            
+        elif node.is_task():
+            node.set_parent(other)
+
+    # 1.3 没有父节点的顶级标签，连接到root
+    root = Node(id=0, name=user.name, value=0, pid=None)
     for node in nodes.values():
         if node.pid is None:
-            node.forward()
+            node.set_parent(root)
+    root.forward()
+    datas = root.tree2dict()
+    datas['symbolSize'] = 5
 
-    # 2 遍历树，返回点集和边集
-    enodes, elinks = [], []
-    for node in nodes.values():
-        enodes.append(node.get_data())
-        link = node.get_link()
-        if link:
-            elinks.append(link)
+    return datas
 
-    datas = {'nodes':enodes, 'links':elinks}
-    return render_template('data/label.html', datas=datas, user=user, type=2, time_id=time_id)
+
+@data_bp.route('/tree_data/<int:time_id>')
+def get_tree_data(time_id):
+    print('time_id', time_id)
+    datas = tree_data(time_id)
+    return jsonify(datas)
+
+
+@data_bp.route('/graph')
+@login_required
+def graph():
+    '''学习时间的关系模板'''
+    time_id = request.args.get('time_id', type=int, default=2)  #;print('args', request.args)
+    datas = tree_data(time_id)
+    return render_template('data/label.html', datas=datas, time_id=time_id, user=Login.current_user(), type=2)
