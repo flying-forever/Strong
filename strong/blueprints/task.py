@@ -68,7 +68,7 @@ def task_create():
     form = TaskForm()
     if form.validate_on_submit():
         # 重构：不想写这一行代码，能否默认从表单中提取所有参数，并传递给Task的构造函数？
-        task = Task(name=form.name.data, exp=form.exp.data, need_minute=form.need_minute.data, \
+        task = Task(name=form.name.data.strip(), exp=form.exp.data, need_minute=form.need_minute.data, \
             uid=Login.current_id(), task_type=form.task_type.data)
 
         db.session.add(task)
@@ -135,7 +135,7 @@ def task_delete(task_id):
 
 def bind(taskname, book_id):
     '''将匹配的任务绑定到书籍，并db.session.commit()'''
-    tasks: list[Task] = Task.query.filter(Task.name.like(f'%{taskname}%')).all()
+    tasks: list[Task] = Task.query.filter(Task.name.like(f'%{taskname}%'), Task.uid==Login.current_id()).all()
     for task in tasks:
         if task.bid is None:
             task.bid = book_id
@@ -296,7 +296,7 @@ def tag_create():
 
     # 1 解析数据:str | '' | None
     tagid = request.form.get('tagid')
-    tagname = request.form.get('tagname') 
+    tagname = request.form.get('tagname').strip()
     pname = request.form.get('pname') 
     # print('form', tagid, tagname, pname)
 

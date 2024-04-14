@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta
 import re, math, json
 
 from strong import db
@@ -45,24 +45,15 @@ def get_data():
     - 异步返回json"""
     # 备注：要不要把两个图表拆到不同函数呢？
 
-    uid = request.form.get('uid', type=int)
-    if not uid:
-        uid = Login.current_id()
-
     # [choice] 月份选择 & 年份选择
     type = request.form.get('type', type=int)
-    month = request.form.get('month', type=int)
-    year = request.form.get('year', type=int)
-    now = datetime.utcnow()
-    print(year, month)
-    print('args', request.args)
+    uid = request.form.get('uid', type=int, default=Login.current_id())
+    # print('form:', request.form)
 
-    if not year:
-        year = now.year
-    if not month:
-        month = now.month 
+    now = datetime.utcnow()
+    month = request.form.get('month', type=int, default=now.month)
+    year = request.form.get('year', type=int, default=now.year)
     today = now.day if month == now.month else 31
-    print(year, month)
 
     # 1 查询本月以及上月的数据
     tasks: list[Task] = (
@@ -173,8 +164,13 @@ class Node:
 def graph():
     '''学习时间的关系图'''
     # 这一版代码看着清晰多了，面向对象吗？
-    
+
+    # [choice 时间选择 0至今 1近一周 2近一月, 3近一季]
     user: User = Login.current_user()
+    gaps = [10**5, 7, 30, 90]
+    time_id = request.args.get('time_id', type=int, default=0)  ;print('args', request.args)
+    tasks = [task for task in user.tasks if abs(task.time_finish - datetime.utcnow()) < timedelta(days=gaps[time_id])]
+    
     nodes: dict[int, Node] = {}  # id->node
 
     # 1 构建树，计算值
@@ -185,7 +181,7 @@ def graph():
 
     # 合并同名任务
     d: dict[str, Node] = {}
-    for t in user.tasks:
+    for t in tasks:
         if t.name not in d:
             d[t.name] = Node(id=t.id+Clf.idOffset, name=t.name, pid=t.tag_id, value=0)  # task是叶子节点，不会被pid索引的
         d[t.name].value += t.use_minute / 60  # m->h
@@ -211,4 +207,4 @@ def graph():
             elinks.append(link)
 
     datas = {'nodes':enodes, 'links':elinks}
-    return render_template('data/label.html', datas=datas, user=user, type=2)
+    return render_template('data/label.html', datas=datas, user=user, type=2, time_id=time_id)

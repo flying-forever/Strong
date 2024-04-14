@@ -186,7 +186,7 @@ def export_user():
 def import_user():
     '''用上传的json文件，“覆盖”用户数据'''
     # 备注：总是碰到id问题，原来的外键pid已经失效。而新建的标签，不commit就不能从数据库获得id
-    # 但其实可以手动指定id，已经相应外键
+    # 但其实可以手动指定id，以及相应外键
     # 备注：运行较慢
 
     def create_book(books):
@@ -207,7 +207,10 @@ def import_user():
         # 0 查询标签表中最新的ID
         def id_generator():
             '''为了手动指定新建tag的id'''
-            latest_id = Tag.query.order_by(Tag.id.desc()).first().id  + 1
+            try:
+                latest_id = Tag.query.order_by(Tag.id.desc()).first().id  + 1
+            except:
+                latest_id = 1
             for i in range(latest_id + 1, latest_id + 12345678):
                 yield i
         get_id = id_generator()

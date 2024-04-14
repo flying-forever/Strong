@@ -17,8 +17,10 @@
         <div class="navbar-nav">
             <a class="nav-item nav-link {% if type==0 %}active{% endif %}" href="{{ url_for('.data', type=0, month=month, year=year) }}">堆叠</a>
             <a class="nav-item nav-link {% if type==1 %}active{% endif %}" href="{{ url_for('.data', type=1, month=month, year=year) }}">日况</a>
-            <a class="nav-item nav-link {% if type==2 %}active{% endif %}" href="{{ url_for('.graph', type=2, month=month, year=year) }}">星图</a>
+            <a class="nav-item nav-link {% if type==2 %}active{% endif %}" href="{{ url_for('.graph', type=2, time_id=0) }}">星图</a>
 
+            <!-- 下拉列表链接用的.data端点，但星图是.graph端点 -->
+            {% if type!=2 %}
             <!-- a 下拉-月份选择 -->
             <li class="nav-item dropdown">
                 {% set months = [1,2,3,4,5,6,7,8,9,10,11,12] %}
@@ -53,6 +55,25 @@
                     {% endfor %}
                 </div>
             </li>
+            {% else %}
+            <!-- c 下拉-星图最近 -->
+            <li class="nav-item dropdown">
+                <!-- 备注：这个列表要不要直接在data中定义？另外，这三个下拉列表封装一下？ -->
+                {% set times = ['至今', '近一周', '近一月', '近一季'] %}
+
+                <a class="nav-link dropdown-toggle" role="button" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    {{ times[time_id] }}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    {% for tm in times %}
+                    <a class="dropdown-item" href="{{ url_for('.graph', type=type, time_id=loop.index0) }}">
+                        {{ tm }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </li>
+            {% endif %}
             {% block top_bar %}{% endblock top_bar %}
         </div>
     </div>
