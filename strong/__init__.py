@@ -23,7 +23,7 @@ def create_app(config_py=None):
 
     # 创建程序实例
     app = Flask('strong')
-    config_name = os.getenv('FLASK_CONFIG', default='development')
+    config_name = os.getenv('FLASK_CONFIG', default='run')  # .flaskenv的环境
     app.config.from_object(config[config_name])
 
     # 注册蓝图
@@ -33,10 +33,11 @@ def create_app(config_py=None):
     app.register_blueprint(data_bp, url_prefix='/data')
 
     # 要注册到app上的东西（而不是注册到蓝图）
-    from strong.registers import register_index, register_context, register_getfile
+    from strong.registers import register_index, register_context, register_getfile, register_move_site
     register_index(app)
     register_context(app)
     register_getfile(app)
+    register_move_site(app)
 
     # 导入模型类，让数据库实例能找到它
     from strong import models

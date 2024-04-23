@@ -44,6 +44,7 @@ def get_data():
         - 1 : 普通折线图，区域填充
     - 异步返回json"""
     # 备注：要不要把两个图表拆到不同函数呢？
+    # 备注：这里用POST会有的奇怪，从函数功能上，GET更加符合
 
     # [choice] 月份选择 & 年份选择
     type = request.form.get('type', type=int)

@@ -61,7 +61,7 @@ def login():
             # 疑惑：实际保存的时间远大于我设置的20s，不知具体是多久。
             response = make_response(redirect(url_for('.home')))
             if form.remenber.data is True:
-                response.set_cookie('remenber_user', str(user.id).encode('utf-8'), max_age=20)
+                response.set_cookie('remenber_user', value=str(user.id), max_age=20)
                 
             return response
         else:
@@ -76,7 +76,7 @@ def logout():
 
     # 并删除“记住登录”状态
     response = make_response(redirect(url_for('.login')))
-    response.set_cookie('remenber_user', ''.encode('utf-8'), max_age=0)
+    response.set_cookie('remenber_user', value='', max_age=0)
 
     return response
 

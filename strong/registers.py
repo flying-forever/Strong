@@ -1,4 +1,4 @@
-from flask import redirect, url_for
+from flask import redirect, url_for, flash, get_flashed_messages
 from wtforms import BooleanField
 
 
@@ -24,3 +24,12 @@ def register_getfile(app):
         '''为访问用户上传的文件，提供一个端点'''
         from flask import send_from_directory
         return send_from_directory(app.config['UPLOAD_PATH'], filename)
+
+
+def register_move_site(app):
+    if 'NEW_SITE' in app.config: 
+        @app.before_request
+        def web_move_m():
+            new_site = app.config['NEW_SITE']
+            get_flashed_messages()  # 清空栈，保持仅一条消息
+            flash(f"本站点服务器将在5月30日到期，数据不再同步。请转到 {new_site}", category='danger')
