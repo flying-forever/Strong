@@ -62,7 +62,7 @@
                         class="btn {% block active_home %}{% endblock %}">个人主页</a>
                     <a href="{{ url_for('task.task_doing') }}" role="button"
                         class="btn {% block active_task %}{% endblock %}">任务面板</a>
-                    <a href="{{ url_for('data.index') }}" role="button"
+                    <a href="{{ url_for('data.index', time_id=1) }}" role="button"
                         class="btn {% block active_data %}{% endblock %}">数据中心</a>
                     <a href="{{ url_for('auth.following') }}" role="button"
                         class="btn {% block active_social %}{% endblock %}">看看朋友</a>

@@ -15,7 +15,7 @@ data_bp = Blueprint('data', __name__, static_folder='static', template_folder='t
 
 @data_bp.route('/')
 def index():
-    return redirect(url_for('.graph'))
+    return redirect(url_for('.graph', **request.args))
 
 
 def hour_per_day(year: int, month: int, tasks: list=None) -> list:
@@ -165,10 +165,12 @@ class Node:
         return node_dict
 
 
-def tree_data(time_id):
-    '''返回标签系统的树结构数据'''
+def tree_data(time_id=1):
+    '''返回标签系统的树结构数据
+    - time_id: 0至今 1近一周 2近一月, 3近一季'''
+    if time_id is None: time_id = 1
 
-    # [choice 时间选择 0至今 1近一周 2近一月, 3近一季]
+    # [choice 时间选择]
     user: User = Login.current_user()
     gaps = [10**5, 7, 30, 90]
     tasks = [task for task in user.tasks if abs(task.time_finish - datetime.utcnow()) < timedelta(days=gaps[time_id])]
@@ -212,8 +214,10 @@ def tree_data(time_id):
     return datas
 
 
+@data_bp.route('/tree_data')
 @data_bp.route('/tree_data/<int:time_id>')
-def get_tree_data(time_id):
+@login_required
+def get_tree_data(time_id=1):
     print('time_id', time_id)
     datas = tree_data(time_id)
     return jsonify(datas)
@@ -223,6 +227,7 @@ def get_tree_data(time_id):
 @login_required
 def graph():
     '''学习时间的关系模板'''
-    time_id = request.args.get('time_id', type=int, default=2)  #;print('args', request.args)
+    time_id = request.args.get('time_id', type=int, default=1)  # int | None； 要default，模板的下拉框用。
+    
     datas = tree_data(time_id)
     return render_template('data/label.html', datas=datas, time_id=time_id, user=Login.current_user(), type=2)

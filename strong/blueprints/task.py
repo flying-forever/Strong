@@ -103,7 +103,7 @@ def task_submit(task_id):
         # 2 提交重复任务（新） --> 创建一个新的拷贝
         if task.task_type == 1:
             task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
-                    uid=task.uid, task_type=task.task_type, bid=task.bid)
+                    uid=task.uid, task_type=task.task_type, bid=task.bid, tag_id=task.tag_id)
             db.session.add(task_new)
         # 3 提交任务（新） --> 增加经验
         user = Login.current_user()
@@ -302,10 +302,11 @@ def tag_update(tag_id, tag_name, pid, uid, **kwargs):
     db.session.commit()
     return True
 
-def task_bind_update(task_name, pid: int | None, uid, **kwargs):
+def task_bind_update(task_name, pid, uid, **kwargs):
+    '''pid: int | None  (服务器python太老，不支持这样注解)'''
     print('task_name:', task_name, 'pid:', pid)
     tasks = Task.query.filter(Task.name==task_name, Task.uid==uid).all()
-    print('tasks,', tasks)
+    # print('tasks,', tasks)
     for t in tasks:
         t.tag_id = pid
     db.session.commit()
