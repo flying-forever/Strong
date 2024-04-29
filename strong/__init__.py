@@ -24,6 +24,7 @@ def create_app(config_py=None):
     # 创建程序实例
     app = Flask('strong')
     config_name = os.getenv('FLASK_CONFIG', default='run')  # .flaskenv的环境
+    print(f'[config] {config_name}')
     app.config.from_object(config[config_name])
 
     # 注册蓝图
@@ -31,6 +32,10 @@ def create_app(config_py=None):
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(task_bp, url_prefix='/task')
     app.register_blueprint(data_bp, url_prefix='/data')
+
+    # 注册api版本
+    from strong.api import api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
 
     # 要注册到app上的东西（而不是注册到蓝图）
     from strong.registers import register_index, register_context, register_getfile, register_move_site

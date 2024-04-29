@@ -12,7 +12,7 @@ class RunConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = 'mysql://root:+Aa8848lf@127.0.0.1:3306/strong'
 
 
-class DieConfig(BaseConfig):
+class DieConfig(RunConfig):
     NEW_SITE = 'http://43.139.70.152:3002/'
     
 

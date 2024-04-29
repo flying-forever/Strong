@@ -1,4 +1,4 @@
 FLASK_DEBUG=True
 FLASK_APP=strong
 
-FLASK_CONFIG=run
+FLASK_CONFIG=base

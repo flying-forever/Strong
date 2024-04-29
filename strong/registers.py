@@ -32,4 +32,4 @@ def register_move_site(app):
         def web_move_m():
             new_site = app.config['NEW_SITE']
             get_flashed_messages()  # 清空栈，保持仅一条消息
-            flash(f"本站点服务器将在5月30日到期，数据不再同步。请转到 {new_site}", category='danger')
+            flash(f"本站点服务器将在5-30到期，4-24起数据不再同步。请转到 {new_site}", category='danger')

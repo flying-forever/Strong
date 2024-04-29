@@ -1,4 +1,4 @@
-import math, os, uuid
+import math, os, uuid, time
 from flask import flash, session
 from strong.models import User
 
@@ -108,3 +108,13 @@ def random_filename(filename):
     ext = os.path.splitext(filename)[1]
     new_filename = uuid.uuid4().hex + ext   # 疑惑：uuid的原理？
     return new_filename
+
+
+def _test_time(func, *args):
+    # 备注：也许可以写成装饰器？
+    stime = time.time()
+    r = func(*args)
+
+    use_time = time.time() - stime
+    print(f'{use_time:.4}秒')
+    return r
