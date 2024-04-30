@@ -103,7 +103,7 @@ def get_exp(level: int):
     return int((level * level + level) / 2)
 
 
-def random_filename(filename):
+def random_filename(filename) -> str:
     """生成随机的文件名，防止用户上传的文件名中带有恶意路径。"""
     ext = os.path.splitext(filename)[1]
     new_filename = uuid.uuid4().hex + ext   # 疑惑：uuid的原理？

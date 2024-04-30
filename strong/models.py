@@ -30,7 +30,10 @@ class Task(db.Model):
     book = db.relationship('Book', back_populates='tasks') # 注：一对一关系
 
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
-    tag = db.relationship('Tag', back_populates='tasks') # 注：一对一关系
+    tag = db.relationship('Tag', back_populates='tasks') # 注：一对一关系  注：？
+
+    plan_id = db.Column(db.Integer, db.ForeignKey('plan.id'))
+    plan = db.relationship('Plan', back_populates='tasks')
 
     def __str__(self) -> str:
         return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
@@ -66,6 +69,7 @@ class User(db.Model):
     tasks = db.relationship('Task', back_populates='user')
     books = db.relationship('Book', back_populates='user')
     tags = db.relationship('Tag', back_populates='user')
+    plans = db.relationship('Plan', back_populates='user')
 
     def __str__(self) -> str:
         return f"<User id={self.id} name='{self.name}' exp={self.exp}>"
@@ -109,3 +113,31 @@ class Tag(db.Model):
 
     def __str__(self) -> str:
         return f"<Tag id={self.id} name={self.name} pid={self.pid}>"
+
+
+class Plan(db.Model):
+    '''计划模型 \n
+    @attribute: name, start_time, end_time, need_minute, cover, uid'''
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+    need_minute = db.Column(db.Integer, nullable=False, default=0)
+    cover = db.Column(db.String(64), nullable=True)
+    desc = db.Column(db.String(1024), nullable=True)  # 完成小结，长度多大合适呢？(暂未使用)
+
+    start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    end_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_end = db.Column(db.Boolean, nullable=False, default=False)
+
+    uid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', back_populates='plans')
+
+    tasks = db.relationship('Task', back_populates='plan')
+    
+    def __str__(self) -> str:
+        return f"<Plan id={self.id} name={self.name} uid={self.uid}>"
+
+    def use_hour(self, wei=2):
+        '''use_minute -> hour'''
+        s = sum([t.use_minute for t in self.tasks if t.is_finish])
+        return round(s / 60, wei)

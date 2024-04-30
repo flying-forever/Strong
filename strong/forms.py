@@ -50,8 +50,13 @@ class BookForm(FlaskForm):
     """书籍创建/修改表单"""
     bookname = StringField(label='书名', validators=[DataRequired('不能为空')])
     page = IntegerField(label='总页数', validators=[NumberRange(0, float("inf"), '应为正整数'), DataRequired('不能为空')])
-    taskname = StringField(label='绑定的任务名', default='?') # 倒是候应该根据已有任务给选项？
+    taskname = StringField(label='绑定的任务名', default='?') # 到时候应该根据已有任务给选项？
     c_task = BooleanField(label='创建相应任务', default=True)
     submit = SubmitField(label='确定')
    
-   
+class PlanForm(FlaskForm):
+    '''@attributes: name, need_minute, submit'''
+    name = StringField(label='计划名称', validators=[DataRequired('不能为空')])
+    need_minute = IntegerField(label='计划用时(m)', validators=[NumberRange(0, float("inf"), '应为正整数')], default=600)
+    taskname = StringField(label='绑定的任务名', default='?') 
+    submit = SubmitField(label='确定')

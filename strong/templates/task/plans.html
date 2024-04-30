@@ -1,0 +1,83 @@
+{% extends 'task/_task.html' %}
+{% from '_macros.html' import modal_botton %}
+{% block ac_plan %} active {% endblock %}
+
+
+{% block head %}
+{{ super() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_lq.css') }}">
+{% endblock %}
+
+
+{% block top_bar %}
+<a class="btn btn-success" href="{{ url_for('.plan_create') }}">+新增</a>
+{% endblock %}
+
+
+{% block task_list %}
+{% macro plan_list(plans, is_doing) %}
+<div class="row">
+    {% for plan in plans %}
+    <div class="book vertical-layout">
+        <!-- 封面适应 -->
+        {% if plan['cover'] %}
+            <img src="{{ url_for('getfile', filename=plan.cover) }} " alt="plan" style="height: 200px; width: 175px;">
+        {% elif is_doing %}
+            <img src="{{ url_for('static', filename='img/velt.jpg') }} " alt="plan" style="height: 200px; width: 175px;">
+        {% else %}
+            <img src="{{ url_for('static', filename='img/tl.jpg') }} " alt="plan" style="height: 200px; width: 175px;">
+        {% endif %}
+
+        <h5><i class="ri-book-open-line"></i>{{ plan.name }}</h5>
+        <div class="book_page">
+            <label>{{ plan.use_hour }}h/{{ plan.need_hour }}h</label>&nbsp;
+            <i class="ri-medal-line"></i>
+            <label>{{ plan.percent }}%</label>
+        </div>
+        <div class="book_page" style="width:80%">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped" role="progressbar" style="width: {{ plan.percent }}%"></div>
+            </div>
+            <br>
+        </div>
+        <div>
+            <a href="{{ url_for('.plan_update', plan_id=plan.id) }}" class="btn btn-sm btn-primary" role="button">修改</a>
+            <a href="{{ url_for('.plan_cover', plan_id=plan.id) }}" class="btn btn-sm btn-secondary"
+                role="button">封面</a>
+            {{ modal_botton(
+                id='delete' + [plan.id] | join,
+                btn_class='btn-sm btn-danger',
+                btn_name='删除', title='提醒',
+                body='你确定删除书籍 ' + plan.name + ' 吗？删除后不可恢复！',
+                footer_href=url_for('.plan_delete', plan_id=plan.id)
+            )}}
+            <!-- 按钮适应 -->
+            {% if is_doing %}
+                {{ modal_botton(
+                    id='end' + [plan.id] | join,
+                    btn_class='btn-sm btn-success',
+                    btn_name='结束', title='提醒',
+                    body='你确定结束计划 ' + plan.name + ' 吗？后续任务将不会再计入（复活也没用）。',
+                    footer_href=url_for('.plan_end', plan_id=plan.id)
+                )}}
+            {% else %}
+                <a href="{{ url_for('.plan_restart', plan_id=plan.id) }}" class="btn btn-sm btn-success" role="button">复活</a>
+            {% endif %}
+
+        </div>
+    </div>    
+    {% endfor %}
+</div>
+{% endmacro %}
+
+
+{{ plan_list(plans=plans_doing, is_doing=True) }}
+<hr>
+<div style="text-align: center;">
+    <span>结束</span>
+</div>
+<hr>
+{{ plan_list(plans=plans_done, is_doing=False) }}
+
+{% endblock task_list %}
