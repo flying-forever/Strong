@@ -1,0 +1,129 @@
+{% extends '_base.html' %}
+
+{% block contain %}
+<style>
+    .containerc {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 600px;
+        border: 1px solid black;
+    }
+
+    div.timer {
+        font-size: 300px;
+    }
+
+    input.timer {
+        width: 500px;
+        height: 500px;
+        font-size: 400px;
+        text-align: center;
+    }
+
+    div.timer-s {
+        font-size: 50px;
+    }
+
+    input.timer-s {
+        width: 90px;
+        height: 90px;
+        font-size: 60px;
+        text-align: center;
+    }
+
+    .button-big {
+        width: 200px;
+        height: 80px;
+        font-size: 30px;
+        text-align: center;
+    }
+</style>
+
+<body>
+    <div class="containerc">
+        <div class="timer">
+            <input id="hour" class="timer"> : <input id="minute" class="timer"><br>
+        </div>
+    </div>
+    <div class="timer-s">
+        <input id="hour-pass" class="timer-s"> : <input id="minute-pass" class="timer-s">
+        <button id="pause" class="button-big" onclick="pauseTimer()">暂停</button>
+        <button class="button-big" onclick="resetCountDown()">重置倒计时</button>
+        <button class="button-big" onclick="cancel()">丢弃</button>
+        <button class="button-big" onclick="submit()">完成</button>
+    </div>
+    
+</body>
+
+<script type="text/javascript">
+    var seconds_pass = parseInt('{{ seconds_pass }}');
+    var maxtime_init = parseInt('{{ minute * 60 }}');
+    var stime = 0;
+    var maxtime = maxtime_init - seconds_pass;  // 倒计时秒数
+    var passtime = seconds_pass;  // 正计时秒数
+    startTimer();
+
+    // 1 开始计时
+    function startTimer() {
+        UpdateUI(maxtime--);
+        stime = new Date();
+        continueTimer();
+    }
+    function UpdateUI(t) {
+        if (t == 0) {
+            alert("时间到!");
+        } else if (t < 0) {
+            t = 0;
+        }
+        document.getElementById("hour").value = Math.floor(t / 60);
+        document.getElementById("minute").value = Math.floor(t % 60);
+        document.getElementById("hour-pass").value = Math.floor(passtime / 60);
+        document.getElementById("minute-pass").value = Math.floor(passtime % 60);
+    }
+    function UpdateTime() {
+        passtime++;
+        // 每一会儿校正一次（真聪明）
+        if (passtime % 5 == 0) {
+            var now = new Date();
+            var pass_2 = (now - stime) / 1000;
+            var dis = pass_2 - passtime;
+            console.log(stime, now, pass_2, dis);
+            if (dis > 3) {
+                passtime += dis;
+                maxtime -= dis;
+            }
+        }
+        UpdateUI(maxtime--);
+    }
+
+    // 2 时钟控制
+    function pauseTimer() {
+        clearInterval(timer);
+        var btn = document.getElementById("pause");
+        btn.innerHTML = "继续";
+        btn.onclick = startTimer;
+    }
+    function continueTimer() {
+        timer = setInterval("UpdateTime()", 1000);  //1s后才会第一次执行
+        var btn = document.getElementById("pause");
+        btn.innerHTML = "暂停";
+        btn.onclick = pauseTimer;
+    }
+    function resetCountDown() {
+        maxtime = maxtime_init;
+    }
+
+    // 3 任务提交
+    function submit() {
+        var m = Math.ceil(passtime / 60);
+        var s = parseInt(passtime);
+        var url = `{{ url_for('task.task_submit', task_id=task.id) }}/${m}?next={{ request.endpoint }}&seconds_pass=${s}`;
+        window.location.href = url;
+    }
+    function cancel() {
+        var url = "{{ url_for('task.task_doing') }}";
+        window.location.href = url;
+    }
+</script>
+{% endblock %}

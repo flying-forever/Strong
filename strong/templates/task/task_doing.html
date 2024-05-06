@@ -18,11 +18,13 @@
                 <small>#{{ task.id }}</small> {{ task.name }}
             </h6>
             <div class="row">
-                <div class="col-8">
+                <div class="col-7">
                     <small><p class="list-group-item-text">{{ task.exp }}经验值 &nbsp;&nbsp;预计用时: {{ task.need_minute }}m</p></small>
                     
                 </div>
-                <div class="col-4">
+                <div class="col-5">
+                    <a href="{{ url_for('.task_clock', task_id=task.id) }}"
+                        class="btn btn-primary btn-sm" role="button">开始</a>
                     <a href="{{ url_for('.task_submit', task_id=task.id, next=request.endpoint) }}"
                         class="btn btn-success btn-sm" role="button">提交</a>
                     {{ modal_botton(

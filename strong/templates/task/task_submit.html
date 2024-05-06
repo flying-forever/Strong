@@ -15,8 +15,7 @@
     </div>
 
     {# 表单控件 #}
-    {{ form_field_all(form) }}
-    <!-- 上一个页面必须提供next查询字符串参数，以让“取消”按钮回到正确的地方 -->
-    <a class="btn btn-secondary" href="{{ url_for(request.args.get('next')) }}" role="botten">取消</a>
+    {{ form_field_all(form) }}    
+    <a href="{{ next_url }}" class="btn btn-secondary" role="botten">返回</a>
 </form>
 {% endblock %}

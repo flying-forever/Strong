@@ -89,8 +89,10 @@ def task_create():
 
 
 @task_bp.route('/submit/<int:task_id>', methods=['GET', 'POST'])
-def task_submit(task_id):
+@task_bp.route('/submit/<int:task_id>/<int:minute>', methods=['GET', 'POST'])
+def task_submit(task_id, minute=None):
     """提交/修改任务的视图"""
+    # 备注：构造url必须提供next查询字符串参数，见task_submit.html
     
     form = TaskSubmitForm()
     task = Task.query.get(task_id)
@@ -125,10 +127,16 @@ def task_submit(task_id):
     # 重构：能否在表单类中封装回显功能？
     use_time = Time(minutes=task.use_minute)
     form.use_hour.data = use_time.hours
-    form.use_minute.data = use_time.minutes
-    form.describe.data = task.describe
+    if task.describe:  # form类提供了“无”的默认值
+        form.describe.data = task.describe
+    # 从task.clock来，填入计时
+    if minute:
+        form.use_hour.data = minute // 60
+        form.use_minute.data = minute % 60
     
-    return render_template('task/task_submit.html', form=form, task=task)
+    # “取消”按钮跳回上一个页面
+    next_url = url_for(request.args.get('next'), task_id=task_id, **(request.args))
+    return render_template('task/task_submit.html', form=form, task=task, next_url=next_url)
 
 
 @task_bp.route('/delete/<int:task_id>')
@@ -138,6 +146,14 @@ def task_delete(task_id):
     db.session.commit()
     flash('成功删除任务！')
     return redirect(url_for('.task_doing'))
+
+
+@task_bp.route('/clock/<int:task_id>')
+@task_bp.route('/clock/<int:task_id>/<int:seconds_pass>')
+def task_clock(task_id, seconds_pass=0):
+    task = Task.query.get(task_id)
+    minute = task.need_minute
+    return render_template('task/clock.html', task=task, minute=minute, seconds_pass=seconds_pass)
 
 
 # ------------------------------ 三、书架模块 ------------------------------ #
