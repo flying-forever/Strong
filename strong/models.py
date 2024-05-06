@@ -126,7 +126,7 @@ class Plan(db.Model):
     desc = db.Column(db.String(1024), nullable=True)  # 完成小结，长度多大合适呢？(暂未使用)
 
     start_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    end_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    end_time = db.Column(db.DateTime, nullable=True)
     is_end = db.Column(db.Boolean, nullable=False, default=False)
 
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))

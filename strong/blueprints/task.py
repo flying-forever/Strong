@@ -417,6 +417,7 @@ def plan_unbind(taskname, plan_id):
 def plan_end(plan_id):
     plan = Plan.query.get(plan_id)
     plan.is_end = True
+    plan.end_time = datetime.datetime.utcnow()
     # 与未完成的任务解绑
     for t in plan.tasks:
         if not t.is_finish:

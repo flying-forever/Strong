@@ -49,7 +49,7 @@
                 id='delete' + [plan.id] | join,
                 btn_class='btn-sm btn-danger',
                 btn_name='删除', title='提醒',
-                body='你确定删除书籍 ' + plan.name + ' 吗？删除后不可恢复！',
+                body='你确定删除计划 ' + plan.name + ' 吗？删除后不可恢复！',
                 footer_href=url_for('.plan_delete', plan_id=plan.id)
             )}}
             <!-- 按钮适应 -->
