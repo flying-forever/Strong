@@ -5,6 +5,12 @@
 {% block head %}
 {{ super() }}
 <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+    .chart {
+        width: 800px;
+        height: 500px;
+    }
+</style>
 {% endblock head %}
 
 
@@ -39,17 +45,16 @@
 </div>
 <hr>
 <!-- 数据表 小号展示 -->
-<div class="row" style="height:50;"></div>
+<div class="row" style="height:30;"></div>
 <div class="row">
-    <div class="col-4">
-        <div id="chart1" style="width: 515;height:400;" class="container-fluid pl-0"></div>
-        {% from 'data/#chart1.html' import chart1 %}
-        {{ chart1() }}
-    </div>
-    <div class="col-5">
-        <div id="chart2" style="width: 515;height:400;" class="container-fluid pl-6 pr-0"></div>
+    <div class="col-8">
+        <div id="chart2" class="chart container-fluid pl-6 pr-0"></div>
         {% from 'data/#chart2.html' import chart2 %}
         {{ chart2() }}
+
+        <div id="chart1" class="chart container-fluid pl-0"></div>
+        {% from 'data/#chart1.html' import chart1 %}
+        {{ chart1() }}
     </div>
     <!-- 排行榜 -->
     <div class="col">

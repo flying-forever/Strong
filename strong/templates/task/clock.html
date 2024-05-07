@@ -6,34 +6,41 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 600px;
+        height: 580px;
         border: 1px solid black;
+        margin: 5px;
     }
 
+    /* 1 大号倒计时框 */
     div.timer {
         font-size: 300px;
     }
 
     input.timer {
-        width: 500px;
+        width: 550px;
         height: 500px;
-        font-size: 400px;
+        font-size: 360px;
         text-align: center;
+        margin-left: 10px;
+        margin-right: 10px;
     }
 
+    /* 2 小号正计时框 */
     div.timer-s {
         font-size: 50px;
     }
 
     input.timer-s {
-        width: 90px;
+        width: 110px;
         height: 90px;
         font-size: 60px;
         text-align: center;
+        margin-left: 5px;
+        margin-right: 5px;
     }
 
     .button-big {
-        width: 200px;
+        width: 220px;
         height: 80px;
         font-size: 30px;
         text-align: center;
@@ -43,25 +50,29 @@
 <body>
     <div class="containerc">
         <div class="timer">
-            <input id="hour" class="timer"> : <input id="minute" class="timer"><br>
+            <input id="hour" class="timer">:<input id="minute" class="timer"><br>
         </div>
     </div>
     <div class="timer-s">
-        <input id="hour-pass" class="timer-s"> : <input id="minute-pass" class="timer-s">
-        <button id="pause" class="button-big" onclick="pauseTimer()">暂停</button>
+        <input id="hour-pass" class="timer-s">:<input id="minute-pass" class="timer-s">
         <button class="button-big" onclick="resetCountDown()">重置倒计时</button>
         <button class="button-big" onclick="cancel()">丢弃</button>
+        <button id="pause" class="button-big" onclick="pauseTimer()">暂停</button>
         <button class="button-big" onclick="submit()">完成</button>
     </div>
-    
+
 </body>
 
 <script type="text/javascript">
     var seconds_pass = parseInt('{{ seconds_pass }}');
     var maxtime_init = parseInt('{{ minute * 60 }}');
+    
     var stime = 0;
     var maxtime = maxtime_init - seconds_pass;  // 倒计时秒数
     var passtime = seconds_pass;  // 正计时秒数
+
+    var waitime = 0; // 暂停时长
+    var pause_date = null;
     startTimer();
 
     // 1 开始计时
@@ -84,10 +95,10 @@
     function UpdateTime() {
         passtime++;
         // 每一会儿校正一次（真聪明）
-        if (passtime % 5 == 0) {
+        if (passtime % 3 == 0) {
             var now = new Date();
             var pass_2 = (now - stime) / 1000;
-            var dis = pass_2 - passtime;
+            var dis = parseInt(pass_2 - passtime - waitime);
             console.log(stime, now, pass_2, dis);
             if (dis > 3) {
                 passtime += dis;
@@ -102,14 +113,22 @@
         clearInterval(timer);
         var btn = document.getElementById("pause");
         btn.innerHTML = "继续";
-        btn.onclick = startTimer;
+        btn.onclick = continueTimer;
+
+        pause_date = new Date();
     }
     function continueTimer() {
         timer = setInterval("UpdateTime()", 1000);  //1s后才会第一次执行
         var btn = document.getElementById("pause");
         btn.innerHTML = "暂停";
         btn.onclick = pauseTimer;
-    }
+
+        // 暂停计时也要考虑 待机 的问题
+        if (pause_date != null) {
+            con_date = new Date();
+            waitime += (con_date - pause_date) / 1000;
+        } 
+    } 
     function resetCountDown() {
         maxtime = maxtime_init;
     }

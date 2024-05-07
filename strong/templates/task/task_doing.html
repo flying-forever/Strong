@@ -24,9 +24,9 @@
                 </div>
                 <div class="col-5">
                     <a href="{{ url_for('.task_clock', task_id=task.id) }}"
-                        class="btn btn-primary btn-sm" role="button">开始</a>
+                        class="btn btn-success btn-sm" role="button">开始</a>
                     <a href="{{ url_for('.task_submit', task_id=task.id, next=request.endpoint) }}"
-                        class="btn btn-success btn-sm" role="button">提交</a>
+                        class="btn btn-info btn-sm" role="button">提交</a>
                     {{ modal_botton(
                         id='delete' + [task.id] | join,
                         btn_class='btn-danger btn-sm',

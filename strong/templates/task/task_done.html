@@ -44,7 +44,6 @@
         <tr>
             <th scope="col">N</th>
             <th scope="col">任务名</th>
-            <th scope="col">Exp</th>
             <th scope="col">完成时间</th>
             <th scope="col">耗时</th>
             <th scope="col">完成描述</th>
@@ -56,7 +55,6 @@
         <tr>
             <th scope="row">{{ task.id }}</th>
             <td class="name">{{ task.name }}</td>
-            <td>{{ task.exp }}</td>
             <td>{{ task.time_finish + datetime.timedelta(hours=8) }}</td>
             <td>{{ Time(minutes=task.use_minute) }}</td>
             <td class="describe">{{ task.describe }}</td>

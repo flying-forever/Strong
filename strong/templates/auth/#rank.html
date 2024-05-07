@@ -1,8 +1,14 @@
 <!-- 学习时间好友排行，采用异步方式从api获取 -->
-<!-- 表格结构 -->
+<style>
+    .text-center th, td{
+        text-align: center;
+    }
+</style>
+
+<!-- 1 表格结构 -->
 <table id="rank-table" class="table table-striped">
     <thead>
-        <tr>
+        <tr class="text-center">
             <th>排名</th>
             <th>用户</th>
             <th>学习</th>
@@ -29,12 +35,12 @@
             for (var i = 0; i < data.length; i++) {
                 var u = data[i];
                 var name = `<a href='/auth/visit/${u['id']}'> ${u['name']} </a>`;
-                console.log(name);
-                var row = '<tr>' +
-                    '<td>' + (i + 1) + '</td>' +
-                    '<td>' + name + '</td>' +
-                    '<td>' + u['time'] + ' h</td>' +
-                    '</tr>';
+                // console.log(name);
+                var row = '<tr class="text-center">' + 
+                    `<td> ${i + 1}</td>` +
+                    `<td> ${name}<small>Lv${u['level']}</samll></td>` +
+                    `<td> ${u['time']} h</td>` +
+                    '</tr>'
                 tableBody.append(row);
             }
         },

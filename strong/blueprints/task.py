@@ -127,6 +127,7 @@ def task_submit(task_id, minute=None):
     # 重构：能否在表单类中封装回显功能？
     use_time = Time(minutes=task.use_minute)
     form.use_hour.data = use_time.hours
+    form.use_minute.data = use_time.minutes
     if task.describe:  # form类提供了“无”的默认值
         form.describe.data = task.describe
     # 从task.clock来，填入计时

@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, IntegerField, SubmitField, SelectField, BooleanField, PasswordField
-from wtforms.validators import DataRequired, NumberRange, Length
+from wtforms.validators import DataRequired, NumberRange, Length, InputRequired
 
 
 class TaskForm(FlaskForm):
@@ -18,7 +18,7 @@ class TaskSubmitForm(FlaskForm):
     """提交任务，并填写完成效果的表单"""
     describe = StringField(label='完成效果', validators=[DataRequired('不能为空')], default='无')
     use_hour = IntegerField(label='消耗小时数', validators=[NumberRange(0, float("inf"), '应为正整数')], default=0)
-    use_minute = IntegerField(label='消耗分钟数', validators=[NumberRange(0, float("inf"), '应为正整数'), DataRequired('不能为空')])
+    use_minute = IntegerField(label='消耗分钟数', validators=[NumberRange(0, float("inf"), '应为正整数'), InputRequired('不能为空')])
     submit = SubmitField(label='确定')
     
 
