@@ -1,11 +1,29 @@
-{% extends 'data/_data.html' %}
+{% extends 'task/_task.html' %}
+{% block ac_tag %} active {% endblock %}
 {% block top_bar %}
+<!-- 下拉-星图最近 -->
+<li class="nav-item dropdown">
+    <!-- 备注：这个列表要不要直接在data中定义？另外，这三个下拉列表封装一下？ -->
+    {% set times = ['至今', '近一周', '近一月', '近一季'] %}
+
+    <a class="nav-link dropdown-toggle" role="button" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true"
+        aria-expanded="false">
+        {{ times[time_id] }}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+        {% for tm in times %}
+        <a class="dropdown-item" href="{{ url_for('.graph', type=type, time_id=loop.index0) }}">
+            {{ tm }}
+        </a>
+        {% endfor %}
+    </div>
+</li>
 <a id="tag_create" class="btn btn-success" href="#">+新标签</a>
 {% endblock %}
 
 
 {% block show %}
-{{ super() }}
+<div id="main" style="width: 1080;height:640px;" class="container-fluid"></div>
 
 <!-- 标签修改，模态框 -->
 <div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
@@ -166,7 +184,7 @@
                     $('#message').text('操作成功').show();
                     $.ajax({    
                         // 备注：这个ajax请求写得简洁，其它都有大段的非核心代码。
-                        url: "{{ url_for('data.get_tree_data', time_id=time_id) }}",
+                        url: "{{ url_for('tag.get_tree_data', time_id=time_id) }}",
                         type: 'GET', 
                         success: function (response) {
                             var data = response;
@@ -239,4 +257,4 @@
     });
 
 </script>
-{% endblock show %}
+{% endblock %}

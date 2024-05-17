@@ -1,9 +1,12 @@
 {% extends 'task/_task.html' %}
 {% from '_macros.html' import form_field_all with context %}
 
-{% block content %}
+{% block top_bar %} 
+<a class="btn btn-success" href="{{ url_for('.task_doing') }}">返回</a>
+{% endblock %}
+
+{% block show %}
 <form method="post">
     {{ form_field_all(form) }}
-    <a class="btn btn-secondary" href="{{ url_for('.task_doing') }}" role="botten">取消</a>
 </form>
 {% endblock %}

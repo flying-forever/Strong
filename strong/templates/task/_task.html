@@ -12,6 +12,7 @@
             <a class="nav-item nav-link {% block ac_done %}{% endblock %}" href="{{ url_for('task.task_done') }}">完成</a>
             <a class="nav-item nav-link {% block ac_plan %}{% endblock %}" href="{{ url_for('plan.plans') }}">计划</a>
             <a class="nav-item nav-link {% block ac_book %}{% endblock %}" href="{{ url_for('book.bookcase') }}">书架</a>
+            <a class="nav-item nav-link {% block ac_tag %}{% endblock %}" href="{{ url_for('tag.graph') }}">星图</a>
             {% block top_bar %}{% endblock top_bar %}
         </div>
     </div>
@@ -19,6 +20,6 @@
 </nav>
 
 <!-- 2 任务列表 -->
-{% block task_list %} ... {% endblock %}
+{% block show %} ... {% endblock %}
 
 {% endblock %}

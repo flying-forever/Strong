@@ -15,7 +15,7 @@
 {% endblock %}
 
 
-{% block task_list %}
+{% block show %}
 {% macro plan_list(plans, is_doing) %}
 <div class="row">
     {% for plan in plans %}
@@ -80,4 +80,4 @@
 <hr>
 {{ plan_list(plans=plans_done, is_doing=False) }}
 
-{% endblock task_list %}
+{% endblock %}

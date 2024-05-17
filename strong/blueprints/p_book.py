@@ -67,7 +67,7 @@ def bookcase():
 
     for book in books_show:
         book['percent'] = round(100 * book['read_page'] / book['page'], 2)
-    return render_template('task/bookcase.html', books=books_show, Time=Time)
+    return render_template('plugin/bookcase.html', books=books_show, Time=Time)
 
 
 @book_bp.route('/bookcase/create', methods=['GET', 'POST'])
@@ -94,7 +94,7 @@ def book_create():
 
         flash('书籍创建成功！')
         return redirect(url_for('.bookcase'))
-    return render_template('task/book_create.html', form=form)
+    return render_template('plugin/book_create.html', form=form)
 
 
 @book_bp.route('/bookcase/update/<int:book_id>', methods=['GET', 'POST'])
@@ -119,7 +119,7 @@ def book_update(book_id):
     form.page.data = book.page
 
     #重构：book_id使在book_unbind中能跳回来，有没有更优雅的重定向方式？
-    return render_template('task/book_create.html', form=form, bind_tasknames=bind_tasknames, book_id=book_id)
+    return render_template('plugin/book_create.html', form=form, bind_tasknames=bind_tasknames, book_id=book_id)
 
 
 @book_bp.route('/bookcase/unbind/<taskname>/<int:book_id>')

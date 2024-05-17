@@ -7,7 +7,7 @@
 {% endblock %}
 
 <!-- 1 待完成任务列表 -->
-{% block task_list %}
+{% block show %}
 {% for i in range(tasks.__len__() // 2 + 1) %}
 <div class="row">
     {% for j in range(2) %} {% set index = 2 * i + j %} {% if index < tasks.__len__() %} 

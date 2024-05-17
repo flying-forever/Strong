@@ -55,7 +55,7 @@ def plan_create(plan_id=None):
         bind_tasknames = list(set(t.name for t in plan.tasks))
         form.name.data = plan.name
         form.need_minute.data = plan.need_minute
-    return render_template('task/plan_form.html', form=form, bind_tasknames=bind_tasknames, plan_id=plan_id)
+    return render_template('plugin/plan_form.html', form=form, bind_tasknames=bind_tasknames, plan_id=plan_id)
 
 
 @plan_bp.route('/plan/unbind/<taskname>/<int:plan_id>')
@@ -111,7 +111,7 @@ def plans():
     plans_doing = [p for p in plans if not p.is_end]
     plans_done = [p for p in plans if p.is_end]
     # 备注：可能dict比对象更 显式
-    return render_template('task/plans.html', plans=plans, plans_doing=plans_doing, plans_done=plans_done)
+    return render_template('plugin/plans.html', plans=plans, plans_doing=plans_doing, plans_done=plans_done)
 
 
 @plan_bp.route('/plan/cover/<int:plan_id>', methods=['GET', 'POST'])

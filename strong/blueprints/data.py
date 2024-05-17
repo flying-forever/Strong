@@ -13,7 +13,7 @@ data_bp = Blueprint('data', __name__, static_folder='static', template_folder='t
 
 @data_bp.route('/')
 def index():
-    return redirect(url_for('.graph', **request.args))
+    return redirect(url_for('.data', type=0, **request.args))
 
 
 def hour_per_day(year: int, month: int, tasks: list=None) -> list:
@@ -114,112 +114,4 @@ def data(type: int=0):
 
     return render_template(template, type=type, month=month, year=year)
     
-
-class Node:
-    def num_generator(n=123456789):
-        for i in range(n):
-            yield i 
-    link_id = num_generator()
-
-    def __init__(self, id, name, value=None, parent=None, pid=None) -> None:
-        self.id = id
-        self.name = name
-        self.value = value  # hour
-        self.parent = parent 
-        self.children = []
-
-        self.pid: int|None = pid  # 辅助属性
-    def __repr__(self) -> str:
-        return f'<Node id={self.id} name={self.name}, pid={self.pid}>'
-
-    def is_task(self):
-        return self.id >= Clf.idOffset
-    def set_parent(self, parent):
-        self.parent = parent
-        self.parent.children.append(self)
-        self.pid = self.parent.id  # 保持判断一致
-    def compute(self):
-        if self.value is None:
-            self.value = 0
-        for child in self.children:
-            self.value += child.value
-    def forward(self):
-        for child in self.children:
-            if child.value is None:
-                child.forward()
-        self.compute()
-
-    def tree2dict(self):
-        '''将整颗树返回为一个字典, return -> node_dict'''
-        # Node.children == [] 时递归回升
-        node_dict = {'id':self.id, 'name':self.name, 'value':round(self.value,2), 'symbolSize':math.sqrt(self.value)*5+1, 'children':[]}
-        for child in self.children:
-            child: Node
-            node_dict['children'].append(child.tree2dict())
-        return node_dict
-
-
-def tree_data(time_id=1):
-    '''返回标签系统的树结构数据
-    - time_id: 0至今 1近一周 2近一月, 3近一季'''
-    if time_id is None: time_id = 1
-
-    # [choice 时间选择]
-    user: User = Login.current_user()
-    gaps = [10**5, 7, 30, 90]
-    tasks = [task for task in user.tasks if abs(task.time_finish - datetime.utcnow()) < timedelta(days=gaps[time_id])]
     
-    nodes: dict[int, Node] = {}  # id->node
-
-    # 1 构建树，计算值
-    # 1.1 创建节点
-    for tag in user.tags:
-        node = Node(id=tag.id, name=tag.name, pid=tag.pid)
-        nodes[tag.id] = node
-
-    # 1.2 合并同名任务
-    d: dict[str, Node] = {}
-    for t in tasks:
-        if t.name not in d:
-            d[t.name] = Node(id=t.id+Clf.idOffset, name=t.name, pid=t.tag_id, value=0)  # task是叶子节点，不会被pid索引的
-        d[t.name].value += t.use_minute / 60  # m->h
-    
-    for node in d.values():
-        nodes[node.id] = node
-
-    # 1.3 连接节点，从每个根节点递归计算值; 没有标签的任务连接到other
-    other = Node(id=-1, name='other', pid=None)
-    nodes[other.id] = other
-    for node in nodes.values():
-        if node.pid:
-            node.set_parent(nodes[node.pid])
-        elif node.is_task():
-            node.set_parent(other)
-
-    # 1.3 没有父节点的顶级标签，连接到root
-    root = Node(id=0, name=user.name, value=0, pid=None)
-    for node in nodes.values():
-        if node.pid is None:
-            node.set_parent(root)
-    root.forward()
-    datas = root.tree2dict()
-    datas['symbolSize'] = 5
-
-    return datas
-
-
-@data_bp.route('/tree_data')
-@data_bp.route('/tree_data/<int:time_id>')
-def get_tree_data(time_id=1):
-    print('time_id', time_id)
-    datas = tree_data(time_id)
-    return jsonify(datas)
-
-
-@data_bp.route('/graph')
-def graph():
-    '''学习时间的关系模板'''
-    time_id = request.args.get('time_id', type=int, default=1)  # int | None； 要default，模板的下拉框用。
-    
-    datas = tree_data(time_id)
-    return render_template('data/label.html', datas=datas, time_id=time_id, user=Login.current_user(), type=2)
