@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 import math
 
 from strong import db
-from strong.callbacks import login_required
 from strong.models import Task, User
 from strong.utils import Login, Clf
 from strong.utils import flash_ as flash
@@ -30,11 +29,7 @@ def hour_per_day(year: int, month: int, tasks: list=None) -> list:
     return h_pday
 
 
-# ------------------------------ 一、数据图表 ------------------------------ #
-
-
 @data_bp.route('/get_data', methods=['GET', 'POST'])
-@login_required
 def get_data():
     """月度统计与对比
     - 说明：折线堆叠图，本月和上月各一条线
@@ -101,7 +96,6 @@ def get_data():
 
 
 @data_bp.route('/<int:type>')
-@login_required
 def data(type: int=0):
     '''月度数据页'''
     # 备注：这部分年月逻辑于get_data重复了
@@ -216,7 +210,6 @@ def tree_data(time_id=1):
 
 @data_bp.route('/tree_data')
 @data_bp.route('/tree_data/<int:time_id>')
-@login_required
 def get_tree_data(time_id=1):
     print('time_id', time_id)
     datas = tree_data(time_id)
@@ -224,7 +217,6 @@ def get_tree_data(time_id=1):
 
 
 @data_bp.route('/graph')
-@login_required
 def graph():
     '''学习时间的关系模板'''
     time_id = request.args.get('time_id', type=int, default=1)  # int | None； 要default，模板的下拉框用。

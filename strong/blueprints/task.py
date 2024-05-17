@@ -2,7 +2,6 @@ import datetime, re, os
 
 from flask import render_template, redirect, url_for, session, Blueprint, request, current_app, jsonify
 
-from strong.callbacks import login_required
 from strong.utils import Time, TaskOrder, Login, random_filename, Clf, save_file
 from strong.utils import flash_ as flash
 from strong.forms import TaskForm, TaskSubmitForm, BookForm, UploadForm, PlanForm
@@ -14,13 +13,6 @@ from strong import db
 
 
 task_bp = Blueprint('task', __name__, static_folder='static', template_folder='templates')
-
-
-@task_bp.before_request
-@login_required
-def login_protect():
-    """为整个视图添加登录保护"""
-    pass
 
 
 @task_bp.context_processor

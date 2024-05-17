@@ -10,13 +10,6 @@ from strong import db
 tag_bp = Blueprint('tag', __name__, static_folder='static', template_folder='templates')
 
 
-@tag_bp.before_request
-@login_required
-def login_protect():
-    """为整个视图添加登录保护"""
-    pass
-
-
 def tag_create(tag_name, pid, uid, **kwargs):
     '''重名 -> False'''
     tag = Tag.query.filter(Tag.name==tag_name, Tag.uid==uid).first()

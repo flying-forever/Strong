@@ -2,7 +2,6 @@ import datetime, re
 
 from flask import render_template, redirect, url_for, Blueprint
 
-from strong.callbacks import login_required
 from strong.utils import Time, Login, save_file
 from strong.utils import flash_ as flash
 from strong.forms import BookForm, UploadForm
@@ -10,20 +9,7 @@ from strong.models import Task, Book
 from strong import db
 
 
-# ------------------------------ 一、基础模块 ------------------------------ #
-
-
 book_bp = Blueprint('book', __name__, static_folder='static', template_folder='templates')
-
-
-@book_bp.before_request
-@login_required
-def login_protect():
-    """为整个视图添加登录保护"""
-    pass
-
-
-# ------------------------------ 二、书架模块 ------------------------------ #
 
 
 def bind(taskname, book_id):

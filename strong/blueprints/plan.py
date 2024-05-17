@@ -2,27 +2,15 @@ import datetime
 
 from flask import render_template, redirect, url_for, Blueprint
 
-from strong.callbacks import login_required
 from strong.utils import Login, save_file
 from strong.utils import flash_ as flash
 from strong.forms import UploadForm, PlanForm
 from strong.models import Task, Plan
 from strong import db
-# 重构：在蓝本上统一注册装饰器
-
-# ------------------------------ 一、基础模块 ------------------------------ #
 
 
+# 备注：为啥tag蓝图代码量那么少
 plan_bp = Blueprint('plan', __name__, static_folder='static', template_folder='templates')
-
-
-@plan_bp.before_request
-@login_required
-def login_protect():
-    pass
-
-
-# ------------------------------ 计划模块 ------------------------------ #
 
 
 @plan_bp.route('/plan/create', methods=['GET', 'POST'], endpoint='plan_create')
