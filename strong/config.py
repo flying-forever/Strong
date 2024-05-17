@@ -4,7 +4,7 @@ import os
 
 class BaseConfig(object):
     SECRET_KEY = 'qfmz'
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:d30050305@127.0.0.1:3306/strong'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:d30050305@localhost:3306/strong'
     UPLOAD_PATH = os.path.join(os.path.dirname(__file__), 'uploads')
 
 

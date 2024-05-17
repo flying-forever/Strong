@@ -28,10 +28,13 @@ def create_app(config_py=None):
     app.config.from_object(config[config_name])
 
     # 注册蓝图
-    from strong.blueprints import auth_bp, task_bp, data_bp
+    from strong.blueprints import auth_bp, task_bp, data_bp, book_bp, plan_bp, tag_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(task_bp, url_prefix='/task')
     app.register_blueprint(data_bp, url_prefix='/data')
+    app.register_blueprint(book_bp, url_prefix='/book')
+    app.register_blueprint(plan_bp, url_prefix='/plan')
+    app.register_blueprint(tag_bp, url_prefix='/tag')
 
     # 注册api版本
     from strong.api import api_bp

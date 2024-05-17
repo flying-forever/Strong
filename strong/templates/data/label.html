@@ -154,7 +154,7 @@
         var formData = $('#tagForm').serialize(); // 序列化表单数据
         // console.log(formData);
         $.ajax({
-            url: "{{ url_for('task.tag_node') }}",
+            url: "{{ url_for('tag.tag_node') }}",
             type: 'POST',
             data: formData,
             success: function (response) {
@@ -197,7 +197,7 @@
         // 备注：好多样板代码
         var formData = $('#tagForm').serialize(); // 序列化表单数据
         $.ajax({
-            url: "{{ url_for('task.tag_delete') }}",
+            url: "{{ url_for('tag.tag_delete') }}",
             type: 'POST',
             data: formData,
             success: function (res) {

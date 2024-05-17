@@ -1,5 +1,5 @@
 import math, os, uuid, time
-from flask import flash, session
+from flask import flash, session, current_app
 from strong.models import User
 
 
@@ -98,6 +98,7 @@ def get_level(exp: int):
     """经验值 --> 对应等级"""
     return int(math.sqrt(exp * 2 + 0.25) - 0.5)  # ceil向上取整（已对边界值测试）
 
+
 def get_exp(level: int):
     """等级 --> 对应经验值"""
     return int((level * level + level) / 2)
@@ -108,6 +109,13 @@ def random_filename(filename) -> str:
     ext = os.path.splitext(filename)[1]
     new_filename = uuid.uuid4().hex + ext   # 疑惑：uuid的原理？
     return new_filename
+
+
+def save_file(file):
+    '''返回filename'''
+    filename = random_filename(file.filename)
+    file.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
+    return filename
 
 
 def _test_time(func, *args):

@@ -15,7 +15,13 @@
     </div>
 
     {# 表单控件 #}
-    {{ form_field_all(form) }}    
+    {{ form_field_all(form) }}
     <a href="{{ next_url }}" class="btn btn-secondary" role="botten">返回</a>
 </form>
+
+<script>
+    // 功能：自动捕获光标，并选中已有内容
+    var input = document.getElementsByName("describe")[0];  // name根据Form类的字段名渲染
+    $(input).select();
+</script>
 {% endblock %}

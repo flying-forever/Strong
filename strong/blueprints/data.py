@@ -1,13 +1,12 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from datetime import datetime, timedelta
-import re, math, json
+import math
 
 from strong import db
 from strong.callbacks import login_required
-from strong.models import Task, Book, User, Tag
-from strong.utils import Login, Time, Clf
+from strong.models import Task, User
+from strong.utils import Login, Clf
 from strong.utils import flash_ as flash
-from strong.forms import BookForm
 
 
 data_bp = Blueprint('data', __name__, static_folder='static', template_folder='templates')
