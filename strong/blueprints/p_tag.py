@@ -191,4 +191,4 @@ def graph():
     time_id = request.args.get('time_id', type=int, default=1)  # int | None； 要default，模板的下拉框用。
     
     datas = tree_data(time_id)
-    return render_template('plugin/label.html', datas=datas, time_id=time_id, user=Login.current_user(), type=2)
+    return render_template('plugin/label_charts.html', datas=datas, time_id=time_id, user=Login.current_user(), type=2)

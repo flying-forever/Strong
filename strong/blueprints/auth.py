@@ -241,7 +241,7 @@ def import_user():
             # 2.1 创建
             create_t = Task(uid=Login.current_id())
             for k in task:
-                if k not in ['id', 'uid', 'bid', 'time_add', 'time_finish']:
+                if k not in ['id', 'uid', 'bid', 'time_add', 'time_finish', 'plan_id']:  # 备注：暂未导出plan数据
                     create_t.__dict__[k] = task[k]
 
             # 2.2 绑定书籍
