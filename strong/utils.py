@@ -1,6 +1,6 @@
 import math, os, uuid, time
 from flask import flash, session, current_app
-from strong.models import User
+from strong.models import User, Task
 
 
 class Time:
@@ -126,3 +126,13 @@ def _test_time(func, *args):
     use_time = time.time() - stime
     print(f'{use_time:.4}秒')
     return r
+
+
+def task_to_dict(task: Task):
+    return {
+        'id': task.id,
+        'name': task.name,
+        'time_finish': task.time_finish.strftime(r'%Y-%m-%d %H:%M:%S'),
+        'hour': round(task.use_minute / 60, 2),
+        'describe': task.describe,
+    }

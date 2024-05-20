@@ -1,0 +1,114 @@
+{% extends 'task/_task.html' %}
+{% from '_macros.html' import modal_botton %}
+{% block ac_dossier %} active {% endblock %}
+
+
+{% block top_bar %}
+{% endblock %}
+
+
+<!-- 1 已完成任务档案列表 -->
+{% block show %}
+{% set cols = 3 %}
+{% for i in range(dossier.__len__() // cols + 1) %}
+<div class="row">
+{% for j in range(cols) %} {% set index = cols * i + j %} 
+{% if index < dossier.__len__() %} {% set task=dossier[index] %} 
+    <div class="col-{{ 12//cols }}">
+        <li class="list-group-item" style="margin-top: 7px; background-color:rgb(252, 250, 250);">
+            <h6 class="list-group-item-heading">
+                <small>#{{ cols * i + j }}</small> <span style="color:rgb(156, 126, 29);">{{ task.name }}</span>
+            </h6>
+            <div class="row">
+                <div class="col-7">
+                    <p>
+                        <small>提交:</small><span style="color:green;">{{ task.count }}</span><small>次</small>
+                        &nbsp;&nbsp;
+                        <small>合计:</small><span style="color: green;">{{ task.hour }}</span><small>h</small>
+                    </p>
+                </div>
+                <div class="col">
+                    <a class="btn btn-info btn-sm" role="button" onclick="record(`{{ task.name }}`)">详情</a>
+                    <a href="#" class="btn btn-success btn-sm" role="button">复活</a>
+                </div>
+            </div>
+        </li>
+    </div>
+{% endif %}{% endfor %}
+</div>
+{% endfor %}
+
+
+<!-- 2 子记录列表 模态框 -->
+<div class="modal fade" id="recordModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <!-- a 顶栏 -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="tagModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <!-- b 模态框正文 -->
+            <form id="tagForm" action="">
+                <div class="modal-body" id="modalBody">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">name</th>
+                                <th scope="col">time</th>
+                                <th scope="col">hour</th>
+                                <th scope="col">describe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 异步请求填充 -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- c 底栏 -->
+                <div class="modal-footer"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // 模态框显示 记录列表
+    function record(task_name) {
+        console.log(task_name)
+        var modal = $('#recordModal')
+        modal.modal('show')
+        modal.find('.modal-title').text(task_name)
+
+        $.ajax({
+            url: `${routes.task_record}/${task_name}`,
+            type: 'GET',
+            success: function (res) {
+                // console.log('res', res);
+                for (var i = 0; i < res.length; i++) {
+                    var task = res[i];
+                    var row =
+                        `<tr>` +
+                        `<td scope="row">${task.id}</td>` +
+                        `<td class="name">${task.name}</td>` +
+                        `<td><small>${task.time_finish}</small></td>` +
+                        `<td>${task.hour}</td>` +
+                        `<td class="describe"><small>${task.describe}</small></td>` +
+                        `</tr>`
+                    modal.find('tbody').append(row);
+                }
+            },
+        });
+    }
+    // 模态框隐藏 清空内容
+    $('#recordModal').on('hidden.bs.modal', function (e) {
+        $('form input').val('');
+        var modal = $('#recordModal');
+        modal.find('tbody').empty();  // 清空子标签
+    });
+</script>
+{% endblock %}

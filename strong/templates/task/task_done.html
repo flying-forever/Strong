@@ -51,7 +51,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for task in tasks if task.is_finish %}
+        {% for task in tasks if task.is_finish %} <!-- 备注：在后端筛选已完成的？ -->
         <tr>
             <th scope="row">{{ task.id }}</th>
             <td class="name">{{ task.name }}</td>
