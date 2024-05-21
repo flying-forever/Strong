@@ -9,11 +9,12 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
             <a class="nav-item nav-link {% block ac_doing %}{% endblock %}" href="{{ url_for('task.task_doing') }}">待做</a>
+            <a class="nav-item nav-link {% block ac_done %}{% endblock %}" href="{{ url_for('task.task_done') }}">完成</a>
             <a class="nav-item nav-link {% block ac_dossier %}{% endblock %}" href="{{ url_for('task.task_dossier') }}">档案</a>
-            <a class="nav-item nav-link {% block ac_done %}{% endblock %}" href="{{ url_for('task.task_done') }}">记录</a>
+            
             
             <a class="nav-item nav-link {% block ac_book %}{% endblock %}" href="{{ url_for('book.bookcase') }}">书架</a>
-            <a class="nav-item nav-link {% block ac_plan %}{% endblock %}" href="{{ url_for('plan.plans') }}">小方向</a>
+            <a class="nav-item nav-link {% block ac_plan %}{% endblock %}" href="{{ url_for('plan.plans') }}">计划</a>
             <a class="nav-item nav-link {% block ac_tag %}{% endblock %}" href="{{ url_for('tag.graph') }}">精力分配</a>
             {% block top_bar %}{% endblock top_bar %}
         </div>

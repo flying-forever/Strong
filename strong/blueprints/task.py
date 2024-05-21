@@ -74,6 +74,20 @@ def task_create():
     return render_template('task/task_create.html', form=form)
 
 
+@task_bp.route('/create_ajax', methods=['POST'])
+def task_create_ajax():
+    data = request.json
+    
+    name = data['name']
+    need_minute = data['need_minute']
+    plan_id = data['plan_id']
+    task = Task(name=name, exp=1, need_minute=need_minute, task_type=1, uid=Login.current_id(), plan_id=plan_id)
+
+    db.session.add(task)
+    db.session.commit()
+    return jsonify(task_to_dict(task))
+
+
 @task_bp.route('/submit/<int:task_id>', methods=['GET', 'POST'])
 @task_bp.route('/submit/<int:task_id>/<int:minute>', methods=['GET', 'POST'])
 def task_submit(task_id, minute=None):
@@ -132,7 +146,7 @@ def task_delete(task_id):
     db.session.delete(task)
     db.session.commit()
     flash('成功删除任务！')
-    return redirect(url_for('.task_doing'))
+    return redirect(request.referrer)
 
 
 @task_bp.route('/clock/<int:task_id>')
@@ -173,6 +187,19 @@ def task_record(task_name):
     tasks = Task.query.filter_by(uid=Login.current_id(), name=task_name, is_finish=True).order_by(Task.time_finish.desc()).all()
     tasks = [task_to_dict(t) for t in tasks]
     return jsonify(tasks)
+
+
+@task_bp.route('/restart/<string:task_name>')
+def task_restart(task_name):
+    '''老任务重新创建为待做'''
+    t = Task.query.filter_by(uid=Login.current_id(), name=task_name, is_finish=True).order_by(Task.time_finish.desc()).first()
+    # 备注：代码较冗余，每个参数名要写两遍。
+    task_new = Task(name=t.name, exp=t.exp, need_minute=t.need_minute, \
+                    task_type=t.task_type, uid=t.uid, bid=t.bid, tag_id=t.tag_id, plan_id=t.plan_id)
+    db.session.add(task_new)
+    db.session.commit()
+    flash('重启成功。')
+    return redirect(url_for('.task_doing'))
 
 
 # ------------------------------ 六、胡乱尝试 ------------------------------ #

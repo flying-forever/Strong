@@ -3,6 +3,12 @@
     const route_head = 'http://127.0.0.1:5000'
     //const route_head = 'http://43.139.70.152:3002'
     const routes = {  
-        task_record: route_head + '/task/record' // <string:task_name>
+        task_submit: route_head + '/task/submit', // <int:task_id>
+        task_delete: route_head + '/task/delete', // <int:task_id>
+        task_clock: route_head + '/task/clock', // <int:task_id>
+        task_create: route_head + `{{ url_for('task.task_create_ajax') }}`,
+
+        task_record: route_head + '/task/record', // <string:task_name>
+        plan_record: route_head + '/plan/record', // <int:plan_id>
     }
 </script>

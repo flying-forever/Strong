@@ -135,4 +135,7 @@ def task_to_dict(task: Task):
         'time_finish': task.time_finish.strftime(r'%Y-%m-%d %H:%M:%S'),
         'hour': round(task.use_minute / 60, 2),
         'describe': task.describe,
+
+        'exp': task.exp,
+        'need_minute': task.need_minute,
     }

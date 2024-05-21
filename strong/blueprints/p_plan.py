@@ -1,8 +1,8 @@
 import datetime
 
-from flask import render_template, redirect, url_for, Blueprint
+from flask import jsonify, render_template, redirect, url_for, Blueprint
 
-from strong.utils import Login, save_file
+from strong.utils import Login, save_file, task_to_dict
 from strong.utils import flash_ as flash
 from strong.forms import UploadForm, PlanForm
 from strong.models import Task, Plan
@@ -73,10 +73,10 @@ def plan_end(plan_id):
     plan = Plan.query.get(plan_id)
     plan.is_end = True
     plan.end_time = datetime.datetime.utcnow()
-    # 与未完成的任务解绑
+    # 删除对应的待做任务
     for t in plan.tasks:
         if not t.is_finish:
-            t.plan_id = None
+            db.session.delete(t)
     db.session.commit()
     flash('提交成功')
     return redirect(url_for('.plans'))
@@ -126,3 +126,11 @@ def plan_cover(plan_id):
         return redirect(url_for('.plans'))
     return render_template('auth/upload.html', form=form)
 
+
+@plan_bp.route('/record/<int:plan_id>')
+def plan_record(plan_id):
+    '''@异步请求，计划的子任务'''
+    tasks = Task.query.filter_by(uid=Login.current_id(), plan_id=plan_id).order_by(Task.time_finish.desc())
+    f = lambda is_finish: [task_to_dict(t) for t in tasks.filter_by(is_finish=is_finish).all()]
+    res = {'doing':f(False), 'done':f(True) }
+    return jsonify(res)

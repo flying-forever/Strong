@@ -29,7 +29,7 @@
                 </div>
                 <div class="col">
                     <a class="btn btn-info btn-sm" role="button" onclick="record(`{{ task.name }}`)">详情</a>
-                    <a href="#" class="btn btn-success btn-sm" role="button">复活</a>
+                    <a href="{{ url_for('.task_restart', task_name=task.name) }}" class="btn btn-success btn-sm" role="button">重启</a>
                 </div>
             </div>
         </li>
@@ -51,26 +51,24 @@
                 </button>
             </div>
             <!-- b 模态框正文 -->
-            <form id="tagForm" action="">
-                <div class="modal-body" id="modalBody">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">No</th>
-                                <th scope="col">name</th>
-                                <th scope="col">time</th>
-                                <th scope="col">hour</th>
-                                <th scope="col">describe</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- 异步请求填充 -->
-                        </tbody>
-                    </table>
-                </div>
-                <!-- c 底栏 -->
-                <div class="modal-footer"></div>
-            </form>
+            <div class="modal-body" id="modalBody">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">No.</th>
+                            <th scope="col">name</th>
+                            <th scope="col">time</th>
+                            <th scope="col">hour</th>
+                            <th scope="col">describe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 异步请求填充 -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- c 底栏 -->
+            <div class="modal-footer"></div>
         </div>
     </div>
 </div>
