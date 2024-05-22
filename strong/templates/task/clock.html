@@ -48,7 +48,12 @@
 </style>
 
 <body>
+    <audio id="over_music">
+        <source src="{{ url_for('static', filename='class.mp3') }}">
+    </audio>
+
     <div class="containerc">
+        <!-- 备注：应该是分和秒？ -->
         <div class="timer">
             <input id="hour" class="timer">:<input id="minute" class="timer"><br>
         </div>
@@ -63,34 +68,31 @@
 
 </body>
 
+<script type="text/javascript" src="{{ url_for('static', filename='js/clock.js') }}"></script>
 <script type="text/javascript">
     var seconds_pass = parseInt('{{ seconds_pass }}');
     var maxtime_init = parseInt('{{ minute * 60 }}');
     
-    var stime = 0;
+    var stime = new Date();
     var maxtime = maxtime_init - seconds_pass;  // 倒计时秒数
     var passtime = seconds_pass;  // 正计时秒数
 
     var waitime = 0; // 暂停时长
     var pause_date = null;
-    startTimer();
 
-    // 1 开始计时
-    function startTimer() {
-        UpdateUI(maxtime--);
-        stime = new Date();
-        continueTimer();
-    }
+    // 1 计时更新
     function UpdateUI(t) {
         if (t == 0) {
-            alert("时间到!");
+            var music = $("#over_music")[0];
+            music.play();
         } else if (t < 0) {
             t = 0;
         }
-        document.getElementById("hour").value = Math.floor(t / 60);
-        document.getElementById("minute").value = Math.floor(t % 60);
-        document.getElementById("hour-pass").value = Math.floor(passtime / 60);
-        document.getElementById("minute-pass").value = Math.floor(passtime % 60);
+        function f(eid, value) {$(`#${eid}`).val(Math.floor(value)); }
+        f('hour', t/60); f('minute', t%60); f('hour-pass', passtime/60); f('minute-pass', passtime%60);
+
+        if (t > 0) {$("title").html(Math.floor(t / 60) + ":" + Math.floor(t % 60) + ' Strong');}
+        else {$("title").html(Math.floor(passtime / 60) + ":" + Math.floor(passtime % 60) + ' Strong');}
     }
     function UpdateTime() {
         passtime++;
@@ -99,7 +101,7 @@
             var now = new Date();
             var pass_2 = (now - stime) / 1000;
             var dis = parseInt(pass_2 - passtime - waitime);
-            console.log(stime, now, pass_2, dis);
+            // console.log(stime, now, pass_2, dis);
             if (dis > 3) {
                 passtime += dis;
                 maxtime -= dis;
@@ -109,8 +111,10 @@
     }
 
     // 2 时钟控制
+    var is_work = true;
     function pauseTimer() {
-        clearInterval(timer);
+        // clearInterval(timer);
+        is_work = false;
         var btn = document.getElementById("pause");
         btn.innerHTML = "继续";
         btn.onclick = continueTimer;
@@ -118,7 +122,8 @@
         pause_date = new Date();
     }
     function continueTimer() {
-        timer = setInterval("UpdateTime()", 1000);  //1s后才会第一次执行
+        // timer = setInterval(UpdateTime, 1000);  //1s后才会第一次执行
+        is_work = true;
         var btn = document.getElementById("pause");
         btn.innerHTML = "暂停";
         btn.onclick = pauseTimer;
@@ -144,5 +149,16 @@
         var url = "{{ url_for('task.task_doing') }}";
         window.location.href = url;
     }
+
+    // 4 worker - 防浏览器后台待机 方案B
+    var url = "{{ url_for('static', filename='js/clock.js') }}";
+    var worker = new Worker(url);
+    worker.postMessage({command: "start"});
+
+    worker.onmessage = function(e) {
+        if (is_work) {UpdateTime();}
+        console.log('work...');
+    };
 </script>
+
 {% endblock %}

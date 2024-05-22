@@ -102,7 +102,7 @@ def plan_delete(plan_id):
 
 @plan_bp.route('/plans')
 def plans():
-    plans = Plan.query.filter(Login.current_id()==Plan.uid).all()
+    plans = Plan.query.filter(Login.current_id()==Plan.uid).order_by(Plan.start_time.desc()).all()
     for plan in plans:
         plan: Plan
         plan.use_hour = plan.use_hour()  # 备注：在db.Model实现的，咋样？
