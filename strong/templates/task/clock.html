@@ -64,11 +64,11 @@
         <button class="button-big" onclick="cancel()">丢弃</button>
         <button id="pause" class="button-big" onclick="pauseTimer()">暂停</button>
         <button class="button-big" onclick="submit()">完成</button>
+        <button id="btn_music" class="button-big">打开铃声</button>
     </div>
 
 </body>
 
-<script type="text/javascript" src="{{ url_for('static', filename='js/clock.js') }}"></script>
 <script type="text/javascript">
     var seconds_pass = parseInt('{{ seconds_pass }}');
     var maxtime_init = parseInt('{{ minute * 60 }}');
@@ -137,6 +137,11 @@
     function resetCountDown() {
         maxtime = maxtime_init;
     }
+    $('#btn_music').click(function() {
+        // 用户没有和页面交互时，浏览器可能禁止自动播放
+        console.log(this)
+        $(this).text('铃声(开)');
+    });
 
     // 3 任务提交
     function submit() {
