@@ -8,8 +8,8 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
             <a class="nav-item nav-link {% block following %}{% endblock %}" href="{{ url_for('auth.following') }}">关注</a>
-            <a class="nav-item nav-link {% block followers %}{% endblock %}" href="{{ url_for('auth.followers') }}">被关注</a>
-            <a class="nav-item nav-link {% block people %}{% endblock %}" href="{{ url_for('auth.users') }}">陌生人</a>
+            <a class="nav-item nav-link {% block followers %}{% endblock %}" href="{{ url_for('auth.followers') }}">粉丝</a>
+            <a class="nav-item nav-link {% block people %}{% endblock %}" href="{{ url_for('auth.users') }}">全部</a>
             {% block top_bar %}{% endblock top_bar %}
         </div>
     </div>

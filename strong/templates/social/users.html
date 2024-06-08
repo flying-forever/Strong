@@ -1,42 +1,10 @@
 <!-- 用户列表 -->
 {% extends 'social/_social.html' %}
-{% from '_macros.html' import user_card  with context %}
+{% from 'social/#user_card.html' import user_card, user_list  with context %}
 {% block people %} active {% endblock %}
 
 
 {% block show %}
-{% for i in range(users.__len__() // 3 + 1) %}
-<div class="row">
-    {% for j in range(3) %}
-    {% set index = i * 3 + j %}
-    {% if index < users.__len__() %} 
-    {% set u=users[index] %} 
-        {{ user_card(u['name'], u['introduce'], u['level'], u['time'], u['avatar'], u['user'].id, u['followed']) }} 
-    {% endif %} {% endfor %}
-</div>
-{% endfor %}
-
-<script>
-    // 关注按钮 - 异步请求
-    $(document).ready(function() {
-        $('.follow-btn').on('click', function(e){
-            e.preventDefault();
-            var btn = $(this);
-            var url = btn.attr('href');
-            console.log('url', url);
-            //发送请求
-            $.ajax({
-                url:url,
-                type:'GET',
-                success: function(res){
-                    btn.text('已关注');
-                    btn.removeClass('btn-primary').addClass('btn-secondary');
-                },
-                error: function(xhr, status, error){
-                    console.error(error);
-                },
-            });
-        });
-    });
-</script>
+{{ user_list(users) }}
+{% include 'social/#user_card.html' %}
 {% endblock %}

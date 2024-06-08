@@ -390,6 +390,18 @@ def follow(uid):
     return jsonify({'success':True})
 
 
+@auth_bp.route('/unfollow/<int:uid>')
+@login_required
+def unfollow(uid):
+    '''[API]取消关注'''
+    current_id: User = Login.current_id()
+    fl_ = Follow.query.filter(Follow.follower_id==current_id, Follow.followed_id==uid).first()
+    if fl_:
+        db.session.delete(fl_)
+        db.session.commit() 
+    return jsonify({'success':True})
+
+
 @auth_bp.route('/rank')
 @login_required
 def rank():
