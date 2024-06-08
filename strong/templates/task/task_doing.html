@@ -1,5 +1,7 @@
 {% extends 'task/_task.html' %}
 {% from '_macros.html' import modal_botton %}
+{% from 'plugin/#plan_doing.html' import plan_item %}
+{% from 'plugin/#plan_detail.html' import plan_detail %}
 {% block ac_doing %} active {% endblock %}
 
 {% block top_bar %}
@@ -8,6 +10,12 @@
 
 <!-- 1 待完成任务列表 -->
 {% block show %}
+{% for plan in plans %}
+    {{ plan_item(plan) }}
+{% endfor %}
+{{ plan_detail()}}
+<hr>
+
 {% for i in range(tasks.__len__() // 2 + 1) %}
 <div class="row">
     {% for j in range(2) %} {% set index = 2 * i + j %} {% if index < tasks.__len__() %} 

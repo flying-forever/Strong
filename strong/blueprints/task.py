@@ -3,10 +3,11 @@ from dataclasses import dataclass
 
 from flask import render_template, redirect, url_for, session, Blueprint, request, current_app, jsonify
 
-from strong.utils import Time, TaskOrder, Login, task_to_dict, random_filename, Clf, save_file
+from strong.utils import Time, TaskOrder, Login, task_to_dict, random_filename, save_file
 from strong.utils import flash_ as flash
 from strong.forms import TaskForm, TaskSubmitForm, BookForm, UploadForm, PlanForm
 from strong.models import User, Task, Plan
+from strong.blueprints.p_plan import get_plans
 from strong import db
 # 重构：在蓝本上统一注册装饰器
 
@@ -29,8 +30,10 @@ def make_template_context():
 @task_bp.route('/doing')
 def task_doing():
     tasks: list[Task] = Task.query.filter_by(uid=Login.current_id()).order_by(Task.time_add.desc()).all() # 时间逆序
-    tasks = [task for task in tasks if not task.is_finish] # 待完成的任务列表
-    return render_template('task/task_doing.html', tasks=tasks, Time=Time)
+    tasks = [task for task in tasks if not task.is_finish and task.plan_id is None] # 待完成的任务列表，无所属计划的
+
+    plans = get_plans()['plans_doing']
+    return render_template('task/task_doing.html', tasks=tasks, Time=Time, plans=plans)
 
 
 @task_bp.route('/done')
@@ -208,4 +211,4 @@ def task_restart(task_name):
 @task_bp.route('/test')
 def test():
     """用于尝试一些新功能，或样式。"""
-    return render_template('_test.html')
+    return render_template('plugin/plan_doing.html')

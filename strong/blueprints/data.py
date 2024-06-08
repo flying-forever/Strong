@@ -4,8 +4,9 @@ import math
 
 from strong import db
 from strong.models import Task, User
-from strong.utils import Login, Clf
+from strong.utils import Login
 from strong.utils import flash_ as flash
+from strong.set import Clf
 
 
 data_bp = Blueprint('data', __name__, static_folder='static', template_folder='templates')

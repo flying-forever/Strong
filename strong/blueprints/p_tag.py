@@ -3,7 +3,8 @@ import math
 
 from flask import Blueprint, render_template, request, jsonify
 
-from strong.utils import Login, Clf
+from strong.set import Clf
+from strong.utils import Login
 from strong.utils import flash_ as flash
 from strong.models import Task, Tag, User
 from strong import db

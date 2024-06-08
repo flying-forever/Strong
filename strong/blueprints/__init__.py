@@ -5,7 +5,7 @@ from strong.blueprints.p_book import book_bp
 from strong.blueprints.p_plan import plan_bp
 from strong.blueprints.p_tag import tag_bp
 
-from strong.callbacks import login_required
+from strong.wraps import login_required
 
 
 # 批量为蓝本添加登录保护

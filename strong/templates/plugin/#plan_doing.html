@@ -1,0 +1,75 @@
+<!-- 
+    待做任务列表显示待做计划的条目 
+    备注：详情页依赖了#plan_detail
+-->
+{% from '_macros.html' import modal_botton %}
+{% macro plan_item(plan) %}
+
+<style>
+    /* 计划条目 */
+    .plan-item {
+        position: relative;
+        display: block;
+        background-color: rgb(250, 250, 250);
+        margin-top: 2px;
+        border: 1px solid #ccc;
+        padding: 0.3rem;
+        margin: 0.25rem;
+    }
+
+    .plan-item .vcenter {
+        display: flex; 
+        align-items:center;
+    }
+
+    .plan-item a {
+        margin-left: 0.15rem;
+    }
+
+    .plan-item button {
+        margin-left: 0.15rem;
+    }
+
+    .img-size {
+        height: 6rem;
+        width: 6rem;
+        margin-right: 1.25rem;
+    }
+
+    .progress {
+        height: 1.5rem;
+        margin-top: 1.75rem;
+    }
+</style>
+
+<div class="plan-item" style="margin-top: 2px; background-color:rgb(250, 250, 250);">
+    <div class="row">
+        <div class="col-5 vcenter">
+                <!-- 封面适应 -->
+                {% if plan['cover'] %}
+                    <img src="{{ url_for('getfile', filename=plan.cover) }} " class="img-fluid rounded-circle img-size" alt="plan">
+                {% elif is_doing %}
+                    <img src="{{ url_for('static', filename='img/velt.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/tl.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
+                {% endif %}
+    
+                <h4 display="inline;">{{ plan.name }}</h4>
+                <div style="margin-left: auto;">
+                    <i class="ri-medal-line"></i>
+                    <label>{{ plan.use_hour }}/{{ plan.need_hour }}h</label>
+                </div>
+        </div>
+        <div class="col-5">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped" role="progressbar" style="width: {{ plan.old_percent }}%"></div>
+                <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ plan.new_percent }}%"></div>
+            </div>
+        </div>
+        <div class="col-1 vcenter">
+            <a onclick="show_modal(`{{ plan.id }}`, `{{ plan.name }}`)" href="#" class="btn btn btn-warning" role="button">查看</a>
+        </div>
+    </div>
+</div>
+
+{% endmacro %}

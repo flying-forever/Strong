@@ -100,16 +100,26 @@ def plan_delete(plan_id):
     return redirect(url_for('.plans'))
 
 
-@plan_bp.route('/plans')
-def plans():
+def get_plans():
     plans = Plan.query.filter(Login.current_id()==Plan.uid).order_by(Plan.start_time.desc()).all()
     for plan in plans:
         plan: Plan
-        plan.use_hour = plan.use_hour()  # 备注：在db.Model实现的，咋样？
+        plan.use_hour = plan.get_use_h()  # 备注：在db.Model实现的，咋样？
+        plan.old_hour = plan.get_use_h(dis_day=-1)  # old / new用于展示分段的进度条
+        plan.new_hour = plan.get_use_h(dis_day=1)
+
         plan.need_hour = round(plan.need_minute / 60, 2)
         plan.percent = round(plan.use_hour / plan.need_hour * 100, 2)
+        plan.old_percent = round(plan.old_hour / plan.need_hour * 100, 2)
+        plan.new_percent = round(plan.new_hour / plan.need_hour * 100, 2)
     plans_doing = [p for p in plans if not p.is_end]
     plans_done = [p for p in plans if p.is_end]
+    return {'plans_doing': plans_doing, 'plans_done': plans_done}
+
+
+@plan_bp.route('/plans')
+def plans():
+    plans_doing, plans_done = get_plans().values()
     # 备注：可能dict比对象更 显式
     return render_template('plugin/plans.html', plans=plans, plans_doing=plans_doing, plans_done=plans_done)
 

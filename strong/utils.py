@@ -1,4 +1,6 @@
 import math, os, uuid, time
+from PIL import Image
+
 from flask import flash, session, current_app
 from strong.models import User, Task
 
@@ -83,12 +85,6 @@ class Login:
         session['uname'] = None
 
 
-class Clf:
-    '''满足一些特别的需要，有时会让我感觉自己也在写奇怪的代码。'''
-    # data中将task和tag展示到图，task加上偏移避免id冲突。在修改图中的tag时，也要用到它判断id是task|tag
-    idOffset = 123456789
-
-
 def flash_(message: str, category='success'):
     """- 使flash有一个默认的样式分类：success"""
     flash(message=message, category=category)
@@ -112,9 +108,21 @@ def random_filename(filename) -> str:
 
 
 def save_file(file):
-    '''返回filename'''
+    '''保存图片文件，返回filename。把文件名(而非路径)写入数据库 —— 文件所在路径将是可变的'''
+    # 备注：到底要不要裁剪呢？
+    img = Image.open(file)
+
+    # 裁剪中心的正方形一块
+    x, y = img.size
+    small_edge = min(x, y)
+    left_top = (x // 2 - small_edge // 2, y // 2 - small_edge // 2)
+    right_bottom = (x // 2 + small_edge // 2, y // 2 + small_edge // 2)
+    img = img.crop((*left_top, *right_bottom))
+
+    rsize = ( min(500, img.size[0]), min(500, img.size[1]) )
+    img = img.resize(rsize,  Image.LANCZOS)  # 会保持比例，LANCZOS是高质量上采样
     filename = random_filename(file.filename)
-    file.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
+    img.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
     return filename
 
 

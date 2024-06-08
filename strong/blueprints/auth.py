@@ -6,8 +6,8 @@ import traceback  # 错误追踪
 from datetime import datetime
 from urllib.parse import quote
 
-from strong.callbacks import login_required
-from strong.utils import Login, get_level, get_exp, random_filename
+from strong.wraps import login_required
+from strong.utils import Login, get_level, get_exp, random_filename, save_file
 from strong.utils import flash_ as flash
 from strong.forms import LoginForm, UserForm, UploadForm, UpJsonForm
 from strong.models import User, Book, Task, Tag, Follow
@@ -124,12 +124,7 @@ def upload_avatar():
     user: User = Login.current_user()
     form = UploadForm()
     if form.validate_on_submit():
-        # 保存到文件系统
-        f = form.photo.data 
-        filename = random_filename(f.filename)
-        f.save(os.path.join(current_app.config['UPLOAD_PATH'], filename))
-        # 文件名(而非路径)写入数据库 - 文件所在路径将是可变的
-        user.avatar = filename
+        user.avatar = save_file(form.photo.data)
         db.session.commit()
         flash('上传成功！')
         return redirect(url_for('.home'))

@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import session
 
 from strong import db
+from strong.set import Clf
+
 
 class Task(db.Model):
     """任务模型"""
@@ -137,7 +139,14 @@ class Plan(db.Model):
     def __str__(self) -> str:
         return f"<Plan id={self.id} name={self.name} uid={self.uid}>"
 
-    def use_hour(self, wei=2):
-        '''use_minute -> hour'''
-        s = sum([t.use_minute for t in self.tasks if t.is_finish])
+    def get_use_h(self, wei=2, dis_day=0):
+        '''
+        use_minute -> hour
+        @dis_day: 例如1（正整数）表示距今小于一天，-1表示距今大于一天'''
+        def in_time(t):
+            if dis_day > 0:
+                return (abs(datetime.utcnow() - t.time_finish) <= timedelta(days=dis_day))
+            else:
+                return (abs(datetime.utcnow() - t.time_finish) > timedelta(days=-dis_day))
+        s = sum([t.use_minute for t in self.tasks if t.is_finish and in_time(t)])
         return round(s / 60, wei)
