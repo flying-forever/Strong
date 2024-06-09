@@ -313,10 +313,12 @@ def import_user():
 # ------------------------------ 三、好友社交  ------------------------------ #
 
 
-def today_time(user):
+def today_time(user: User):
     '''指定用户今天的学习时间'''
     now = datetime.utcnow()
-    times = [t.use_minute for t in user.tasks if t.time_finish.day == now.day and t.time_finish.month == now.month and t.time_finish.year == now.year]
+    times = [t.use_minute for t in user.tasks if t.get_time_finish().day == now.day 
+             and t.time_finish.month == now.month 
+             and t.time_finish.year == now.year]
     time = round(sum(times) / 60.0, 2) 
     return time
 

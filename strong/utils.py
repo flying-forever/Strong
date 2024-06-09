@@ -1,5 +1,6 @@
 import math, os, uuid, time
 from PIL import Image
+from datetime import datetime, timedelta
 
 from flask import flash, session, current_app
 from strong.models import User, Task
@@ -140,7 +141,7 @@ def task_to_dict(task: Task):
     return {
         'id': task.id,
         'name': task.name,
-        'time_finish': task.time_finish.strftime(r'%Y-%m-%d %H:%M:%S'),
+        'time_finish': (task.time_finish + timedelta(hours=8)).strftime(r'%Y-%m-%d %H:%M:%S'),
         'hour': round(task.use_minute / 60, 2),
         'describe': task.describe,
 

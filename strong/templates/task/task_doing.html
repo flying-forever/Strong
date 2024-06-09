@@ -5,7 +5,8 @@
 {% block ac_doing %} active {% endblock %}
 
 {% block top_bar %}
-<a class="btn btn-success" href="{{ url_for('.task_create') }}" role="button">+新建</a>
+<a class="btn btn-success" href="{{ url_for('.task_create') }}" role="button">+任务</a>
+<a class="btn btn-info" href="{{ url_for('plan.plan_create') }}" style="margin-left: 5px;">+计划</a>
 {% endblock %}
 
 <!-- 1 待完成任务列表 -->

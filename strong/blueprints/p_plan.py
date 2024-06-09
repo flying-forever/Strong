@@ -103,15 +103,21 @@ def plan_delete(plan_id):
 def get_plans():
     plans = Plan.query.filter(Login.current_id()==Plan.uid).order_by(Plan.start_time.desc()).all()
     for plan in plans:
+        # 属性：need_hour, user_hour, percent, old_percent, new_percent
         plan: Plan
+        
+        def g(x): return round(x, 2) 
+        plan.need_hour = g(plan.need_minute / 60)
         plan.use_hour = plan.get_use_h()  # 备注：在db.Model实现的，咋样？
-        plan.old_hour = plan.get_use_h(dis_day=-1)  # old / new用于展示分段的进度条
-        plan.new_hour = plan.get_use_h(dis_day=1)
 
-        plan.need_hour = round(plan.need_minute / 60, 2)
-        plan.percent = round(plan.use_hour / plan.need_hour * 100, 2)
-        plan.old_percent = round(plan.old_hour / plan.need_hour * 100, 2)
-        plan.new_percent = round(plan.new_hour / plan.need_hour * 100, 2)
+        old_h = plan.get_use_h(dis_day=-1)  # old,new用于展示分段的进度条
+        new_h = plan.get_use_h(dis_day=1)
+        s = max(plan.need_hour, plan.use_hour)
+
+        plan.percent = g(plan.use_hour / plan.need_hour * 100)
+        plan.old_percent = g(old_h / s * 100) # 超过need依然分段
+        plan.new_percent = g(new_h / s * 100)
+        
     plans_doing = [p for p in plans if not p.is_end]
     plans_done = [p for p in plans if p.is_end]
     return {'plans_doing': plans_doing, 'plans_done': plans_done}

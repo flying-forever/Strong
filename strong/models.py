@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from flask import session
+from typing import ClassVar
 
 from strong import db
 from strong.set import Clf
@@ -39,6 +40,10 @@ class Task(db.Model):
 
     def __str__(self) -> str:
         return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
+    
+    def get_time_finish(self):
+        '''北京时区'''
+        return self.time_finish + timedelta(hours=8)
 
 
 class Follow(db.Model):
@@ -66,9 +71,10 @@ class User(db.Model):
 
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) # 账号创建时间
 
+    # 备注：类型注解有点麻烦，关系实际上又不是list类型的
     following = db.relationship('Follow', foreign_keys=[Follow.follower_id], back_populates='follower', lazy='dynamic', cascade='all')  # 关注
     followers = db.relationship('Follow', foreign_keys=[Follow.followed_id], back_populates='followed', lazy='dynamic', cascade='all')  # 粉丝
-    tasks = db.relationship('Task', back_populates='user')
+    tasks: ClassVar[list[Task]] = db.relationship("Task", back_populates='user')
     books = db.relationship('Book', back_populates='user')
     tags = db.relationship('Tag', back_populates='user')
     plans = db.relationship('Plan', back_populates='user')
@@ -142,11 +148,14 @@ class Plan(db.Model):
     def get_use_h(self, wei=2, dis_day=0):
         '''
         use_minute -> hour
-        @dis_day: 例如1（正整数）表示距今小于一天，-1表示距今大于一天'''
+        @dis_day: 0（默认）是全部。1是今天，-1和1互补。'''
         def in_time(t):
+            # 离散的天数，而不是时间间隔大于有多少个24小时
+            today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            finish_day = t.time_finish.replace(hour=0, minute=0, second=0, microsecond=0)
             if dis_day > 0:
-                return (abs(datetime.utcnow() - t.time_finish) <= timedelta(days=dis_day))
+                return (today - finish_day).days < dis_day
             else:
-                return (abs(datetime.utcnow() - t.time_finish) > timedelta(days=-dis_day))
+                return (today - finish_day).days >= -dis_day
         s = sum([t.use_minute for t in self.tasks if t.is_finish and in_time(t)])
         return round(s / 60, wei)

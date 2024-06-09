@@ -14,16 +14,16 @@ data_bp = Blueprint('data', __name__, static_folder='static', template_folder='t
 
 @data_bp.route('/')
 def index():
-    return redirect(url_for('.data', type=0, **request.args))
+    return redirect(url_for('.day_detail', type=2, **request.args))
 
 
-def hour_per_day(year: int, month: int, tasks: list=None) -> list:
+def hour_per_day(year: int, month: int, tasks: list[Task]=None) -> list:
     '''统计某月每天的学习时间，单位(hour)'''
     # @tasks：避免重复的查询
-    tasks: list[Task] = [task for task in tasks if task.time_finish.month == month and task.time_finish.year == year]
+    tasks: list[Task] = [task for task in tasks if task.get_time_finish().month == month and task.get_time_finish().year == year]
     h_pday = [0] * 32  # 每个月最多31天
     for task in tasks:
-        h_pday[task.time_finish.day] += task.use_minute 
+        h_pday[task.get_time_finish().day] += task.use_minute 
     # minute -> hour
     for i in range(32):
         h_pday[i] = round(h_pday[i] / 60, 2)  # 2:两位小数
@@ -52,10 +52,8 @@ def get_data():
     today = now.day if month == now.month else 31
 
     # 1 查询本月以及上月的数据
-    tasks: list[Task] = (
-        Task.query
-        .filter_by(uid=uid, is_finish=True)
-        .with_entities(Task.time_finish, Task.use_minute))
+    # 保留类方法，就不能.with_entities选列了。
+    tasks = Task.query.filter_by(uid=uid, is_finish=True)
 
     if month == 1:  
         # 跨年
@@ -115,4 +113,27 @@ def data(type: int=0):
 
     return render_template(template, type=type, month=month, year=year)
     
+
+# 备注：感觉这个type传来传去
+@data_bp.route('/day_detail/<int:type>')
+def day_detail(type: int=2):
+    '''日时间使用情况'''
+    # 一周的任务列表
+    user = Login.current_user()
+    tasks = [t for t in user.tasks 
+        if t.is_finish 
+        and abs(t.time_finish - datetime.utcnow()) < timedelta(days=7)]  # 0~6
+    print('len', len(tasks))
+    types = list({t.name:t.name for t in tasks}.values())  # 去重列表
+
+    # 时间记录生成(index, name, end_time, duration:h)
+    # - 备注：时区问题重构一下？
+    now = datetime.utcnow() + timedelta(hours=8)
+    today_end = now.replace(hour=23, minute=59, second=59, microsecond=0)  # 当天的23:59:59
+    datas = [{
+        'index':abs(t.time_finish + timedelta(hours=8) - today_end).days,  # 0~6
+        'name':t.name,
+        'end_time':round( (t.time_finish + timedelta(hours=8)).hour + t.time_finish.minute / 60, 2), 
+        'duration':round(t.use_minute / 60, 2)} for t in tasks]
     
+    return render_template('data/day_detail.html', type=type, types=types, datas=datas)

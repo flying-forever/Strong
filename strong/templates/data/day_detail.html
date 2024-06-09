@@ -1,0 +1,146 @@
+{% extends 'data/_data.html' %}
+
+
+{% block show %}
+<div id="main" style="width: 1200;height:640px;" class="container-fluid"></div>
+
+<script>
+    var chartDom = document.getElementById('main');
+    var myChart = echarts.init(chartDom);
+    var option;
+
+    var in_data = JSON.parse('{{ datas | tojson | safe }}');
+    var in_types = JSON.parse('{{ types | tojson | safe }}');
+    // console.log(in_data, in_types);
+
+    var data = [];
+    var dataCount = in_data.length;
+    var startTime = 0;
+    var categories = ['今天', '昨天', '前天', '四天', '五天', '六天', '七天'];
+    // 调色板
+    types = {};
+    var colors = ['#CC9999', '#666699', '#FF6666', '#FF9900', '#0099CC', '#CCCC99', '#CC3399', '#99CC00',
+        '#FF6666', '#009933', '#CCCCCC', '#FFCC99', '#009999', '#FF0033', '#333399', '#33CC99'];
+    in_types.forEach(function (it, index) {
+        types[it] = colors[index % colors.length];
+    })
+    // Process the data
+    in_data.forEach(function (it, index) {
+        baseTime = it.end_time - it.duration;
+        data.push({
+            name: it.name,
+            value: [it.index, baseTime, it.end_time, it.duration],
+            itemStyle: {
+                normal: {
+                    color: types[it.name],
+                }
+            }
+        });
+    })
+    // 图表配置函数
+    function renderItem(params, api) {
+        // api 是什么
+        var categoryIndex = api.value(0);
+        var start = api.coord([api.value(1), categoryIndex]); // ?
+        var end = api.coord([api.value(2), categoryIndex]);
+        var height = api.size([0, 1])[1] * 0.8;  // item高度
+        var width = end[0] - start[0];
+        var rectShape = echarts.graphic.clipRectByRect(
+            {
+                x: start[0],
+                y: start[1] - height / 2,
+                width: width,
+                height: height,
+            },
+            {
+                x: params.coordSys.x,  // ?
+                y: params.coordSys.y,
+                width: params.coordSys.width,
+                height: params.coordSys.height
+            }
+        );
+        if (rectShape) {
+            rectShape.r = 5;  // 圆角，在上面的clip中设置没有用
+            rectShape.enterFrom = { x: 0 };  // 动画左边飞进 
+        }
+        return (
+            rectShape && {
+                type: 'rect',
+                transition: ['shape'],
+                shape: rectShape,
+                style: api.style(),
+                extra: {
+                    width: width,
+                    height: height
+                }
+            }
+        );
+    }
+    option = {
+        tooltip: {
+            formatter: function (params) {
+                return params.marker + params.name + ': ' + params.value[3] + ' h';
+            }
+        },
+        legend: {
+            data: []
+        },
+        title: {
+            text: '时间都去哪儿了',
+            left: 'center',
+        },
+        grid: {  // 图表布局和样式
+            height: 500,
+            left: '3%',
+            width: '94%',
+        },
+        xAxis: {
+            min: startTime,
+            max: 24,
+            interval: 1,
+            scale: true,  // 坐标轴基于刻度，不与数据对齐
+            axisLabel: {
+                formatter: function (val) {
+                    return Math.max(0, val - startTime) + ' h';
+                }
+            }
+        },
+        yAxis: {
+            data: categories
+        },
+        series: [
+            {
+                type: 'custom',
+                renderItem: renderItem,
+                label: {  // 添加系列标签
+                    show: true,
+                    position: 'inside',  // 标签显示在矩形内部
+                    formatter: function (params, api) {
+                        // 记录：想根据盒子大小调整文本布局（换行、大小），失败，很多配置不知道为啥不生效
+                        var name = params.name;
+                        return name;
+                    }
+                },
+                labelLayout(params) {
+                    console.log(params);
+                    return {
+                        hideOverlap: true,
+                        // 根据盒子调整字体，显示效果一般
+                        // fontSize: Math.min(Math.max(params.rect.width / 4, 10), 17)  
+                    };
+                },
+                itemStyle: {
+                    opacity: 0.8,
+                },
+                encode: {
+                    x: [1, 2],
+                    y: 0
+                },
+                data: data
+            }
+        ]
+    };
+
+    option && myChart.setOption(option);
+</script>
+{% endblock show %}
