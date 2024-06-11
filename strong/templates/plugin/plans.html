@@ -42,7 +42,7 @@
             <br>
         </div>
         <div>
-            <a onclick="show_modal(`{{ plan.id }}`, `{{ plan.name }}`)" href="#" class="btn btn-sm btn-warning" role="button">查看</a>
+            <a onclick="show_modal(`{{ plan.id }}`, `{{ plan.name }}`)" class="btn btn-sm btn-warning" role="button">查看</a>
             <a href="{{ url_for('.plan_update', plan_id=plan.id) }}" class="btn btn-sm btn-primary" role="button">改</a>
             <a href="{{ url_for('.plan_cover', plan_id=plan.id) }}" class="btn btn-sm btn-secondary"
                 role="button">图</a>

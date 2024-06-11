@@ -170,7 +170,7 @@ class TaskDossier:
 @task_bp.route('/dossier')
 def task_dossier():
     """已完成任务档案"""
-    tasks = Task.query.filter_by(uid=Login.current_id(), is_finish=True).order_by(Task.time_add.desc()).all()  # 档案列表也将是时间逆序的
+    tasks = Task.query.filter_by(uid=Login.current_id(), is_finish=True).order_by(Task.time_finish.desc()).all()  # 档案列表也将是时间逆序的
     d = {}
     for t in tasks:
         if t.name not in d:
@@ -194,11 +194,13 @@ def task_record(task_name):
 
 @task_bp.route('/restart/<string:task_name>')
 def task_restart(task_name):
+    
     '''老任务重新创建为待做'''
     t = Task.query.filter_by(uid=Login.current_id(), name=task_name, is_finish=True).order_by(Task.time_finish.desc()).first()
     # 备注：代码较冗余，每个参数名要写两遍。
+    # 没有继承plan_id，既重启任务不属于任何计划。
     task_new = Task(name=t.name, exp=t.exp, need_minute=t.need_minute, \
-                    task_type=t.task_type, uid=t.uid, bid=t.bid, tag_id=t.tag_id, plan_id=t.plan_id)
+                    task_type=t.task_type, uid=t.uid, bid=t.bid, tag_id=t.tag_id)
     db.session.add(task_new)
     db.session.commit()
     flash('重启成功。')

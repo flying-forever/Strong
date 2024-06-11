@@ -145,7 +145,7 @@
 
     // 3 任务提交
     function submit() {
-        var m = Math.ceil(passtime / 60);
+        var m = Math.round(passtime / 60);
         var s = parseInt(passtime);
         var url = `{{ url_for('task.task_submit', task_id=task.id) }}/${m}?next={{ request.endpoint }}&seconds_pass=${s}`;
         window.location.href = url;

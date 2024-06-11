@@ -101,7 +101,7 @@ def plan_delete(plan_id):
 
 
 def get_plans():
-    plans = Plan.query.filter(Login.current_id()==Plan.uid).order_by(Plan.start_time.desc()).all()
+    plans = Plan.query.filter(Login.current_id()==Plan.uid).order_by(Plan.end_time.desc()).all()
     for plan in plans:
         # 属性：need_hour, user_hour, percent, old_percent, new_percent
         plan: Plan
