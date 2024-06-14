@@ -27,18 +27,18 @@
                 <small>#{{ task.id }}</small> {{ task.name }}
             </h6>
             <div class="row">
-                <div class="col-7">
-                    <small><p class="list-group-item-text">{{ task.exp }}经验值 &nbsp;&nbsp;预计用时: {{ task.need_minute }}m</p></small>
+                <div class="col">
+                    <small><p class="list-group-item-text">预计用时: {{ task.need_minute }}m</p></small>
                     
                 </div>
-                <div class="col-5">
+                <div style="margin-left:auto; margin-right: 10px;">
                     <a href="{{ url_for('.task_clock', task_id=task.id) }}"
-                        class="btn btn-success btn-sm" role="button">开始</a>
+                        class="btn btn-success btn" role="button">开始</a>
                     <a href="{{ url_for('.task_submit', task_id=task.id, next=request.endpoint) }}"
-                        class="btn btn-info btn-sm" role="button">提交</a>
+                        class="btn btn-info btn" role="button">提交</a>
                     {{ modal_botton(
                         id='delete' + [task.id] | join,
-                        btn_class='btn-danger btn-sm',
+                        btn_class='btn-danger btn',
                         btn_name='删除', title='提醒',
                         body='你确定删除任务 ' + task.name + ' 吗？删除后不可恢复！',
                         footer_href=url_for('.task_delete', task_id=task.id)

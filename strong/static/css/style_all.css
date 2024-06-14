@@ -1,0 +1,42 @@
+.right {
+    margin-left: auto;
+    margin-right: 3rem;
+}
+
+.showchart {
+    height: 750px;
+    width: 95%;
+}
+
+.showchart_data {
+    height: 640px;
+    width: 95%;
+}
+
+/* 小屏幕大字体 */
+@media screen and (max-width: 1000px) {
+    body {
+        font-size: 1.5rem;
+    }
+    h5, h6 {
+        font-size: 1.5rem;
+    }
+    /* 左侧导航栏 */
+    .btn-group-vertical a {
+        font-size: 1.5rem;
+    }
+    .btn {
+        font-size: 1.5rem;
+    }
+    /* 图由宽而长 */
+    .showchart {
+        margin-top: 3rem;
+        height: 1200px;
+        width: 95%;
+    }
+    .showchart_data {
+        margin-top: 3rem;
+        height: 700px;
+        width: 95%;
+    }
+}

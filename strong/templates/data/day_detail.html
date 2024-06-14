@@ -2,7 +2,7 @@
 
 
 {% block show %}
-<div id="main" style="width: 1200;height:640px;" class="container-fluid"></div>
+<div id="main" class="container-fluid showchart_data"></div>
 
 <script>
     var chartDom = document.getElementById('main');
@@ -16,7 +16,7 @@
     var data = [];
     var dataCount = in_data.length;
     var startTime = 0;
-    var categories = ['今天', '昨天', '前天', '四天', '五天', '六天', '七天'];
+    var categories = ['今', '昨', '前', '四', '五', '六', '七'];
     // 调色板
     types = {};
     var colors = ['#CC9999', '#666699', '#FF6666', '#FF9900', '#0099CC', '#CCCC99', '#CC3399', '#99CC00',
@@ -89,6 +89,19 @@
             text: '时间都去哪儿了',
             left: 'center',
         },
+        dataZoom: [
+            {
+                type: 'slider',
+                filterMode: 'weakFilter',
+                showDataShadow: true,
+                top: 0,
+                labelFormatter: '拉'
+            },
+            {
+                type: 'inside',
+                filterMode: 'weakFilter'
+            }
+        ],
         grid: {  // 图表布局和样式
             height: 500,
             left: '3%',

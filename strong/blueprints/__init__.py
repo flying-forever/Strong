@@ -15,3 +15,7 @@ for bp in protects:
     @login_required
     def login_protect():
         pass
+
+# from flask_cors import CORS
+# CORS(auth_bp)
+# CORS(plan_bp)

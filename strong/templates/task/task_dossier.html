@@ -20,16 +20,16 @@
                 <small>#{{ cols * i + j }}</small> <span style="color:rgb(156, 126, 29);">{{ task.name }}</span>
             </h6>
             <div class="row">
-                <div class="col-7">
+                <div class="col">
                     <p>
                         <small>提交:</small><span style="color:green;">{{ task.count }}</span><small>次</small>
                         &nbsp;&nbsp;
                         <small>合计:</small><span style="color: green;">{{ task.hour }}</span><small>h</small>
                     </p>
                 </div>
-                <div class="col">
-                    <a class="btn btn-info btn-sm" role="button" onclick="record(`{{ task.name }}`)">详情</a>
-                    <a href="{{ url_for('.task_restart', task_name=task.name) }}" class="btn btn-success btn-sm" role="button">重启</a>
+                <div style="margin-left: auto;">
+                    <a class="btn btn-info btn" role="button" onclick="record(`{{ task.name }}`)">详情</a>
+                    <a href="{{ url_for('.task_restart', task_name=task.name) }}" class="btn btn-success btn" role="button">重启</a>
                 </div>
             </div>
         </li>

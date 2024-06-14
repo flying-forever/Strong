@@ -8,18 +8,22 @@
         align-items: center;
         height: 580px;
         border: 1px solid black;
-        margin: 5px;
+        margin-inline: 10px;
+    }
+
+    input {
+        border-width: 0;
     }
 
     /* 1 大号倒计时框 */
     div.timer {
-        font-size: 300px;
+        font-size: 20rem;
     }
 
     input.timer {
-        width: 550px;
+        width: 25rem;
         height: 500px;
-        font-size: 360px;
+        font-size: 20rem;
         text-align: center;
         margin-left: 10px;
         margin-right: 10px;
@@ -33,17 +37,25 @@
     input.timer-s {
         width: 110px;
         height: 90px;
-        font-size: 60px;
+        font-size: 4rem;
         text-align: center;
         margin-left: 5px;
         margin-right: 5px;
     }
 
     .button-big {
-        width: 220px;
+        /* width: 220px; */
+        padding-inline: 4rem;
         height: 80px;
         font-size: 30px;
         text-align: center;
+    }
+
+    /* 小屏幕尺寸下 */
+    @media screen and (max-width: 1000px) {
+        .button-big {
+            padding-inline: 1.5rem;
+        }
     }
 </style>
 
@@ -64,7 +76,7 @@
         <button class="button-big" onclick="cancel()">丢弃</button>
         <button id="pause" class="button-big" onclick="pauseTimer()">暂停</button>
         <button class="button-big" onclick="submit()">完成</button>
-        <button id="btn_music" class="button-big">打开铃声</button>
+        <button id="btn_music" class="button-big">铃声</button>
     </div>
 
 </body>
@@ -72,7 +84,7 @@
 <script type="text/javascript">
     var seconds_pass = parseInt('{{ seconds_pass }}');
     var maxtime_init = parseInt('{{ minute * 60 }}');
-    
+
     var stime = new Date();
     var maxtime = maxtime_init - seconds_pass;  // 倒计时秒数
     var passtime = seconds_pass;  // 正计时秒数
@@ -88,11 +100,11 @@
         } else if (t < 0) {
             t = 0;
         }
-        function f(eid, value) {$(`#${eid}`).val(Math.floor(value)); }
-        f('hour', t/60); f('minute', t%60); f('hour-pass', passtime/60); f('minute-pass', passtime%60);
+        function f(eid, value) { $(`#${eid}`).val(Math.floor(value)); }
+        f('hour', t / 60); f('minute', t % 60); f('hour-pass', passtime / 60); f('minute-pass', passtime % 60);
 
-        if (t > 0) {$("title").html(Math.floor(t / 60) + ":" + Math.floor(t % 60) + ' Strong');}
-        else {$("title").html(Math.floor(passtime / 60) + ":" + Math.floor(passtime % 60) + ' Strong');}
+        if (t > 0) { $("title").html(Math.floor(t / 60) + ":" + Math.floor(t % 60) + ' Strong'); }
+        else { $("title").html(Math.floor(passtime / 60) + ":" + Math.floor(passtime % 60) + ' Strong'); }
     }
     function UpdateTime() {
         passtime++;
@@ -132,15 +144,20 @@
         if (pause_date != null) {
             con_date = new Date();
             waitime += (con_date - pause_date) / 1000;
-        } 
-    } 
+        }
+    }
     function resetCountDown() {
         maxtime = maxtime_init;
     }
-    $('#btn_music').click(function() {
+    $('#btn_music').click(function () {
         // 用户没有和页面交互时，浏览器可能禁止自动播放
         console.log(this)
-        $(this).text('铃声(开)');
+        $(this).text('请听...');
+        var music = $("#over_music")[0];
+
+        var btn = $(this);  // onenede需要保存btn的引用
+        music.onended = function () { btn.text('铃声'); }
+        music.play();
     });
 
     // 3 任务提交
@@ -158,10 +175,10 @@
     // 4 worker - 防浏览器后台待机 方案B
     var url = "{{ url_for('static', filename='js/clock.js') }}";
     var worker = new Worker(url);
-    worker.postMessage({command: "start"});
+    worker.postMessage({ command: "start" });
 
-    worker.onmessage = function(e) {
-        if (is_work) {UpdateTime();}
+    worker.onmessage = function (e) {
+        if (is_work) { UpdateTime(); }
         console.log('work...');
     };
 </script>

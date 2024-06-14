@@ -1,8 +1,8 @@
 {# 1 一个用户名片 #}
 {% macro user_card(name, introduce, level, learn_time, avatar, uid, followed) %}
 <!-- 备注：感觉太多参数列表传来传去，也很丑 -->
-<div class="col-4 px-2">
-    <div class="card mb-2 py-1" style="max-width: 540px; max-height: 120px;">
+<div class="col-6 px-2">
+    <div class="card mb-2 py-1" style="max-width: 540px; max-height: 180px;">
         <div class="row">
             <div class="col-4 px-4 py-1">
                 {% if avatar %}
@@ -14,20 +14,32 @@
                 {% endif %}
             </div>
             <div class="col px-2">
-                <h5 class="card-title">{{name}} LV{{level}}</h5>
-                <p class="card-text"><small>&nbsp;{{introduce}}</small></p>
-                <div class="col-12 px-1">
-                    <p class="card-text"><small class="text-muted">今日学习 {{learn_time}} 小时&nbsp;&nbsp;</small>
+                <div class="row">
+                    <h5 class="card-title">
+                        {{name}} <small>LV{{level}}</small>
+                    </h5>
+                    
+                    <div style="margin-left: auto; margin-right: 30px;">
                         {% if followed %}
-                        <a class="btn-sm btn-secondary follow-btn" href="{{ url_for('auth.unfollow', uid=uid) }}"
-                            role="botten">取消关注</a>
+                        <a class="btn btn-secondary follow-btn" href="{{ url_for('auth.unfollow', uid=uid) }}"
+                            role="botten">取关</a>
                         {% else %}
-                        <a class="btn-sm btn-primary follow-btn" href="{{ url_for('auth.follow', uid=uid) }}"
+                        <a class="btn btn-primary follow-btn" href="{{ url_for('auth.follow', uid=uid) }}"
                             role="botten">关注</a>
                         {% endif %}
-                        <a class="btn-sm btn-success" href="{{ url_for('auth.visit', uid=uid) }}" role="botten">参观</a>
+                        <a class="btn btn-success" href="{{ url_for('auth.visit', uid=uid) }}" role="botten">参观</a>
+                    </div>
+                </div>
+                <p class="card-text"><small>&nbsp;{{introduce}}</small></p>
+                <div class="col-12 px-1">
+                    <p class="card-text">
+                        <small class="text-muted">今日学习 {{learn_time}} 小时&nbsp;&nbsp;</small> 
                     </p>
                 </div>
+                <div class="row">
+                    <div class="col"></div>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -37,10 +49,10 @@
 
 {# 2 用户列表 #}
 {% macro user_list(users) %}
-{% for i in range(users.__len__() // 3 + 1) %}
+{% for i in range(users.__len__() // 2 + 1) %}
 <div class="row">
-    {% for j in range(3) %}
-        {% set index = i * 3 + j %}
+    {% for j in range(2) %}
+        {% set index = i * 2 + j %}
         {% if index < users.__len__() %} 
             {% set u=users[index] %} 
             {{ user_card(u['name'], u['introduce'], u['level'], u['time'], u['avatar'], u['user'].id, u['followed']) }} 
@@ -66,8 +78,8 @@
                 type:'GET',
                 success: function(res){
                     // 如果按钮的text包含关注，替换为取消关注，否则替换为关注
-                    if(btn.text().indexOf('取消') == -1){
-                        btn.text('取消关注');
+                    if(btn.text().indexOf('取') == -1){
+                        btn.text('取关');
                         btn.removeClass('btn-primary').addClass('btn-secondary');
                         btn.attr('href', url.replace('follow', 'unfollow'));
                     }

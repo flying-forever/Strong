@@ -3,14 +3,15 @@
 
 <head>
     <!-- 用来修正页面在手机端显示不全问题 -->
-    <meta name="viewport"
-        content="width=device-width, user-scalable=yes, initial-scale=0.3, maxmum-scale=1.0, minimum-scale=0.3">
+    <!-- <meta name="viewport"
+        content="width=device-width, user-scalable=yes, initial-scale=0.3, maxmum-scale=1.0, minimum-scale=0.3"> -->
     {% block head %}
     {% block title %}<title> Strong </title>{% endblock %}
     <!-- 备注：cdn最好下载下来 -->
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.jpg') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">  
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style_all.css') }}">
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.3.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
@@ -28,7 +29,7 @@
     {# 1 上导航栏 #}
     {% block navigation %}
     <!-- Image and text -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand navbar-light bg-light">
         <a class="navbar-brand" href="#">
             <img src="{{ url_for('static', filename='img/logo_three.jpg') }}" width="30" height="30"
                 class="d-inline-block align-top" alt="">
@@ -41,7 +42,7 @@
                     {% if session['uname'] %}
                     {{ modal_botton(
                         id='import_user' + [1] | join,
-                        btn_class='btn-light btn-sm',
+                        btn_class='btn-light btn',
                         btn_name='导入', title='提醒',
                         body='你确定吗？这将覆盖你当前所有数据，且有一定风险，请确保已经“导出”备份。',
                         footer_href=url_for('auth.import_user')
@@ -65,13 +66,13 @@
                 {% block sidebar %}
                 <div class="btn-group-vertical" role="group" aria-label="Basic example">
                     <a href="{{ url_for('auth.home') }}" role="button"
-                        class="btn {% block active_home %}{% endblock %}">我的主页</a>
+                        class="btn py-2 {% block active_home %}{% endblock %}">我的主页</a>
                     <a href="{{ url_for('task.task_doing') }}" role="button"
-                        class="btn {% block active_task %}{% endblock %}">任务堂</a>
+                        class="btn py-2 {% block active_task %}{% endblock %}">任务堂</a>
                     <a href="{{ url_for('data.index') }}" role="button"
-                        class="btn {% block active_data %}{% endblock %}">学习统计</a>
+                        class="btn py-2 {% block active_data %}{% endblock %}">学习统计</a>
                     <a href="{{ url_for('auth.following') }}" role="button"
-                        class="btn {% block active_social %}{% endblock %}">找朋友</a>
+                        class="btn py-2 {% block active_social %}{% endblock %}">找朋友</a>
                 </div>
                 {% endblock sidebar %}
             </div>
