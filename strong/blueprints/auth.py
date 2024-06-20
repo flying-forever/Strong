@@ -10,7 +10,7 @@ from strong.wraps import login_required
 from strong.utils import Login, get_level, get_exp, random_filename, save_file
 from strong.utils import flash_ as flash
 from strong.forms import LoginForm, UserForm, UploadForm, UpJsonForm
-from strong.models import User, Book, Task, Tag, Follow
+from strong.models import Plan, User, Book, Task, Tag, Follow
 from strong import db
 
 
@@ -153,21 +153,24 @@ def export_user():
     books: list[Book] = user.books  # <class 'sqlalchemy.orm.collections.InstrumentedList'>, 其实不是list
     tasks: list[Task] = user.tasks
     tags: list[Tag] = user.tags
+    plans: list[Plan] = user.plans
     excludes_b = ['_sa_instance_state', 'cover']
     excludes_t = ['_sa_instance_state']
-    excludes_u = ['_sa_instance_state', 'password', 'avatar', 'time_add', 'books', 'tasks', 'tags']  # 备注：为啥user类需要排除关系属性？
+    excludes_u = ['_sa_instance_state', 'password', 'avatar', 'time_add', 'books', 'tasks', 'tags', 'plans']  # 备注：为啥user类需要排除关系属性？
     excludes_tag = ['_sa_instance_state']
+    excludes_plans = ['_sa_instance_state', 'cover']
     
     d_books = obj2dict(books, excludes_b)  # {id:int -> 对象字典}
     d_tasks = obj2dict(tasks, excludes_t)
     d_tags = obj2dict(tags, excludes_tag)
+    d_plans = obj2dict(plans, excludes_plans)
     d_user = user.__dict__
     for k in excludes_u:
         d_user.pop(k)
 
     # 返回数据文件
     # books|tasks：dict[id:str, 对象字典], user: 对象字典
-    data = {'books':d_books, 'tasks':d_tasks, 'user':d_user, 'tags':d_tags}
+    data = {'books':d_books, 'tasks':d_tasks, 'user':d_user, 'tags':d_tags, 'plans':d_plans}
     data = jsonify(data)
     tm = datetime.now().strftime(r"%Y-%m-%d")  # 文件被导出的时间
 
@@ -183,6 +186,11 @@ def import_user():
     # 备注：总是碰到id问题，原来的外键pid已经失效。而新建的标签，不commit就不能从数据库获得id
     # 但其实可以手动指定id，以及相应外键
     # 备注：运行较慢
+    # 备注：要加一个表（比如计划），要改动的地方还是太多了
+
+    def strptime(time: datetime):
+        '''我解析json导出的datetime时间用'''
+        return  datetime.strptime(time, r'%a, %d %b %Y %H:%M:%S %Z')
 
     def create_book(books):
         '''@books元素：类json字典 -> Book对象, 为了获得新的id'''
@@ -190,7 +198,7 @@ def import_user():
         for id in books:
             create_b = Book(uid=Login.current_id())
             for k in books[id]:
-                if k not in ['id', 'uid', 'bid']:
+                if k not in ['id', 'uid', 'bid']:  # 备注：这里为啥要写'bid'？
                     create_b.__dict__[k] = books[id][k]
             books[id] = create_b  # 方便task绑定到新的bid
             db.session.add(create_b)
@@ -229,14 +237,28 @@ def import_user():
             if tag['pid']:
                 tag['create'].pid = tags[str(tag['pid'])]['id']
 
-    def create_task(tasks, books, tags):
+    def create_plan(plans):
+        '''字典 -> 新建Plan对象，与book类似'''
+        for id in plans:
+            create_p = Plan(uid=Login.current_id())
+            for k in plans[id]:
+                if k not in ['id', 'uid', 'start_time', 'end_time']:
+                    create_p.__dict__[k] = plans[id][k]
+            start_time = strptime(plans[id]['start_time'])
+            end_time = strptime(plans[id]['end_time']) if plans[id]['end_time'] else None
+            create_p.start_time = start_time
+            create_p.end_time = end_time
+            plans[id] = create_p  # 方便task绑定到新的plan_id
+            db.session.add(create_p)
+
+    def create_task(tasks, books, tags, plans):
         '''创建任务记录，同时绑定书籍，和标签'''
         books: dict[str, Book]
         for task in tasks.values():
             # 2.1 创建
             create_t = Task(uid=Login.current_id())
             for k in task:
-                if k not in ['id', 'uid', 'bid', 'time_add', 'time_finish', 'plan_id']:  # 备注：暂未导出plan数据
+                if k not in ['id', 'uid', 'bid', 'time_add', 'time_finish']:  # 备注：暂未导出plan数据
                     create_t.__dict__[k] = task[k]
 
             # 2.2 绑定书籍
@@ -249,9 +271,14 @@ def import_user():
             if tag_id_old:
                 create_t.tag_id = tags[str(tag_id_old)]['id']
 
+            # 2.5 绑定计划
+            plan_id_old = task['plan_id']
+            if plan_id_old:
+                create_t.plan_id = plans[str(plan_id_old)].id
+
             # 2.4 从字符串解析时间对象
-            time_add = datetime.strptime(task['time_add'], r'%a, %d %b %Y %H:%M:%S %Z')
-            time_finish = datetime.strptime(task['time_finish'], r'%a, %d %b %Y %H:%M:%S %Z')
+            time_add = strptime(task['time_add'])
+            time_finish = strptime(task['time_finish'])
             create_t.time_add = time_add
             create_t.time_finish = time_finish
 
@@ -270,19 +297,20 @@ def import_user():
         # 1 解析json文件
         f = form.file.data.read() 
         f = json.loads(f)
-        uinfo, books, tasks, tags = f['user'], f['books'], f['tasks'], f['tags']
+        uinfo, books, tasks, tags, plans = f['user'], f['books'], f['tasks'], f['tags'], f['plans']
 
         user: User = Login.current_user() 
         user_old = {'email':user.email, 'exp':user.exp, 'introduce':user.introduce}
-        data_old = [b for b in user.books] + [t for t in user.tasks] + [tag for tag in user.tags]
+        data_old = [b for b in user.books] + [t for t in user.tasks] + [tag for tag in user.tags] + [plan for plan in user.plans]
 
         # 备注：错误被捕获之后，我不再知道是哪一行出错
         try:
             # 写新去旧
             create_tag(tags)
             create_book(books)
+            create_plan(plans)
             db.session.commit()
-            create_task(tasks, books, tags)
+            create_task(tasks, books, tags, plans)
             modify_user(uinfo)
             
             for item in data_old:
@@ -294,7 +322,7 @@ def import_user():
             user_db.exp = user_old['exp']
             user_db.email = user_old['email']
             user_db.introduce = user_old['introduce']
-            for item in [b for b in user.books] + [t for t in user.tasks] + [tag for tag in user.tags]:
+            for item in [b for b in user.books] + [t for t in user.tasks] + [tag for tag in user.tags] + [plan for plan in user.plans]:
                 db.session.delete(item)
 
             for item in data_old:

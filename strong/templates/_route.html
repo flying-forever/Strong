@@ -1,9 +1,10 @@
 <!-- 全局的路由管理 -->
 <script>
-    const route_head = 'http://127.0.0.1:5000'
-    //const route_head = 'http://43.139.70.152:3002'
+    // const route_head = 'http://127.0.0.1:5000'
+    // const route_head = 'http://43.139.70.152:3002'
     // const route_head = 'http://strongbysteps.online:3002'
-    const routes = {  
+    const route_head = '{{ host }}'  // 从模板获取，在config定义
+    const routes = {
         task_submit: route_head + '/task/submit', // <int:task_id>
         task_delete: route_head + '/task/delete', // <int:task_id>
         task_clock: route_head + '/task/clock', // <int:task_id>
@@ -12,4 +13,17 @@
         task_record: route_head + '/task/record', // <string:task_name>
         plan_record: route_head + '/plan/record', // <int:plan_id>
     }
+
+
+    // 从域名跳转ip，因为手机浏览器不止为啥用域名的计划列表异步请求失败
+    function to_ip(){
+        if (window.location.href.indexOf(route_head) == -1) {
+            window.location.href = route_head;
+        }
+    }
+    console.log(window.location.href, route_head, window.location.href.indexOf(route_head))
+    to_ip()
+    $(document).ready(function() {  // 加一层保险，但在打包app还是没有跳转迹象，因为没有用户点击？
+        to_ip()
+    })    
 </script>

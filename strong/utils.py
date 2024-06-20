@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import math, os, uuid, time
 from PIL import Image
 from datetime import datetime, timedelta
@@ -137,10 +138,32 @@ def _test_time(func, *args):
     return r
 
 
+@dataclass
+class TaskDossier:
+    name: str
+    hour: float=0
+    count: int=0
+
+
+def get_dossier(tasks: list[Task]):
+    d = {}
+    for t in tasks:
+        if t.name not in d:
+            d[t.name] = TaskDossier(t.name)
+        ds = d[t.name]
+        ds.hour += t.use_minute / 60
+        ds.count += 1
+    dses = list(d.values())
+    for ds in dses:
+        ds.hour = round(ds.hour, 2)
+    return dses
+
+
 def task_to_dict(task: Task):
     return {
         'id': task.id,
         'name': task.name,
+        'is_finish': task.is_finish,
         'time_finish': (task.time_finish + timedelta(hours=8)).strftime(r'%Y-%m-%d %H:%M:%S'),
         'hour': round(task.use_minute / 60, 2),
         'describe': task.describe,

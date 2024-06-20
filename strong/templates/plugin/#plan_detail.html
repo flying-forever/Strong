@@ -21,6 +21,26 @@
 </div>
 
 
+<div class="dossier row list-group-item" style="margin-top: 2px; background-color:rgb(250, 250, 250);">
+    <div class="row">
+        <div class="col-6">
+            <h5 style="color:rgb(156, 126, 29)">
+                <span class="name">睡大觉</span>&nbsp;
+            </h5>
+        </div>
+        <div style=" margin-left:auto; margin-right: 5rem;">
+            <small><span>提交:</span></small>
+            <span class="count" style="color:rgb(156, 126, 29);">100</span>
+            <small>次</small>
+            &nbsp;&nbsp;
+            <small>合计:</small>
+            <span class="hour" style="color: rgb(156, 126, 29);">24</span>
+            <small>h</small>
+        </div> 
+    </div>
+</div>
+
+
 <form class="task_form" action="">
     <!-- 备注：用宏应该比这样复制过去更简单 -->
     <div class="from-group">
@@ -35,9 +55,9 @@
 </form>
 
 
-<div class="modal fade" id="recordModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
+<div class="modal fade my-modal" id="recordModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
     <!-- 备注：模态框和任务列表都重复使用，做成组件？ -->
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg my-modal" role="document">
         <div class="modal-content">
             <!-- a 顶栏 -->
             <div class="modal-header">
@@ -52,6 +72,9 @@
                 <div id="form_div"></div>
                 <!-- 1 待做任务列表 -->
                 <div id="doing_list">
+                </div>
+                <!-- 1.2  完成归档列表 -->
+                <div id="dossier_list">
                 </div>
                 <!-- 2 完成记录 -->
                 <table class="table table-striped">
@@ -77,7 +100,10 @@
 
 
 <script>
+    // 备注：有点儿麻烦，加一个dossier，隐藏克隆块、模态框隐藏的代码也都要改
+
     $('.doing_task').eq(0).css('display', 'none');
+    $('.dossier').eq(0).css('display', 'none');
     $('.task_form').eq(0).css('display', 'none');
     // 模态框显示 记录列表
     var current_plan_id = 0;
@@ -93,6 +119,15 @@
         t.find('.submit').eq(0).attr('href', `${routes.task_submit}/${task.id}?next={{ request.endpoint }}`);
         t.find('.delete').eq(0).attr('href', `${routes.task_delete}/${task.id}`);
         $('#doing_list').append(t);
+    }
+    function append_dossier(d, id){
+        var t = $('.dossier').eq(0).clone();
+        t.css('display', 'block');
+        t.find('.name').eq(0).text(d.name);
+        t.find('.count').eq(0).text(d.count);
+        t.find('.hour').eq(0).text(d.hour);
+
+        $('#dossier_list').append(t);
     }
     function show_modal(plan_id, plan_name) {
         // 用于submit_form之后刷新模态框
@@ -127,23 +162,35 @@
                     var task = res.doing[i];
                     append_doing(task);
                 }
+                // 填入归档 - 想只对结束后的计划显示，又好像不太方便。
+                console.log(res.dossier);
+                if (res.doing.length == 0) {
+                    for (var i = 0; i < res.dossier.length; i++) {
+                        var d = res.dossier[i];
+                        append_dossier(d, i);
+                    }
+                }
             },
         });
     }
     
     // 模态框隐藏 清空内容
+    var btn_count = 0;
     $('#recordModal').on('hidden.bs.modal', function (e) {
         $('form input').val('');
         var modal = $('#recordModal');
         modal.find('tbody').empty();  // 清空子标签
         modal.find('#doing_list').empty();
+        modal.find('#dossier_list').empty();
         modal.find('#form_div').empty();
+
+        modal.find('a').text('+新增'); // 重置按钮状态，否则可能下次打开又是“收起”
+        btn_count = 0;
     });
     
     // 新建任务
-    var btn_count = 0;
     function create_form(btn) {
-        var s = ['+新增', '取消'];
+        var s = ['+新增', '收起'];
         if (btn_count % 2 == 0) {
             var t = $('.task_form').eq(0).clone();
             t.css('display', 'block');
@@ -172,8 +219,11 @@
             dataType: 'json', // 如果你期望服务器返回JSON数据 
             data: JSON.stringify(data),
             success: function (task) {
-                
                 append_doing(task);
+                modal.find('#form_div').empty();
+                var t = $('.task_form').eq(0).clone();
+                t.css('display', 'block');
+                $('#form_div').append(t);
             }
         })
     };

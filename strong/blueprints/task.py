@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from flask import render_template, redirect, url_for, session, Blueprint, request, current_app, jsonify
 
-from strong.utils import Time, TaskOrder, Login, task_to_dict, random_filename, save_file
+from strong.utils import Time, TaskOrder, Login, task_to_dict, random_filename, save_file, get_dossier
 from strong.utils import flash_ as flash
 from strong.forms import TaskForm, TaskSubmitForm, BookForm, UploadForm, PlanForm
 from strong.models import User, Task, Plan
@@ -54,6 +54,7 @@ def task_done(order_id: int=1):
         TO.NA: Task.name.asc(),
     }
     tasks = tasks.order_by(order_way[order_id]).all()
+    tasks = [task_to_dict(t) for t in tasks]
 
     return render_template('task/task_done.html', order_id=order_id, tasks=tasks, datetime=datetime, Time=Time)
 
@@ -160,27 +161,11 @@ def task_clock(task_id, seconds_pass=0):
     return render_template('task/clock.html', task=task, minute=minute, seconds_pass=seconds_pass)
 
 
-@dataclass
-class TaskDossier:
-    name: str
-    hour: float=0
-    count: int=0
-
-
 @task_bp.route('/dossier')
 def task_dossier():
     """已完成任务档案"""
     tasks = Task.query.filter_by(uid=Login.current_id(), is_finish=True).order_by(Task.time_finish.desc()).all()  # 档案列表也将是时间逆序的
-    d = {}
-    for t in tasks:
-        if t.name not in d:
-            d[t.name] = TaskDossier(t.name)
-        ds = d[t.name]
-        ds.hour += t.use_minute / 60
-        ds.count += 1
-    dses = list(d.values())
-    for ds in dses:
-        ds.hour = round(ds.hour, 2)
+    dses = get_dossier(tasks=tasks)
     return render_template('task/task_dossier.html', dossier=dses)
 
 

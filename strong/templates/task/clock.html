@@ -64,6 +64,11 @@
         <source src="{{ url_for('static', filename='class.mp3') }}">
     </audio>
 
+    <!-- 持续媒体播放 - 防浏览器后台待机 方案C -->
+    <audio id="loop_music">
+        <source src="{{ url_for('static', filename='sound_of_rain.mp3') }}">
+    </audio>
+
     <div class="containerc">
         <!-- 备注：应该是分和秒？ -->
         <div class="timer">
@@ -76,7 +81,7 @@
         <button class="button-big" onclick="cancel()">丢弃</button>
         <button id="pause" class="button-big" onclick="pauseTimer()">暂停</button>
         <button class="button-big" onclick="submit()">完成</button>
-        <button id="btn_music" class="button-big">铃声</button>
+        <button id="btn_music" class="button-big">安静</button>
     </div>
 
 </body>
@@ -91,6 +96,11 @@
 
     var waitime = 0; // 暂停时长
     var pause_date = null;
+
+    // 循环白噪声 - 防手机上后台待机 方案C
+    var lmusic = $("#loop_music")[0];
+    lmusic.loop = true;
+    lmusic.play();
 
     // 1 计时更新
     function UpdateUI(t) {
@@ -149,38 +159,47 @@
     function resetCountDown() {
         maxtime = maxtime_init;
     }
+    var btn_stat = 0;
     $('#btn_music').click(function () {
-        // 用户没有和页面交互时，浏览器可能禁止自动播放
-        console.log(this)
-        $(this).text('请听...');
-        var music = $("#over_music")[0];
-
-        var btn = $(this);  // onenede需要保存btn的引用
-        music.onended = function () { btn.text('铃声'); }
-        music.play();
+        btn_stat ^= 1;
+        if (btn_stat == 1) {
+            $(this).text('背景声(关)');
+            lmusic.pause();
+        } else {
+            $(this).text('背景声(开)');
+            lmusic.play()
+        }
     });
 
     // 3 任务提交
+    var worker = null;
+    function exit() {
+        worker.terminate(); // 防止在打包app的页面栈里，换页面了还在后台计时
+        lmusic.pause();
+    }
     function submit() {
+        exit()
         var m = Math.round(passtime / 60);
         var s = parseInt(passtime);
         var url = `{{ url_for('task.task_submit', task_id=task.id) }}/${m}?next={{ request.endpoint }}&seconds_pass=${s}`;
-        window.location.href = url;
+        window.location.href = url;  // 切换路由
     }
     function cancel() {
+        exit()
         var url = "{{ url_for('task.task_doing') }}";
         window.location.href = url;
     }
 
     // 4 worker - 防浏览器后台待机 方案B
     var url = "{{ url_for('static', filename='js/clock.js') }}";
-    var worker = new Worker(url);
+    worker = new Worker(url);
     worker.postMessage({ command: "start" });
 
     worker.onmessage = function (e) {
         if (is_work) { UpdateTime(); }
         console.log('work...');
     };
+    
 </script>
 
 {% endblock %}

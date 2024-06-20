@@ -13,6 +13,7 @@
     width: 95%;
 }
 
+
 /* 小屏幕大字体 */
 @media screen and (max-width: 1000px) {
     body {
@@ -38,5 +39,10 @@
         margin-top: 3rem;
         height: 700px;
         width: 95%;
+    }
+    /* 修改bootstrap的模态框样式 */
+    .modal-dialog {
+        max-width: 75%;
+        margin: 1.75rem auto;
     }
 }

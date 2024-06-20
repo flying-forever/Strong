@@ -57,6 +57,6 @@ class BookForm(FlaskForm):
 class PlanForm(FlaskForm):
     '''@attributes: name, need_minute, submit'''
     name = StringField(label='计划名称', validators=[DataRequired('不能为空')])
-    need_minute = IntegerField(label='计划用时(m)', validators=[NumberRange(0, float("inf"), '应为正整数')], default=600)
-    taskname = StringField(label='绑定的任务名', default='?') 
+    need_hour = IntegerField(label='计划用时(h)', validators=[NumberRange(0, float("inf"), '应为正整数')], default=5)
+    taskname = StringField(label='绑定子任务', render_kw={"placeholder": "可输入现有的任务名"}) 
     submit = SubmitField(label='确定')

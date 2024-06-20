@@ -2,7 +2,7 @@ import datetime
 
 from flask import jsonify, render_template, redirect, url_for, Blueprint
 
-from strong.utils import Login, save_file, task_to_dict
+from strong.utils import Login, save_file, task_to_dict, get_dossier
 from strong.utils import flash_ as flash
 from strong.forms import UploadForm, PlanForm
 from strong.models import Task, Plan
@@ -19,6 +19,7 @@ def plan_create(plan_id=None):
     '''创建/更新计划'''
     # 备注：可以拆一下
     # 备注：没验证用户身份（修改别人数据）
+    # 备注：need_minute和hour的转换不利索。
 
     form = PlanForm()
     def gfd(name: str):
@@ -26,6 +27,7 @@ def plan_create(plan_id=None):
         return form.__dict__[name].data
     
     def bind_tp(taskname: str):
+        if not taskname: return
         tasks: Task = Task.query.filter(Task.uid==Login.current_id(), False==Task.is_finish, Task.name.like(f'%{taskname}%') ).all()
         for task in tasks:
             if task.plan_id is None:
@@ -35,7 +37,7 @@ def plan_create(plan_id=None):
     if form.validate_on_submit():
         if plan_id is None:
             # 创建
-            plan = Plan(name=gfd('name'), need_minute=gfd('need_minute'), uid=Login.current_id())
+            plan = Plan(name=gfd('name'), need_minute=gfd('need_hour') * 60, uid=Login.current_id())
             db.session.add(plan)
             db.session.commit()
             bind_tp(gfd('taskname'))
@@ -44,7 +46,7 @@ def plan_create(plan_id=None):
             # 更新
             plan = Plan.query.get(plan_id)
             plan.name = gfd('name')
-            plan.need_minute = gfd('need_minute')
+            plan.need_minute = gfd('need_hour') * 60
             bind_tp(gfd('taskname'))
             flash('修改成功')
             return redirect(url_for('.plan_update', plan_id=plan_id))
@@ -54,7 +56,7 @@ def plan_create(plan_id=None):
         plan = Plan.query.get(plan_id)
         bind_tasknames = list(set(t.name for t in plan.tasks))
         form.name.data = plan.name
-        form.need_minute.data = plan.need_minute
+        form.need_hour.data = plan.need_minute // 60
     return render_template('plugin/plan_form.html', form=form, bind_tasknames=bind_tasknames, plan_id=plan_id)
 
 
@@ -147,6 +149,7 @@ def plan_cover(plan_id):
 def plan_record(plan_id):
     '''@异步请求，计划的子任务'''
     tasks = Task.query.filter_by(uid=Login.current_id(), plan_id=plan_id).order_by(Task.time_finish.desc())
+    dses = get_dossier(tasks.filter_by(is_finish=True).all())  # 这里重复计算也没有多少计算量
     f = lambda is_finish: [task_to_dict(t) for t in tasks.filter_by(is_finish=is_finish).all()]
-    res = {'doing':f(False), 'done':f(True) }
+    res = {'doing':f(False), 'done':f(True), 'dossier':dses }
     return jsonify(res)

@@ -15,7 +15,8 @@ def register_context(app):
     @app.context_processor
     def make_template_context():
         """增加模板上下文变量"""
-        return dict(BooleanField=BooleanField, isinstance=isinstance)
+        host = app.config['HOST']
+        return dict(BooleanField=BooleanField, isinstance=isinstance, host=host)
 
 
 def register_getfile(app):
