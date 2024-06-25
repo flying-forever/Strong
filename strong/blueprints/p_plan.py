@@ -44,9 +44,10 @@ def plan_create(plan_id=None):
             return redirect(url_for('.plans'))
         else:
             # 更新
-            plan = Plan.query.get(plan_id)
+            plan: Plan = Plan.query.get(plan_id)
             plan.name = gfd('name')
             plan.need_minute = gfd('need_hour') * 60
+            db.session.commit()
             bind_tp(gfd('taskname'))
             flash('修改成功')
             return redirect(url_for('.plan_update', plan_id=plan_id))
