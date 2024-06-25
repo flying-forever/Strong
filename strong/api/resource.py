@@ -1,8 +1,8 @@
-from flask import jsonify, Blueprint, current_app, request
+from flask import jsonify, Blueprint, current_app, make_response, redirect, request, url_for
 from flask_cors import CORS
 from strong import db
 from strong.models import User, Task
-from strong.utils import get_level
+from strong.utils import get_level, Login
 import time
 from datetime import datetime
 
@@ -14,12 +14,45 @@ CORS(api_bp)
 # -------------------------------- 一、尝试接口：task ------------------------------ #
 
 
+def token_encode(uid):
+    return f'hello{uid}'
+
+
+def token_decode(token):
+    return int(token[5:]) if token else None
+
+
 user: User
 @api_bp.before_request
 def before_request():
     '''默认使用用户1'''
     global user
-    user = User.query.get(1)
+    uid = token_decode(request.headers.get('Authorization') or '')
+    user = User.query.get(uid)
+
+
+@api_bp.route('/login', methods=['POST'])
+def login():
+
+    def user2dict(user):
+        return {
+            'username': user.name,
+            'token': token_encode(user.id),
+        }
+    data = request.json
+
+    # 验证用户名和密码以完成登录
+    user = User.query.filter_by(name=data['username']).first()
+    if (user is not None) and (data['password'] == user.password):
+        Login.login(user=user)
+        
+        # 使用cookie记住登录
+        r = jsonify(**{'ok':True}, **(user2dict(user)))
+        response = make_response(r)
+        if data['remenber'] is True:
+            response.set_cookie('remenber_user', value=str(user.id), max_age=20)
+        return response
+    return jsonify({'ok':False})
 
 
 @api_bp.route('/hello')
