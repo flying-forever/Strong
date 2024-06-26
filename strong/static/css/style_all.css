@@ -13,14 +13,71 @@
     width: 95%;
 }
 
+div[id*="chart"] {
+    /* 数据图表-块背景 */
+    background-color: #fbfbfb;
+    border: 1px solid #eee;
+    border-radius: 10px;
+}
 
-/* 小屏幕大字体 */
+.h-inline {
+    /* h标签不换行 */
+    display: inline;
+}
+
+
+@media screen and (min-width: 1001px) {
+    .hide-lg {
+        display: none;
+    }
+}
+
+/* 手机端适配 */
 @media screen and (max-width: 1000px) {
+    /* 手机端 - 底部导航栏 */
+    body{
+        padding-bottom: 8rem;  /* 底部导航栏高度 */
+    }
+    .icon-size {
+        font-size: 5rem;
+    }
+    a.icon-size {
+        text-decoration: none; /* 不要下划线 */
+        color: inherit;
+    }
+    .nav-buttom {
+        padding-inline: 6rem;
+    }
+    .hide-sm {
+        display: none;
+    }
+    .c-expand {
+        max-width: 100%;
+        flex: auto;
+    }
+    /* 手机端头像别被压瘪了 */
+    .c-col-2-5 {
+        max-width: calc((100% / 12) * 2.5);
+        flex: auto;
+    }
+
+
     body {
         font-size: 1.5rem;
     }
     h5, h6 {
         font-size: 1.5rem;
+    }
+
+    /* 对一些字体大小区别调整 */
+    .mt-info {
+        font-size: 1.2rem;
+    }
+    .mt-title {
+        font-size: 2.0rem;
+    }
+    .mt-hide {
+        display: none;
     }
     /* 左侧导航栏 */
     .btn-group-vertical a {
@@ -29,6 +86,7 @@
     .btn {
         font-size: 1.5rem;
     }
+
     /* 图由宽而长 */
     .showchart {
         margin-top: 3rem;

@@ -54,8 +54,8 @@
                     <img src="{{ url_for('static', filename='img/tl.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
                 {% endif %}
     
-                <h4 display="inline;">{{ plan.name }}</h4>
-                <div style="margin-left: auto;">
+                <h5 class="mt-title" display="inline;" >{{ plan.name }}</h5>
+                <div class="mt-hide" style="margin-left: auto;">
                     <i class="ri-medal-line"></i>
                     <label>{{ plan.use_hour }}/{{ plan.need_hour }}h</label>
                 </div>

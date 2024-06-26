@@ -9,8 +9,8 @@
     {% block title %}<title> Strong </title>{% endblock %}
 
     <!-- 备注：cdn最好下载下来 -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.jpg') }}"> <!-- 网站logo -->
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.jpg') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">  
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style_all.css') }}">
 
@@ -59,11 +59,11 @@
     {% endblock %}
 
     {% block contain %}
-    <div class="container-fluid">
+    <div class="container-fluid c-expand">
         <div class="row">
 
             {# 2 侧栏 #}
-            <div class="col-1">
+            <div class="col-1 hide-sm">
                 {% block sidebar %}
                 <div class="btn-group-vertical" role="group" aria-label="Basic example">
                     <a href="{{ url_for('auth.home') }}" role="button"
@@ -77,9 +77,28 @@
                 </div>
                 {% endblock sidebar %}
             </div>
+            <!-- 底部导航栏版本 -->
+            <nav class="navbar hide-lg fixed-bottom navbar-light bg-light nav-buttom">
+                <div class="nav-item">
+                    <a href="{{ url_for('auth.home') }}" class="ri-user-smile-line icon-size"></a>
+                    <span>首页</span>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ url_for('task.task_doing') }}" class="ri-todo-line icon-size"></a>
+                    <span>Todo</span>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ url_for('data.index') }}" class="ri-pie-chart-line icon-size"></a>
+                    <span>数据</span>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ url_for('auth.following') }}" class="ri-wechat-line icon-size"></a>
+                    <span>朋友</span>
+                </div>
+            </nav>            
 
             {# 3 面板 #}
-            <div class="col-10">
+            <div class="col-10 c-expand">
 
                 {# 4 消息闪现-上部 #}
                 {{ flash_messages() }}

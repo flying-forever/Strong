@@ -24,7 +24,7 @@
 
 
 {% block show %}
-<div id="main" class="container-fluid showchart"></div>
+<div id="chart" class="container-fluid showchart"></div>
 <!-- 2 标签修改，模态框 -->
 <div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
@@ -67,7 +67,7 @@
 
 <!-- 3 星图，echarts -->
 <script type="text/javascript">
-    var myChart = echarts.init(document.getElementById('main'), 'wonderland');
+    var myChart = echarts.init(document.getElementById('chart'), 'wonderland');
     var datas = {{ datas | tojson | safe }};  // tojson过滤，将True变成true
     var option;  // 以便事件监听，动态更新
 

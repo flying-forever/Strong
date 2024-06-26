@@ -4,6 +4,7 @@
 {% from 'plugin/#plan_detail.html' import plan_detail %}
 {% block ac_doing %} active {% endblock %}
 
+
 {% block top_bar %}
 <a class="btn btn-success" href="{{ url_for('.task_create') }}" role="button">+任务</a>
 <a class="btn btn-info" href="{{ url_for('plan.plan_create') }}" style="margin-left: 5px;">+计划</a>
@@ -23,12 +24,13 @@
     {% set task = tasks[index] %}
     <div class="col-6">
         <li class="list-group-item" style="margin-top: 2px; background-color:rgb(250, 250, 250);">
-            <h6 class="list-group-item-heading" {% if task.task_type == 1 %} style="color:green;" {% endif %}>
-                <small>#{{ task.id }}</small> {{ task.name }}
-            </h6>
+            <div class="list-group-item-heading">
+                <small>#{{ task.id  }}</small> 
+                <h6 class="h-inline mt-title" {% if task.task_type == 1 %} style="color:green;" {% endif %}>{{ task.name }}</h6>
+            </div>
             <div class="row">
                 <div class="col">
-                    <small><p class="list-group-item-text">预计用时: {{ task.need_minute }}m</p></small>
+                    <small><p class="list-group-item-text">用时: {{ task.need_minute }}m</p></small>
                     
                 </div>
                 <div style="margin-left:auto; margin-right: 10px;">
