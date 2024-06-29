@@ -16,6 +16,7 @@
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-1.11.3.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script> <!-- socket.io -->
 
     <!-- echarts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
@@ -65,15 +66,23 @@
             {# 2 侧栏 #}
             <div class="col-1 hide-sm">
                 {% block sidebar %}
-                <div class="btn-group-vertical" role="group" aria-label="Basic example">
+                <style>
+                    /* 备注：感觉写和组件写在一块才方便看 */
+                    div.vertical-buttom {
+                        width: 100%;
+                    }
+                </style>
+                <div class="btn-group-vertical vertical-buttom" role="group" aria-label="Basic example">
                     <a href="{{ url_for('auth.home') }}" role="button"
-                        class="btn py-2 {% block active_home %}{% endblock %}">我的主页</a>
+                        class="btn py-2 {% block active_home %}{% endblock %}">首页</a>
                     <a href="{{ url_for('task.task_doing') }}" role="button"
-                        class="btn py-2 {% block active_task %}{% endblock %}">任务堂</a>
+                        class="btn py-2 {% block active_task %}{% endblock %}">ToDo</a>
                     <a href="{{ url_for('data.index') }}" role="button"
-                        class="btn py-2 {% block active_data %}{% endblock %}">学习统计</a>
+                        class="btn py-2 {% block active_data %}{% endblock %}">数据</a>
                     <a href="{{ url_for('auth.following') }}" role="button"
-                        class="btn py-2 {% block active_social %}{% endblock %}">找朋友</a>
+                        class="btn py-2 {% block active_social %}{% endblock %}">朋友</a>
+                    <a href="{{ url_for('try.chat') }}" role="button"
+                        class="btn py-2 {% block active_try %}{% endblock %}">开发中</a>
                 </div>
                 {% endblock sidebar %}
             </div>

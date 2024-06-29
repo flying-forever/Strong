@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from flask import session
 from typing import ClassVar
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from strong import db
 from strong.set import Clf
@@ -78,6 +79,14 @@ class User(db.Model):
     books = db.relationship('Book', back_populates='user')
     tags = db.relationship('Tag', back_populates='user')
     plans = db.relationship('Plan', back_populates='user')
+
+    def set_password(self, password):
+        '''hash的'''
+        self.password_hash = generate_password_hash(password)
+
+    def validate_password(self, password):
+        '''使用hash，但兼容明文密码的支持'''
+        return check_password_hash(self.password, password) or (self.password == password)
 
     def __str__(self) -> str:
         return f"<User id={self.id} name='{self.name}' exp={self.exp}>"

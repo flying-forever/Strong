@@ -198,4 +198,4 @@ def task_restart(task_name):
 @task_bp.route('/test')
 def test():
     """用于尝试一些新功能，或样式。"""
-    return render_template('data/data3.html')
+    return render_template('_test.html')

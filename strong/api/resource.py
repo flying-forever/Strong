@@ -1,8 +1,13 @@
-from flask import jsonify, Blueprint, current_app, make_response, redirect, request, url_for
+from flask.views import MethodView
+from flask import g, jsonify, Blueprint, current_app, make_response, redirect, request, url_for
 from flask_cors import CORS
+
 from strong import db
+from strong.api.auth import generate_token, auth_required
+from strong.api.errors import api_abort
 from strong.models import User, Task
 from strong.utils import get_level, Login
+
 import time
 from datetime import datetime
 
@@ -11,137 +16,52 @@ api_bp = Blueprint('api', __name__)
 CORS(api_bp)
 
 
-# -------------------------------- 一、尝试接口：task ------------------------------ #
+# -------------------------------- API、使用类组织资源 ------------------------------ #
 
 
-def token_encode(uid):
-    return f'hello{uid}'
+class AuthTokenAPI(MethodView):
 
+    def post(self):
+        grant_type = request.form.get('grant_type')
+        username = request.form.get('username')
+        password = request.form.get('password')
 
-def token_decode(token):
-    return int(token[5:]) if token else None
+        if grant_type is None or grant_type.lower() != 'password':
+            return api_abort(code=400, message='The grant type must be password.')
 
+        user: User = User.query.filter_by(name=username).first()
+        if user is None or not user.validate_password(password):
+            return api_abort(code=400, message='Either the username or password was invalid.')
 
-user: User
-@api_bp.before_request
-def before_request():
-    '''默认使用用户1'''
-    global user
-    uid = token_decode(request.headers.get('Authorization') or '')
-    user = User.query.get(uid)
+        token = generate_token(user.id)
 
-
-@api_bp.route('/login', methods=['POST'])
-def login():
-
-    def user2dict(user):
-        return {
-            'username': user.name,
-            'token': token_encode(user.id),
-        }
-    data = request.json
-
-    # 验证用户名和密码以完成登录
-    user = User.query.filter_by(name=data['username']).first()
-    if (user is not None) and (data['password'] == user.password):
-        Login.login(user=user)
-        
-        # 使用cookie记住登录
-        r = jsonify(**{'ok':True}, **(user2dict(user)))
-        response = make_response(r)
-        if data['remenber'] is True:
-            response.set_cookie('remenber_user', value=str(user.id), max_age=20)
+        response = jsonify({
+            'access_token': token,
+            'token_type': 'Bearer',
+        })
+        response.headers['Cache-Control'] = 'no-store'  # 告诉浏览器和代理服务器不要存储副本
+        response.headers['Pragma'] = 'no-cache'
         return response
-    return jsonify({'ok':False})
+
+
+class UserAPI(MethodView):
+
+    decorators = [auth_required]
+
+    def get(self):
+        user = g.current_user
+        r = {'name': user.name, 'level': get_level(exp=user.exp)}
+        return jsonify(r)
+
+
+api_bp.add_url_rule('/oauth/token', view_func=AuthTokenAPI.as_view('token'), methods=['POST'])  # as_view设置端点值
+api_bp.add_url_rule('/user', view_func=UserAPI.as_view('user'), methods=['GET'])
+
+
+# -------------------------------- 老的 ------------------------------ #
 
 
 @api_bp.route('/hello')
 def hello():
-    r = {'name':user.name, 'level':get_level(exp=user.exp)}
+    r = {'name':'名字', 'level':'等级'}
     return jsonify(r)
-
-
-def task_to_dict(task: Task):
-    return {
-        'id': task.id,
-        'name': task.name,
-        'use_minute': task.use_minute
-    }
-
-
-@api_bp.route('/task_done')
-def task_done():
-    ts = time.time()
-
-    tasks: list[Task] = Task.query.filter(Task.uid==user.id, Task.is_finish==True).all()
-    t_tasks = time.time()
-
-    r = {'tasks': [task_to_dict(task) for task in tasks]}
-    t_r = time.time()
-
-    res = jsonify(r)
-    t_js = time.time()
-
-    print(f'[time] t_query={t_tasks-ts}, t_r={t_r-t_tasks}, t_js={t_js-t_r}')
-    return res
-
-
-@api_bp.route('/task_doing')
-def task_doing():
-    tasks: list[Task] = Task.query.filter_by(uid=user.id, is_finish=False).all()
-    r = {'tasks': [task_to_dict(task) for task in tasks]}
-    return jsonify(r)
-
-
-@api_bp.route('/task_create', methods=['POST'])
-def task_create():
-    # 解析json数据, 获取name和exp，新建task
-    data = request.json     ;print(f'[task create] {data}')
-    task = Task(name=data['name'], exp=data['exp'], uid=user.id)
-    db.session.add(task)
-    db.session.commit()
-    return jsonify(task_to_dict(task)), 201
-
-
-@api_bp.route('/task_delete', methods=['POST'])
-def task_delete():
-    data = request.json
-    task = Task.query.get(data['id'])       ;print(f'[task delete] {data},{task}')
-    db.session.delete(task)
-    db.session.commit()
-    return jsonify({'success':True})
-
-
-@api_bp.route('/task_submit', methods=['POST'])
-def task_submit():
-    '''@data: {id, name, use_minute, describe}'''
-
-    # 1 获取数据
-    data = request.json  ;print(f'[task submit] {data}')
-    task = Task.query.get(data['id'])
-    # 2 备注：没有验证数据(wtf会有csrf问题)
-    
-    def data_commit(task):
-        task.is_finish = True
-        task.use_minute = data['use_minute']
-        task.describe = data['describe']
-        db.session.commit()
-        return jsonify({'success':True})
-    
-    # 3 修改旧提交记录 -> 直接修改
-    if task.is_finish:
-        return data_commit(task)
-    
-    # 4-1 提交重复任务 -> 新拷贝
-    if task.task_type == 1:
-        task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
-            uid=task.uid, task_type=task.task_type, bid=task.bid, tag_id=task.tag_id)
-        db.session.add(task_new)
-
-    # 4-2 增加经验
-    user.exp += task.exp 
-    task.is_finish = True
-    task.time_finish = datetime.utcnow() # 记录初次提交的时间
-    return data_commit(task)
-
-
