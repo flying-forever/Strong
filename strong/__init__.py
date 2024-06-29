@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_socketio import SocketIO
+# from flask_socketio import SocketIO
 import pymysql
 import os
 
@@ -18,7 +18,7 @@ migrate = Migrate()
 # 其它扩展实例化
 from flask_avatars import Avatars 
 avatars = Avatars()  # 处理用户头像
-socketio = SocketIO()
+# socketio = SocketIO()
 
 
 def create_app(config_py=None):
@@ -30,14 +30,14 @@ def create_app(config_py=None):
     app.config.from_object(config[config_name])
 
     # 注册蓝图
-    from strong.blueprints import auth_bp, task_bp, data_bp, book_bp, plan_bp, tag_bp, try_bp
+    from strong.blueprints import auth_bp, task_bp, data_bp, book_bp, plan_bp, tag_bp #, try_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(task_bp, url_prefix='/task')
     app.register_blueprint(data_bp, url_prefix='/data')
     app.register_blueprint(book_bp, url_prefix='/book')
     app.register_blueprint(plan_bp, url_prefix='/plan')
     app.register_blueprint(tag_bp, url_prefix='/tag')
-    app.register_blueprint(try_bp, url_prefix='/try')
+    # app.register_blueprint(try_bp, url_prefix='/try')
 
     # 注册api版本
     from strong.api import api_bp
@@ -57,6 +57,6 @@ def create_app(config_py=None):
     db.init_app(app)
     migrate.init_app(app, db)
     avatars.init_app(app)
-    socketio.init_app(app)
+    # socketio.init_app(app)
 
     return app

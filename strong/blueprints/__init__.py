@@ -4,7 +4,7 @@ from strong.blueprints.task import task_bp
 from strong.blueprints.p_book import book_bp
 from strong.blueprints.p_plan import plan_bp
 from strong.blueprints.p_tag import tag_bp
-from strong.blueprints.trys import try_bp
+# from strong.blueprints.trys import try_bp
 
 from strong.wraps import login_required
 

@@ -81,8 +81,10 @@
                         class="btn py-2 {% block active_data %}{% endblock %}">数据</a>
                     <a href="{{ url_for('auth.following') }}" role="button"
                         class="btn py-2 {% block active_social %}{% endblock %}">朋友</a>
-                    <a href="{{ url_for('try.chat') }}" role="button"
-                        class="btn py-2 {% block active_try %}{% endblock %}">开发中</a>
+                    {#
+                        <a href="{{ url_for('try.chat') }}" role="button"
+                            class="btn py-2 {% block active_try %}{% endblock %}">开发中</a>
+                    #}
                 </div>
                 {% endblock sidebar %}
             </div>
