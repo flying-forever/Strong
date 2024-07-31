@@ -220,7 +220,7 @@
             modal.find('.modal-title').text(params.name);
             modal.find('input#tagname').val(params.name);
             modal.find('input#tagid').val(params.data.id);  // 
-
+            
             // 找父节点
             find_parent = function (node) {
                 var childs = node.children;
@@ -233,7 +233,9 @@
                     }
                 }
             }
-            var root = option.series[0].data[0];
+            // 数据格式：0(tree)是[root]，1(map)是[tag1, tag2, ...]
+            var data = option.series[0].data;
+            var root = current_chart ? {children:data} : data[0];
             find_parent(root)
         }
     )

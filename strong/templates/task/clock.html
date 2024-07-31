@@ -64,9 +64,14 @@
         <source src="{{ url_for('static', filename='class.mp3') }}">
     </audio>
 
-    <!-- 持续媒体播放 - 防浏览器后台待机 方案C -->
     <audio id="loop_music">
-        <source src="{{ url_for('static', filename='sound_of_rain.mp3') }}">
+        <!-- 持续媒体播放 - 防浏览器后台待机 方案C -->
+        <source src="{{ url_for('static', filename='learn_low.mp3') }}">
+    </audio>
+
+    <audio id="quiet_music">
+        <!-- 低分贝假装静音，因为要保持后台运行 -->
+        <source src="{{ url_for('static', filename='nearly_quiet.mp3') }}">
     </audio>
 
     <div class="containerc">
@@ -101,6 +106,9 @@
     var lmusic = $("#loop_music")[0];
     lmusic.loop = true;
     lmusic.play();
+
+    var qmusic = $("#quiet_music")[0];
+    qmusic.loop = true;
 
     // 1 计时更新
     function UpdateUI(t) {
@@ -163,10 +171,12 @@
     $('#btn_music').click(function () {
         btn_stat ^= 1;
         if (btn_stat == 1) {
-            $(this).text('背景声(关)');
-            lmusic.pause();
+            $(this).text('音乐(关)');
+            lmusic.pause()
+            qmusic.play()
         } else {
-            $(this).text('背景声(开)');
+            $(this).text('音乐(开)');
+            qmusic.pause()
             lmusic.play()
         }
     });

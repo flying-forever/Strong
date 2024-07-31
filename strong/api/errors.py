@@ -2,6 +2,7 @@ from flask import jsonify
 
 
 def api_abort(code, message=None, **kwargs):
+    # 客户端可以在错误的response部分看见message
     response = jsonify(code=code, message=message, **kwargs)
     return response, code
 

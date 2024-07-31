@@ -31,6 +31,7 @@ class AuthTokenAPI(MethodView):
 
         user: User = User.query.filter_by(name=username).first()
         if user is None or not user.validate_password(password):
+            print(f'[error] {username} {password}')
             return api_abort(code=400, message='Either the username or password was invalid.')
 
         token = generate_token(user.id)

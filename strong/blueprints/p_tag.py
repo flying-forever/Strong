@@ -33,10 +33,18 @@ def tag_update(tag_id, tag_name, pid, uid, **kwargs):
     return True
 
 
-def task_bind_update(task_name, pid, uid, **kwargs):
+def task_update(task_id, task_name, pid, uid, **kwargs):
     '''pid: int | None  (服务器python太老，不支持这样注解)'''
     print('task_name:', task_name, 'pid:', pid)
-    tasks = Task.query.filter(Task.name==task_name, Task.uid==uid).all()
+    tname_old = Task.query.filter(Task.id==task_id).first().name
+    tasks = Task.query.filter(Task.name==tname_old, Task.uid==uid).all()
+
+    # 修改任务名 - 所有同名记录（备注：未判断合并冲突，而且独立出来是不是更好？）
+    if tname_old != task_name:
+        print(f'[change task name]...{tname_old}->{task_name}')
+        for t in tasks:
+            t.name = task_name
+            
     # print('tasks,', tasks)
     for t in tasks:
         t.tag_id = pid
@@ -56,7 +64,7 @@ def tag_node():
     pid = Tag.query.filter(Tag.name==pname, Tag.uid==uid).first().id if pname else None
 
     # 2 判断操作类型
-    ops = [tag_create, tag_update, task_bind_update]
+    ops = [tag_create, tag_update, task_update]
     messages = ['创建出错，标签名不能重复', '标签更新出错', '任务绑定出错']
     if '' == node_id:
         op = 0
@@ -65,7 +73,7 @@ def tag_node():
     else:
         op = 2
     res = {}
-    res['success'] = ops[op](uid=uid, tag_id=node_id, pid=pid, tag_name=name, task_name=name)
+    res['success'] = ops[op](uid=uid, tag_id=node_id, pid=pid, tag_name=name, task_name=name, task_id=int(node_id)-Clf.idOffset)
     res['message'] = messages[op] if not res['success'] else ''
     return jsonify(res)
     
