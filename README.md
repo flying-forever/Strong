@@ -75,13 +75,15 @@ flask db migrate	# 进行迁移，即在migrations中生成创建数据表所需
 flask db upgrade	# 执行迁移，运行刚刚生成的脚本，此时你的mysql中就有新的数据表了
 ```
 
-配置数据库的连接，写上你自己mysql的用户名和密码。找到文件`config.py`，修改变量`SQLALCHEMY_DATABASE_URI`的值。文件中有`BaseConfig`和`DevelopmentConfig`两个类中都有这个变量，默认是用的base的。
+配置数据库的连接，写上你自己mysql的用户名和密码。找到文件`config.py`，修改变量`SQLALCHEMY_DATABASE_URI`的值。文件中有`BaseConfig`和`RunConfig`两个类中都有这个变量，默认是用的base的。
 
 ```bash
 SQLALCHEMY_DATABASE_URI = 'mysql://<用户名>:<密码>@127.0.0.1:3306/<数据库名字>'
 ```
 
 **4 运行**
+
+启动配置。修改`.flaskenv`文件的`FLASK_CONFIG`变量，将允许你以`config.py`中不同的配置启动服务。
 
 有两种方式，一种是运行`manage.py`文件，在命令行输入
 
