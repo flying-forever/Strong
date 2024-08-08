@@ -144,9 +144,9 @@ def tree_data(time_id=1):
 
     # [choice 时间选择]
     user: User = Login.current_user()
-    gaps = [10**5, 7, 30, 90]
-    tasks = [task for task in user.tasks if abs(task.time_finish - datetime.utcnow()) < timedelta(days=gaps[time_id])]
-    
+    gaps = [10**5, 1, 7, 30, 90]
+    tasks = [task for task in user.tasks if abs(task.time_finish.date() - datetime.utcnow().date()) < timedelta(days=gaps[time_id])]
+
     nodes: dict[int, Node] = {}  # id->node
 
     # 1 构建树，计算值
