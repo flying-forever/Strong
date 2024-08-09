@@ -344,7 +344,7 @@ def import_user():
 def today_time(user: User):
     '''指定用户今天的学习时间'''
     now = datetime.utcnow()
-    times = [t.use_minute for t in user.tasks if t.get_time_finish().day == now.day 
+    times = [t.use_minute for t in user.tasks if t.time_finish_local().day == now.day 
              and t.time_finish.month == now.month 
              and t.time_finish.year == now.year]
     time = round(sum(times) / 60.0, 2) 

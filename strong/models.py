@@ -42,7 +42,7 @@ class Task(db.Model):
     def __str__(self) -> str:
         return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
     
-    def get_time_finish(self):
+    def time_finish_local(self):
         '''北京时区'''
         return self.time_finish + timedelta(hours=8)
 
@@ -154,14 +154,17 @@ class Plan(db.Model):
     def __str__(self) -> str:
         return f"<Plan id={self.id} name={self.name} uid={self.uid}>"
 
-    def get_use_h(self, wei=2, dis_day=0):
+    def get_use_h(self, wei=2, dis_day=0, local_t=True):
         '''
         use_minute -> hour
-        @dis_day: 0（默认）是全部。1是今天，-1和1互补。'''
-        def in_time(t):
+        @dis_day: 0（默认）是全部。1是今天，-1和1互补。
+        @wei: 保留小数精度'''
+        add_t = timedelta(hours=8) if local_t else timedelta(hours=0)
+
+        def in_time(t: Task):
             # 离散的天数，而不是时间间隔大于有多少个24小时
-            today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-            finish_day = t.time_finish.replace(hour=0, minute=0, second=0, microsecond=0)
+            today = (datetime.utcnow() + add_t).replace(hour=0, minute=0, second=0, microsecond=0)
+            finish_day = t.time_finish_local().replace(hour=0, minute=0, second=0, microsecond=0)
             if dis_day > 0:
                 return (today - finish_day).days < dis_day
             else:
