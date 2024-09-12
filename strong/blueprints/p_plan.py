@@ -150,7 +150,7 @@ def plan_cover(plan_id):
 def plan_record(plan_id):
     '''@异步请求，计划的子任务'''
     tasks = Task.query.filter_by(uid=Login.current_id(), plan_id=plan_id).order_by(Task.time_finish.desc())
-    dses = get_dossier(tasks.filter_by(is_finish=True).all())  # 这里重复计算也没有多少计算量
+    dses = get_dossier(tasks.filter_by(is_finish=True).all(), sort='hour')  # 这里重复计算也没有多少计算量
     f = lambda is_finish: [task_to_dict(t) for t in tasks.filter_by(is_finish=is_finish).all()]
     res = {'doing':f(False), 'done':f(True), 'dossier':dses }
     return jsonify(res)

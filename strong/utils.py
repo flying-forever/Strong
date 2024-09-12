@@ -145,7 +145,9 @@ class TaskDossier:
     count: int=0
 
 
-def get_dossier(tasks: list[Task]):
+def get_dossier(tasks: list[Task], sort: str=None):
+    '''@sort: 默认按任务完成时间排序。'hour'按累积小时排序'''
+    
     d = {}
     for t in tasks:
         if t.name not in d:
@@ -156,6 +158,8 @@ def get_dossier(tasks: list[Task]):
     dses = list(d.values())
     for ds in dses:
         ds.hour = round(ds.hour, 2)
+    if sort == 'hour':
+        dses.sort(key=lambda ds: ds.hour, reverse=True)
     return dses
 
 
