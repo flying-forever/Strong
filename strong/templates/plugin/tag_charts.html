@@ -144,7 +144,7 @@
                     itemStyle: {
                         borderColor: '#555',
                         borderWidth: 5,
-                        gapWidth: 1
+                        gapWidth: 1,
                     },
                     emphasis: {
                         itemStyle: {
@@ -153,13 +153,21 @@
                     }
                 },
                 {
-                    colorSaturation: [0.35, 0.5],
+                    itemStyle: {
+                        borderWidth: 2,
+                        gapWidth: 1,
+                        borderColorSaturation: 0.7,
+                    }
+                },
+                {
+                    colorSaturation: [0.35, 0.4],
                     itemStyle: {
                         borderWidth: 5,
                         gapWidth: 1,
-                        borderColorSaturation: 0.6
+                        borderColorSaturation: 0.6, // 边框饱和度
                     }
-                }
+                },     
+                
             ];
         }
         function getToolOption(info) {

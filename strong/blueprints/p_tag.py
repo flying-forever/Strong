@@ -61,7 +61,8 @@ def tag_node():
     pname = request.form.get('pname')
 
     uid = Login.current_id()
-    pid = Tag.query.filter(Tag.name==pname, Tag.uid==uid).first().id if pname else None
+    try: pid = Tag.query.filter(Tag.name==pname, Tag.uid==uid).first().id if pname else None  
+    except: pid = None  # pname传过来可能是用户名或other，实际上没有父节点
 
     # 2 判断操作类型
     ops = [tag_create, tag_update, task_update]
@@ -73,7 +74,7 @@ def tag_node():
     else:
         op = 2
     res = {}
-    res['success'] = ops[op](uid=uid, tag_id=node_id, pid=pid, tag_name=name, task_name=name, task_id=int(node_id)-Clf.idOffset)
+    res['success'] = ops[op](uid=uid, tag_id=node_id, pid=pid, tag_name=name, task_name=name, task_id=int(node_id)-Clf.idOffset if node_id else None)
     res['message'] = messages[op] if not res['success'] else ''
     return jsonify(res)
     
