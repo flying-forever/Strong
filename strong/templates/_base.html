@@ -21,6 +21,7 @@
     <!-- echarts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <script src="https://www.runoob.com/static/js/wonderland.js"></script>
+    <script src="{{ url_for('static', filename='js/_echarts_config.js') }}"></script>
     {% endblock head %}
 </head>
 
@@ -121,7 +122,6 @@
         </div>
     </div>
     {% endblock %}
-
 </body>
 
 </html>

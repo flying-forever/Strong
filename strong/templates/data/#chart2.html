@@ -1,6 +1,6 @@
 {% macro chart2(month, year, uid) %}
 <script type="text/javascript">
-    // 6 删除标签 - 异步请求
+    // 日况
     $(document).ready(function () {
         $.ajax({
             url: "{{ url_for('data.get_data') }}",
@@ -77,7 +77,16 @@
                         lineStyle: {
                             width: 0,  //隐藏线条
                         },
-                    },]
+                    },],
+                    
+                    media: mergeMedia([{
+                        query: {maxHeight: 1000},
+                        option: {
+                            title:{
+                                left: 'right',
+                            }
+                        }
+                    }]),
                 };
 
                 // 使用刚指定的配置项和数据显示图表。

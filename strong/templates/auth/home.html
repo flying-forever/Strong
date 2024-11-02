@@ -5,12 +5,6 @@
 {% block head %}
 {{ super() }}
 <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<style>
-    .chart {
-        width: 800px;
-        height: 500px;
-    }
-</style>
 {% endblock head %}
 
 
@@ -48,6 +42,18 @@
 <div class="row" style="height:30;"></div>
 <div class="row">
     <div class="col-8">
+        <style>
+            .chart {
+                width: 100%;
+                height: 65vh;
+            }
+            @media screen and (max-width: 1000px) {
+                .chart {
+                    width: 95vw;
+                    height: 34vh;
+                }
+            }
+        </style>
         <div id="chart2" class="chart container-fluid pl-6 pr-0"></div>
         {% from 'data/#chart2.html' import chart2 %}
         {{ chart2() }}
@@ -61,4 +67,26 @@
         {% include 'auth/#rank.html' %}
     </div>
 </div>
+
+<script>
+    // 上面一个图表的标题靠右会遮住排行榜
+    function waitForChart() {
+        var chartDom = document.getElementById('chart2');
+        var myChart = echarts.getInstanceByDom(chartDom);
+        
+        if (myChart) {
+            // 图表已渲染，隐藏标题
+            myChart.setOption({
+                title: {
+                    show: false
+                }
+            });
+        } else {
+            // 图表还未渲染，100毫秒后再次检查
+            setTimeout(waitForChart, 2500);
+        }
+    }
+    // 开始检查
+    waitForChart();
+</script>
 {% endblock %}

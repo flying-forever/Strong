@@ -4,6 +4,8 @@
 
 <!-- 折线图，两条线之间用颜色填充 -->
 {% block show %}
-<div id="chart2" class="container-fluid showchart_data"></div>
+<div class="chart_container">
+    <div id="chart2" class="container-fluid showchart_data"></div>
+</div>
 {{ chart2(month, year, uid) }}
 {% endblock show %}

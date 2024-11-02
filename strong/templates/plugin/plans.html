@@ -17,9 +17,9 @@
 
 {% block show %}
 {% macro plan_list(plans, is_doing) %}
-<div class="row">
+<div class="row container-fluid">
     {% for plan in plans %}
-    <div class="book vertical-layout">
+    <div class="book vertical-layout col-4 col-lg-3">
         <!-- 封面适应 -->
         {% if plan['cover'] %}
             <img src="{{ url_for('getfile', filename=plan.cover) }} " alt="plan" style="height: 200px; width: 175px;">

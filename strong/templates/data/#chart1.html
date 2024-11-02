@@ -1,7 +1,7 @@
 {% macro chart1(month, year, uid) %}
 <script type="text/javascript">
+    // 堆叠
     // 备注：异步方式切换页面会有闪白，而原模板渲染没有
-    // 6 删除标签 - 异步请求
     $(document).ready(function () {
         $.ajax({
             url: "{{ url_for('data.get_data') }}",
@@ -46,7 +46,15 @@
                             name: '本月',
                             type: 'line',
                             data: dataA
-                        }]
+                        }],
+                    media: mergeMedia([{
+                        query: {maxHeight: 1000},
+                        option: {
+                            title:{
+                                left: 'right',
+                            }
+                        }
+                    }]),
                 };
 
                 // 使用刚指定的配置项和数据显示图表。

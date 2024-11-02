@@ -15,8 +15,8 @@
 
 div[id*="chart"] {
     /* 数据图表-块背景 */
-    background-color: #fbfbfb;
-    border: 1px solid #eee;
+    background-color: #f0f5f9;
+    border: 3px solid #eee;
     border-radius: 10px;
 }
 
@@ -26,6 +26,16 @@ div[id*="chart"] {
 }
 
 
+.chart_container {
+    /* 日时间分布图的容器，旋转用 */
+    height: 92vh;  
+    background-color: #c9d6df; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
 @media screen and (min-width: 1001px) {
     .hide-lg {
         display: none;
@@ -33,10 +43,11 @@ div[id*="chart"] {
 }
 
 /* 手机端适配 */
+/* 媒体查询要放在后边才行，否则仍然可以覆盖 */
 @media screen and (max-width: 1000px) {
     /* 手机端 - 底部导航栏 */
     body{
-        padding-bottom: 8rem;  /* 底部导航栏高度 */
+        padding-bottom: 10rem;  /* 底部导航栏高度8rem，以防遮盖内容 */
     }
     .icon-size {
         font-size: 5rem;
@@ -89,15 +100,23 @@ div[id*="chart"] {
 
     /* 图由宽而长 */
     .showchart {
-        margin-top: 3rem;
-        height: 1200px;
+        /* 视口单位vh是相对于视口（浏览器窗口）的尺寸。 */
+        margin-top: 2rem;
+        height: calc(100vh - 12rem - 12rem); /* 减去可能的顶、底部导航栏高度 */
         width: 95%;
     }
     .showchart_data {
-        margin-top: 3rem;
-        height: 700px;
         width: 95%;
+        height: 95%;
     }
+    .chart_container {
+        /* 日时间分布图的容器，旋转用 */
+        transform: rotate(90deg) translateY(-100%);
+        transform-origin: top left;
+        width: calc(100vh - 12rem - 8rem);
+        height: 95vw;
+    }
+
     /* 修改bootstrap的模态框样式 */
     .modal-dialog {
         max-width: 75%;

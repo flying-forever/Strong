@@ -15,9 +15,9 @@
 
 
 {% block show %}
-<div class="row">
+<div class="row container-fluid">
     {% for book in books %}
-    <div class="book vertical-layout">
+    <div class="book vertical-layout col-4 col-lg-3">
         {% if book['cover'] %}
             <img src="{{ url_for('getfile', filename=book['cover']) }} " alt="book" style="height: 200px; width: 175px;">
         {% else %}

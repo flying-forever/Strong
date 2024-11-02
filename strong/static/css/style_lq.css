@@ -53,17 +53,27 @@
     opacity: 0.8;
 }
 
+.col-5 {
+    flex: 0 0 20%;
+    max-width: 20%;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
 /* 书籍元素样式 */
 .book {
     float: left;
     border: 1px solid #ccc;
     padding: 10px;
-    margin: 10px;
+    /* margin: 10px; */
     /* 设置外边距 */
     margin-bottom: 10px;
     display: inline-block;
     align-items: center;
-    font-family: 楷体
+    font-family: 楷体;
+
+    outline: 1px solid #d4d3cf;
+    outline-offset: -4px;
 }
 
 

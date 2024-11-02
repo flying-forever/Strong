@@ -2,7 +2,10 @@
 
 
 {% block show %}
-<div id="chart" class="container-fluid showchart_data"></div>
+<div id="char_container_id" class="chart_container">
+    <div id="chart" class="container-fluid showchart_data"></div>
+</div>
+
 
 <script>
     var chartDom = document.getElementById('chart');
@@ -103,9 +106,10 @@
             }
         ],
         grid: {  // 图表布局和样式
-            height: 500,
-            left: '3%',
-            width: '94%',
+            height: '90%',
+            width: '90%',
+            left: '5%',
+            top: '5%',
         },
         xAxis: {
             min: startTime,
@@ -135,7 +139,7 @@
                     }
                 },
                 labelLayout(params) {
-                    console.log(params);
+                    // console.log(params);
                     return {
                         hideOverlap: true,
                         // 根据盒子调整字体，显示效果一般
@@ -151,7 +155,14 @@
                 },
                 data: data
             }
-        ]
+        ],
+        // 在父模板中<script>引用了相关的js文件
+        media: mergeMedia([
+            {
+                query: { maxHeight: 1000 },
+                option: {}
+            }
+        ])
     };
 
     option && myChart.setOption(option);
