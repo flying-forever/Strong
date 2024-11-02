@@ -36,6 +36,21 @@ div[id*="chart"] {
     transition: transform 0.3s ease;
 }
 
+/* 上页面导航栏，被选中时的样式 */
+.actmore {
+    font-size: 1.2rem;  
+    font-weight: bold;  
+    border-bottom: 2px solid #08d9d6;  
+    padding-bottom: 3px;  
+    transition: all 0.3s ease;  
+}
+@media screen and (max-width: 1000px) {
+    .actmore {
+        font-size: 1.7rem;
+    }
+}
+
+/* 电脑端适配 */
 @media screen and (min-width: 1001px) {
     .hide-lg {
         display: none;

@@ -1,5 +1,5 @@
 {% extends 'task/_task.html' %}
-{% block ac_done %} active {% endblock %}
+{% block ac_done %} active actmore {% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -9,7 +9,8 @@
 
 <!-- 1 下拉列表-排序选择 -->
 {% block top_bar %}
-<li class="nav-item dropdown">
+<!-- 弃用：平常都没用上过 -->
+<li class="nav-item dropdown" style="display: none;">
     {% set orders = {
         TaskOrder.FD:'完成时间 ↑', TaskOrder.FA:'完成时间 ↓',
         TaskOrder.AD:'创建时间 ↑', TaskOrder.AA:'创建时间 ↓',

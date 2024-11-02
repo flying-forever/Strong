@@ -13,9 +13,9 @@
 <nav class="navbar navbar-expand navbar-light bg-light">
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link {% if type==2 %}active{% endif %}" href="{{ url_for('data.day_detail', type=2) }}">细节</a>
-            <a class="nav-item nav-link {% if type==0 %}active{% endif %}" href="{{ url_for('data.data', type=0, month=month, year=year) }}">堆叠</a>
-            <a class="nav-item nav-link {% if type==1 %}active{% endif %}" href="{{ url_for('data.data', type=1, month=month, year=year) }}">日况</a>
+            <a class="nav-item nav-link {% if type==2 %}active actmore{% endif %}" href="{{ url_for('data.day_detail', type=2) }}">细节</a>
+            <a class="nav-item nav-link {% if type==0 %}active actmore{% endif %}" href="{{ url_for('data.data', type=0, month=month, year=year) }}">堆叠</a>
+            <a class="nav-item nav-link {% if type==1 %}active actmore{% endif %}" href="{{ url_for('data.data', type=1, month=month, year=year) }}">日况</a>
 
             <!-- 下拉列表链接用的.data端点，但星图是.graph端点 -->
             {% if type!=2 %}

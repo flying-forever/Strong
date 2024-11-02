@@ -11,3 +11,9 @@ table td.name {
     white-space: nowrap; /*不换行*/
     text-overflow: ellipsis; /*省略号*/
 }
+
+@media screen and (max-width: 1000px) {
+    table td.name {   
+        font-size: 1.3rem;
+    }
+}
