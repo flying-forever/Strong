@@ -10,7 +10,7 @@
 
 
 {% block top_bar %}
-<a class="btn btn-success" href="{{ url_for('.book_create') }}">+新增</a>
+<input type="button" class="btn btn-success" onclick="window.location.href=`{{ url_for('.book_create') }}`" value="+新书籍">
 {% endblock %}
 
 

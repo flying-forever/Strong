@@ -2,7 +2,7 @@
 {% from '_macros.html' import form_field_all with context %}
 
 {% block top_bar %} 
-<a class="btn btn-success" href="{{ url_for('.task_doing') }}">返回</a>
+<input type="button" class="btn btn-success" onclick="window.location.href=`{{ url_for('.task_doing') }}`" value="返回">
 {% endblock %}
 
 {% block show %}

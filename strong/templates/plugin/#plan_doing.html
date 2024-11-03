@@ -30,6 +30,16 @@
         margin-left: 0.15rem;
     }
 
+    .plan-item .info {
+        margin-top: 1.5rem;
+    }
+    .plan-item .time {
+        margin-left: 1.5rem;
+    }
+
+    .img-div {
+        margin-left: 2rem;
+    }
     .img-size {
         height: 6rem;
         width: 6rem;
@@ -37,37 +47,39 @@
     }
 
     .progress {
-        height: 1.5rem;
-        margin-top: 1.75rem;
+        height: 0.6rem;
+        margin-top: 0.7rem;
     }
 </style>
 
 <div class="plan-item" style="margin-top: 2px; background-color:rgb(250, 250, 250);">
     <div class="row">
-        <div class="col-5 vcenter">
-                <!-- 封面适应 -->
-                {% if plan['cover'] %}
-                    <img src="{{ url_for('getfile', filename=plan.cover) }} " class="img-fluid rounded-circle img-size" alt="plan">
-                {% elif is_doing %}
-                    <img src="{{ url_for('static', filename='img/velt.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
-                {% else %}
-                    <img src="{{ url_for('static', filename='img/tl.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
-                {% endif %}
-    
-                <h5 class="mt-title" display="inline;" >{{ plan.name }}</h5>
-                <div class="mt-hide" style="margin-left: auto;">
+        <div class="vcenter img-div">
+            <!-- 封面适应 -->
+            {% if plan['cover'] %}
+                <img src="{{ url_for('getfile', filename=plan.cover) }} " class="img-fluid rounded-circle img-size" alt="plan">
+            {% elif is_doing %}
+                <img src="{{ url_for('static', filename='img/velt.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
+            {% else %}
+                <img src="{{ url_for('static', filename='img/tl.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
+            {% endif %}
+        </div>
+        <div class="col info">
+            <div>
+                <h5 class="mt-title" style="display: inline;" >{{ plan.name }}</h5>
+                <small class="time">
                     <i class="ri-medal-line"></i>
                     <label>{{ plan.use_hour }}/{{ plan.need_hour }}h</label>
-                </div>
-        </div>
-        <div class="col-5">
+                </small>
+            </div>
+
             <div class="progress">
                 <div class="progress-bar progress-bar-striped" role="progressbar" style="width: {{ plan.old_percent }}%"></div>
                 <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ plan.new_percent }}%"></div>
             </div>
         </div>
         <div class="right vcenter">
-            <a onclick="show_modal(`{{ plan.id }}`, `{{ plan.name }}`)" href="#" class="btn btn btn-warning" role="button">查看</a>
+            <a onclick="show_modal(`{{ plan.id }}`, `{{ plan.name }}`)" href="#" class="btn btn-sm-lg btn-warning" role="button">查看</a>
         </div>
     </div>
 </div>

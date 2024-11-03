@@ -9,15 +9,14 @@
 
 <!-- 1 已完成任务档案列表 -->
 {% block show %}
-{% set cols = 3 %}
-{% for i in range(dossier.__len__() // cols + 1) %}
+
 <div class="row">
-{% for j in range(cols) %} {% set index = cols * i + j %} 
-{% if index < dossier.__len__() %} {% set task=dossier[index] %} 
-    <div class="col-{{ 12//cols }}">
+    {% for i in range(dossier.__len__()) %}
+    {% set task=dossier[i] %} 
+    <div class="col-6 col-lg-4">
         <li class="list-group-item" style="margin-top: 7px; background-color:rgb(252, 250, 250);">
             <h6 class="list-group-item-heading">
-                <small>#{{ cols * i + j }}</small> <span style="color:rgb(156, 126, 29);">{{ task.name }}</span>
+                <small>#{{ i }}</small> <span style="color:rgb(156, 126, 29);">{{ task.name }}</span>
             </h6>
             <div class="row">
                 <div class="col">
@@ -34,10 +33,8 @@
             </div>
         </li>
     </div>
-{% endif %}{% endfor %}
+    {% endfor %}
 </div>
-{% endfor %}
-
 
 <!-- 2 子记录列表 模态框 -->
 <div class="modal fade" id="recordModal" tabindex="-1" role="dialog" aria-labelledby="tagModalLabel" aria-hidden="true">

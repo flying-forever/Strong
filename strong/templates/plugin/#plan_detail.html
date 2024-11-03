@@ -5,17 +5,26 @@
 
 <div class="doing_task row list-group-item" style="margin-top: 2px; background-color:rgb(250, 250, 250);">
     <div class="row">
-        <div class="col-6">
-            <h5 style="color:green;">
+        <div class="col">
+            <h5 class="" style="color:green;">
                 <small>#<span class="id">0</span></small>
-                <span class="name">睡大觉</span>&nbsp;
+                <span class="name mt-title">睡大觉</span>&nbsp;
                 <small><span class="need_minute">50</span>m</small>
             </h5>
         </div>
-        <div style="color:white; margin-left:auto;">
-            <a class="start btn btn-success btn" role="button">开始</a>
-            <a class="submit btn btn-info btn" role="button">提交</a>
-            <a class="delete btn btn-danger btn" role="button">删除</a>
+        <div style="color:white;">
+            <div class="d-flex align-items-center">
+                <a class="start btn btn-success btn-sm-lg" role="button">开始</a>
+
+                <div class="collapse ml-2" id="ops0">
+                    <div class="d-flex">
+                        <a class="submit btn btn-info btn-sm-lg mr-2" role="button">提交</a>
+                        <a class="delete btn btn-danger btn-sm-lg" role="button">删除</a>
+                    </div>
+                </div>
+                <span class="more_btn ri-more-2-fill icon-size-md ml-lg-2 ml-4" style="color:black"
+                    data-toggle="collapse" href="#ops0" role="button"></span>
+            </div>
         </div>
     </div>
 </div>
@@ -118,6 +127,8 @@
         t.find('.start').eq(0).attr('href', `${routes.task_clock}/${task.id}`);
         t.find('.submit').eq(0).attr('href', `${routes.task_submit}/${task.id}?next={{ request.endpoint }}`);
         t.find('.delete').eq(0).attr('href', `${routes.task_delete}/${task.id}`);
+        t.find('.collapse').eq(0).attr('id', `ops${task.id}`);
+        t.find('.more_btn').eq(0).attr('href', `#ops${task.id}`);
         $('#doing_list').append(t);
     }
     function append_dossier(d, id){

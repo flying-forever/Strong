@@ -1,6 +1,12 @@
+/* 在一些有bootstrap定义的块里面经常right不过去 */
 .right {
     margin-left: auto;
     margin-right: 3rem;
+}
+.vcenter {
+    /* 让div块中的元素垂直居中 */
+    display: flex;
+    align-items: center;
 }
 
 .showchart {
@@ -36,6 +42,7 @@ div[id*="chart"] {
     transition: transform 0.3s ease;
 }
 
+/* ------------------------------ 页面导航 ------------------------------ */
 /* 上页面导航栏，被选中时的样式 */
 .actmore {
     font-size: 1.2rem;  
@@ -45,10 +52,15 @@ div[id*="chart"] {
     transition: all 0.3s ease;  
 }
 @media screen and (max-width: 1000px) {
+    .nav-item {
+        font-size: 1.8rem;
+        margin-left: 0.3rem;
+    }
     .actmore {
-        font-size: 1.7rem;
+        font-size: 2.0rem;
     }
 }
+
 
 /* 电脑端适配 */
 @media screen and (min-width: 1001px) {
@@ -66,6 +78,9 @@ div[id*="chart"] {
     }
     .icon-size {
         font-size: 5rem;
+    }
+    .icon-size-md {
+        font-size: 2.3rem;
     }
     a.icon-size {
         text-decoration: none; /* 不要下划线 */
@@ -95,22 +110,31 @@ div[id*="chart"] {
         font-size: 1.5rem;
     }
 
-    /* 对一些字体大小区别调整 */
+    /* 对一些任务列表字体大小区别调整 */
     .mt-info {
         font-size: 1.2rem;
     }
     .mt-title {
         font-size: 2.0rem;
     }
+    .mt-title-lg {
+        font-size: 2.3rem;
+        /* font-weight: bold; */
+    }
     .mt-hide {
         display: none;
     }
-    /* 左侧导航栏 */
+    /* 左侧导航栏 （不是手机端隐藏吗？)*/
     .btn-group-vertical a {
         font-size: 1.5rem;
     }
     .btn {
         font-size: 1.5rem;
+    }
+    /* 在下屏幕下显示更大按钮 */
+    .btn-sm-lg {
+        font-size: 1.8rem;
+        padding: 0.5rem 1rem;
     }
 
     /* 图由宽而长 */

@@ -20,10 +20,10 @@ def index():
 def hour_per_day(year: int, month: int, tasks: list[Task]=None) -> list:
     '''统计某月每天的学习时间，单位(hour)'''
     # @tasks：避免重复的查询
-    tasks: list[Task] = [task for task in tasks if task.time_finish_local().month == month and task.time_finish_local().year == year]
+    tasks: list[Task] = [task for task in tasks if task.tfc.month == month and task.tfc.year == year]
     h_pday = [0] * 32  # 每个月最多31天
     for task in tasks:
-        h_pday[task.time_finish_local().day] += task.use_minute 
+        h_pday[task.tfc.day] += task.use_minute 
     # minute -> hour
     for i in range(32):
         h_pday[i] = round(h_pday[i] / 60, 2)  # 2:两位小数
@@ -124,7 +124,7 @@ def day_detail(type: int=2):
         if t.is_finish 
         and abs(t.time_finish - datetime.utcnow()) < timedelta(days=7)]  # 0~6
     print('len', len(tasks))
-    types = list({t.name:t.name for t in tasks}.values())  # 去重列表
+    types = list({t.name:t.name for t in tasks}.values())  # 去重任务名列表
 
     # 时间记录生成(index, name, end_time, duration:h)
     # - 备注：时区问题重构一下？

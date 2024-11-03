@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from sqlalchemy.ext.hybrid import hybrid_property
 from flask import session
 from typing import ClassVar
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -24,7 +25,7 @@ class Task(db.Model):
 
     # 自动时间戳
     time_add = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    time_finish: datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    time_finish: datetime = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # 初始finish=add
     
     # 外键与关系属性
     uid = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -39,12 +40,18 @@ class Task(db.Model):
     plan_id = db.Column(db.Integer, db.ForeignKey('plan.id'))
     plan = db.relationship('Plan', back_populates='tasks')
 
+    # 因为最开始用的utcnow，已经不好改了。但对于以后的新代码可以直接使用北京时间
+    @hybrid_property
+    def tfc(self):
+        '''time_finish的北京时间'''
+        return self.time_finish + timedelta(hours=8)
+    
+    @tfc.setter
+    def tfc(self, v):
+        self.time_finish = v - timedelta(hours=8)
+
     def __str__(self) -> str:
         return f"<Task id={self.id} name='{self.name}' exp={self.exp}>"
-    
-    def time_finish_local(self):
-        '''北京时区'''
-        return self.time_finish + timedelta(hours=8)
 
 
 class Follow(db.Model):
@@ -164,7 +171,7 @@ class Plan(db.Model):
         def in_time(t: Task):
             # 离散的天数，而不是时间间隔大于有多少个24小时
             today = (datetime.utcnow() + add_t).replace(hour=0, minute=0, second=0, microsecond=0)
-            finish_day = t.time_finish_local().replace(hour=0, minute=0, second=0, microsecond=0)
+            finish_day = t.tfc.replace(hour=0, minute=0, second=0, microsecond=0)
             if dis_day > 0:
                 return (today - finish_day).days < dis_day
             else:

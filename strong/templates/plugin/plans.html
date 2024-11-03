@@ -11,7 +11,7 @@
 
 
 {% block top_bar %}
-<a class="btn btn-success" href="{{ url_for('.plan_create') }}">+新增</a>
+<input type="button" class="btn btn-success" onclick="window.location.href=`{{ url_for('.plan_create') }}`" value="+新计划">
 {% endblock %}
 
 

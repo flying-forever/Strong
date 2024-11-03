@@ -109,12 +109,12 @@ def get_plans():
         # 属性：need_hour, user_hour, percent, old_percent, new_percent
         plan: Plan
         
-        def g(x): return round(x, 2) 
+        def g(x): return round(x, 1) 
         plan.need_hour = g(plan.need_minute / 60)
         plan.use_hour = plan.get_use_h()  # 备注：在db.Model实现的，咋样？
 
-        old_h = plan.get_use_h(dis_day=-1)  # old,new用于展示分段的进度条
-        new_h = plan.get_use_h(dis_day=1)
+        old_h = plan.get_use_h(dis_day=-1, wei=1)  # old,new用于展示分段的进度条
+        new_h = plan.get_use_h(dis_day=1, wei=1)
         s = max(plan.need_hour, plan.use_hour)
 
         plan.percent = g(plan.use_hour / plan.need_hour * 100)

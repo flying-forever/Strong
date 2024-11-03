@@ -3,7 +3,6 @@
 {% block active_task %} btn-primary {% endblock %}
 
 {% block content %}
-
 <!-- 1 任务顶栏 -->
 <nav class="navbar navbar-expand navbar-light bg-light">
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
@@ -19,7 +18,12 @@
             {% block top_bar %}{% endblock top_bar %}
         </div>
     </div>
-    {% block top_bar_nav %}{% endblock top_bar_nav %}
+    <!-- 导航栏靠右的部分 -->
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup2">
+        <div class="navbar-nav ml-auto">
+            {% block top_bar_nav %}{% endblock top_bar_nav %}
+        </div>
+    </div>
 </nav>
 
 <!-- 2 任务列表 -->

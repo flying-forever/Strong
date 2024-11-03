@@ -1,4 +1,5 @@
 import datetime, re, os
+from datetime import timedelta
 from dataclasses import dataclass
 
 from flask import render_template, redirect, url_for, session, Blueprint, request, current_app, jsonify
@@ -101,31 +102,48 @@ def task_submit(task_id, minute=None):
     form = TaskSubmitForm()
     task = Task.query.get(task_id)
     if form.validate_on_submit():
-        def form_commit(task: Task):
-            """写入表单数据到数据库"""
-            task.use_minute = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
+        def form_commit(task: Task, use_minute=None):
+            """获取表单数据，写入数据库"""
+            task.use_minute = use_minute or Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
             task.describe = form.describe.data
             task.is_finish = True # 表示任务已经完成
             db.session.commit()
             flash('提交成功！')
             return redirect(url_for('.task_done'))
+        
+        def task_copy(task: Task, **kargs):
+            """创建一个新的拷贝，继承书籍、标签，和未截止的计划绑定。kargs: 创建Task的补充参数"""
+            task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
+                    uid=task.uid, task_type=task.task_type, bid=task.bid, tag_id=task.tag_id, **kargs)
+            plan = Plan.query.get(task.plan_id)  # 备注：与plan模块的耦合
+            if plan and not plan.is_end:
+                task_new.plan_id = plan.id
+            db.session.add(task_new)
+
+        def task_split(task: Task):
+            '''为跨过0点的任务增加一次提交'''
+            um = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
+            f = task.tfc
+            s = f - timedelta(minutes=um)
+            e = s.replace(hour=23, minute=59, second=59)
+            if s.day != f.day:
+                more = (f - e).total_seconds() // 60
+                task_copy(task=task, use_minute=um - more, describe='(跨过0点)', tfc=e, is_finish=True)
+                return form_commit(task=task, use_minute=more)
+
         # 1 修改旧任务 --> 写入表单数据
         if task.is_finish:
             return form_commit(task=task)
         # 2 提交重复任务（新） --> 创建一个新的拷贝
         if task.task_type == 1:
-            task_new = Task(name=task.name, exp=task.exp, need_minute=task.need_minute, \
-                    uid=task.uid, task_type=task.task_type, bid=task.bid, tag_id=task.tag_id)
-            # 继承未截止的计划
-            plan = Plan.query.get(task.plan_id)  # 备注：与plan模块的耦合
-            if plan and not plan.is_end:
-                task_new.plan_id = plan.id
-            db.session.add(task_new)
+            task_copy(task=task)
         # 3 提交任务（新） --> 增加经验
         user = Login.current_user()
         user.exp += task.exp
         task.time_finish = datetime.datetime.utcnow() # 记录初次提交的时间
-        return form_commit(task=task)
+        # 4 跨过0点 - 任务截断成两个（没加经验）
+        r =  task_split(task=task)
+        return r or form_commit(task=task)
 
     # 表单回显 --> 修改已完成的任务时
     # 重构：能否在表单类中封装回显功能？
