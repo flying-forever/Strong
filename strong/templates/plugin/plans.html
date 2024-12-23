@@ -24,9 +24,9 @@
         {% if plan['cover'] %}
             <img src="{{ url_for('getfile', filename=plan.cover) }} " alt="plan" style="height: 200px; width: 175px;">
         {% elif is_doing %}
-            <img src="{{ url_for('static', filename='img/velt.jpg') }} " alt="plan" style="height: 200px; width: 175px;">
+            <img src="{{ url_for('static', filename='img/fll_mfz_long.jpg') }} " alt="plan" style="height: 200px; width: 175px;">
         {% else %}
-            <img src="{{ url_for('static', filename='img/tl.jpg') }} " alt="plan" style="height: 200px; width: 175px;">
+            <img src="{{ url_for('static', filename='img/three_leave.jpg') }} " alt="plan" style="height: 200px; width: 175px;">
         {% endif %}
 
         <h5><i class="ri-book-open-line"></i>{{ plan.name }}</h5>

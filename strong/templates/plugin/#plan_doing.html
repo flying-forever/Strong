@@ -58,8 +58,8 @@
             <!-- 封面适应 -->
             {% if plan['cover'] %}
                 <img src="{{ url_for('getfile', filename=plan.cover) }} " class="img-fluid rounded-circle img-size" alt="plan">
-            {% elif is_doing %}
-                <img src="{{ url_for('static', filename='img/velt.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
+            {% elif not plan.is_end %}
+                <img src="{{ url_for('static', filename='img/logo_three.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
             {% else %}
                 <img src="{{ url_for('static', filename='img/tl.jpg') }} " class="img-fluid rounded-circle img-size" alt="plan">
             {% endif %}

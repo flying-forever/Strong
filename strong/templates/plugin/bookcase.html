@@ -21,7 +21,7 @@
         {% if book['cover'] %}
             <img src="{{ url_for('getfile', filename=book['cover']) }} " alt="book" style="height: 200px; width: 175px;">
         {% else %}
-            <img src="{{ url_for('static', filename='img/fllmt.jpg') }} " alt="book" style="height: 200px; width: 175px;">
+            <img src="{{ url_for('static', filename='img/fll_mfz_long.jpg') }} " alt="book" style="height: 200px; width: 175px;">
         {% endif %}
 
         <h5><i class="ri-book-open-line"></i>{{ book['name'] }}</h5>

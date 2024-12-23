@@ -125,15 +125,17 @@ def task_submit(task_id, minute=None):
             um = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
             f = task.tfc
             s = f - timedelta(minutes=um)
-            e = s.replace(hour=23, minute=59, second=59)
+            e = s.replace(hour=23, minute=59, second=58)  # s=59可能更低位的变化有时舍入到第二天0点
             if s.day != f.day:
                 more = (f - e).total_seconds() // 60
                 task_copy(task=task, use_minute=um - more, describe='(跨过0点)', tfc=e, is_finish=True)
                 return form_commit(task=task, use_minute=more)
 
+        # 4 跨过0点 - 任务截断成两个（没加经验 - 修改旧任务跨过了0点也截断
+        r =  task_split(task=task)
         # 1 修改旧任务 --> 写入表单数据
         if task.is_finish:
-            return form_commit(task=task)
+            return r or form_commit(task=task)
         # 2 提交重复任务（新） --> 创建一个新的拷贝
         if task.task_type == 1:
             task_copy(task=task)
@@ -141,8 +143,6 @@ def task_submit(task_id, minute=None):
         user = Login.current_user()
         user.exp += task.exp
         task.time_finish = datetime.datetime.utcnow() # 记录初次提交的时间
-        # 4 跨过0点 - 任务截断成两个（没加经验）
-        r =  task_split(task=task)
         return r or form_commit(task=task)
 
     # 表单回显 --> 修改已完成的任务时
