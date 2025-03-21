@@ -175,3 +175,13 @@ def task_to_dict(task: Task):
         'exp': task.exp,
         'need_minute': task.need_minute,
     }
+
+
+def recently_tasks(days: int, uid: int):
+    '''最近days天的已完成任务'''
+
+    tasks: list[Task] = Task.query.filter_by(uid=uid, is_finish=True).order_by(Task.time_add.desc()).all()
+
+    _f = lambda t : abs(t.tfc.date() - (datetime.utcnow() + timedelta(hours=8)).date()) < timedelta(days=days)
+    tasks = [t for t in tasks if _f(t)]
+    return tasks

@@ -16,9 +16,9 @@
 
 
     // 从域名跳转ip，因为手机浏览器不止为啥用域名的计划列表异步请求失败
-    function to_ip(){
+    function to_ip(){ 
         if (window.location.href.indexOf(route_head) == -1) {
-            window.location.href = route_head;
+            window.location.href = route_head;  // 使用80端口时应该省略，因为
         }
     }
     console.log(window.location.href, route_head, window.location.href.indexOf(route_head))

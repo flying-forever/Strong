@@ -124,7 +124,7 @@ def task_submit(task_id, minute=None):
             '''为跨过0点的任务增加一次提交'''
             # 用了父级状态：form.describe.data
             um = Time(hours=form.use_hour.data, minutes=form.use_minute.data).get_minutes_all()
-            f = task.tfc
+            f = datetime.datetime.now() # 注意：和utcnow的api的兼容
             s = f - timedelta(minutes=um)
             e = s.replace(hour=23, minute=59, second=58)  # s=59可能更低位的变化有时舍入到第二天0点
             if s.day != f.day:

@@ -14,7 +14,7 @@ class Task(db.Model):
 
     # 创建任务
     name = db.Column(db.String(64), nullable=False) # 任务名
-    exp = db.Column(db.Integer, nullable=False) # 经验值
+    exp = db.Column(db.Integer, nullable=False, default=1) # （将弃用）经验值
     need_minute = db.Column(db.Integer, nullable=False, default=0) # 任务预计时间 | mapped_column默认不能为null
     task_type = db.Column(db.Integer, nullable=False, default=0) # 0 一次任务，1 重复任务；
 

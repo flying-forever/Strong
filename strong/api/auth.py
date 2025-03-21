@@ -50,6 +50,7 @@ def get_token():
 
 
 def auth_required(f):
+    '''据token验证登录，后可据g.current_user访问用户信息。'''
     @wraps(f)
     def decorated(*args, **kwargs):
         token_type, token = get_token()

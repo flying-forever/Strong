@@ -4,7 +4,7 @@
 
 看着是个简陋的待办事项程序，但它的灵魂是完成事项会获得“经验值”，得到自我激励效果。
 
-## 项目结构
+## 1项目结构
 
 ```bash
 strong/
@@ -26,7 +26,7 @@ strong/
 
 
 
-## 运行项目
+## 2运行项目
 
 **1 下载代码**
 
@@ -99,6 +99,25 @@ flask run
 
 
 
+## 3Linux上部署问题
+
+### flask run命令找不到app
+
+1. 是否安装了读取`.flaskenv`文件的库，`pip install python-dotenv`。
+2. 电脑上可能有多个python，请使用正确的一个。例如下面，你可能需要切到root用户下，使用自己安装的3.10.13版本。
+
+```bash
+[root@VM-4-3-centos Strong]# python --version
+Python 3.10.13
+[root@VM-4-3-centos Strong]# su clf
+[clf@VM-4-3-centos Strong]$ python --version
+Python 2.7.5
+[clf@VM-4-3-centos Strong]$ python3 --version
+Python 3.6.8
+```
+
+注：执行`flask run`时将使用`.flaskenv`文件的配置，部分需要自行修改，如运行端口、数据库连接。
+
 
 
 
@@ -110,9 +129,5 @@ flask run
 3. 怀疑：可能有负面影响的地方。
 
 
-## 协作
-
-@陆游气坏了 加入协作 hello
- @中民 加入协作
 
 nice to meet you
