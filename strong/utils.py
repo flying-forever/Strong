@@ -91,7 +91,7 @@ def flash_(message: str, category='success'):
     """- 使flash有一个默认的样式分类：success"""
     flash(message=message, category=category)
 
-
+# 批注：感觉这样的方法设计得很不“面向对象”
 def get_level(exp: int):
     """经验值 --> 对应等级"""
     return int(math.sqrt(exp * 2 + 0.25) - 0.5)  # ceil向上取整（已对边界值测试）

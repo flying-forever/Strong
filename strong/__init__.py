@@ -21,13 +21,16 @@ avatars = Avatars()  # 处理用户头像
 # socketio = SocketIO()
 
 
-def create_app(config_py=None):
+def create_app(config_other=None):
+    ''':param config_other: 如测试环境可能需要自定义配置，可传入配置类'''
 
     # 创建程序实例
     app = Flask('strong')
     config_name = os.getenv('FLASK_CONFIG', default='base')  # .flaskenv的环境
     print(f'[config] {config_name}')
     app.config.from_object(config[config_name])
+    if config_other:
+        app.config.from_object(config_other)
 
     # 注册蓝图
     from strong.blueprints import auth_bp, task_bp, data_bp, book_bp, plan_bp, tag_bp #, try_bp

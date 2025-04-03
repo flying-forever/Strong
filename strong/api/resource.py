@@ -6,6 +6,7 @@ from strong import db
 from strong.api.auth import generate_token, auth_required
 from strong.api.errors import api_abort
 from strong.models import User, Task
+
 from strong.utils import get_level, Login, task_to_dict, get_dossier, recently_tasks
 
 import time
@@ -17,10 +18,11 @@ CORS(api_bp)
 
 
 # -------------------------------- API、Task——待做和已完成 ------------------------------ #
+# API数据格式：现在是接受表单数据(request.form.get)，返回json数据(jsonify)
 
 
 def dossier():
-    '''获取当天的已完成任务档案'''
+    '''api：获取当天的已完成任务档案（合并同名）'''
     uid = g.current_user.id
     dossiers = get_dossier(tasks=recently_tasks(days=1, uid=uid))
     return jsonify(dossiers)
@@ -55,6 +57,7 @@ class ToDoAPI(MethodView):
 
     # 之前Login类以session实现，我可以把g也加进去？
     decorators = [auth_required]
+    uid = g.current
 
     def get(self):
         try:
@@ -63,8 +66,26 @@ class ToDoAPI(MethodView):
             return jsonify(tasks)
         except Exception as e:
             return api_abort(500, message=str(e))
+        
+    def post(self):
+        # 从request获取name, minute, describe
+        user = g.current_user
+        name = request.form.get('name')
+        minute = request.form.get('minute')
+        describe = request.form.get('describe')
 
-
+        try:
+            task: Task = Task(name=name, need_minute=minute, describe=describe, uid=user.id, is_finish=False, task_type=1)
+            db.session.add(task)
+            db.session.commit()
+            return jsonify(task_to_dict(task))
+        except Exception as e:
+            return api_abort(500, message=str(e))
+    
+    def delete(self):
+        pass
+        # uid = 
+        
 
 def register_class(name, api_class: MethodView):
     api_bp.add_url_rule(f'/{name}', view_func=api_class.as_view(f'{name}')) # url; 端点名
@@ -78,7 +99,7 @@ def register_func(rule, func, auth_protect=True, methods=['GET']):
 
 register_class('todo', ToDoAPI)
 register_class('finish', FinishAPI)
-register_func('/dossier/today', func=dossier)
+register_func('/dossier/today', func=dossier) # 相比装饰器在函数头上，这样可以更集中看到所有路由。
 
 
 # -------------------------------- API、使用类组织资源——用户 ------------------------------ #
